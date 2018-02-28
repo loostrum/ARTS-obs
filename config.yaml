@@ -1,0 +1,56 @@
+# ARTS configuration
+
+# general config for all science cases
+# also loaded when reading SC3 or SC4 config
+general: &general
+    nbit: 8
+    nchan: 1536
+    time_unit: 781250
+    nbeams: 40
+    missing_beams: [4, 9, 14, 19, 24, 29, 34, 39]
+    # for psrdada reader
+    nbuffer: 5
+    valid_modes: [scrub]
+    network_port_start: 5000
+
+# Science case 3
+sc3:
+    <<: *general
+    tsamp: 81.92E-6
+    pagesize: 12500
+
+# Science case 4
+sc4:
+    <<: *general
+    tsamp: 40.96E-6
+    pagesize: 25000
+
+# Stokes I + Tied Array Beam
+i+tab:
+    ntabs: 12
+    science_mode: 0
+
+# Stokes IQUV + Tied Array Beam
+iquv+tab:
+    ntabs: 12
+    science_mode: 1
+
+# Stokes I + Incoherent Array Beam
+i+iab:
+    ntabs: 1
+    science_mode: 2
+    
+# Stokes IQUV + Incoherent Array Beam
+iquv+iab:
+    ntabs: 1
+    science_mode: 3
+
+# AMBER setup
+amber:
+    device_platform: 0
+    device_name: ARTS_BF
+    mode: bruteforce
+    dm_first: 0
+    dm_step: 1
+    num_dm: 4096
+    
