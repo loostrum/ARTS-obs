@@ -16,6 +16,7 @@ from astropy.time import Time
 CONFIGFILE = "config.yaml"
 NODECONFIG = "nodes/CB{:02d}.yaml"
 HEADER = "nodes/header_CB{:02d}.txt"
+TEMPLATE = "header_template.txt"
 
 def start_survey(args):
     """Sets up a survey mode observation from the master node
@@ -56,13 +57,17 @@ def start_survey(args):
     pars['tobs'] = pars['nbatch'] * 1.024
     # start time
     if args.tstart == 'default':
-        tstart = datetime.datetime.utcnow() + datetime.timedelta(seconds=5)
+        tstart = datetime.datetime.utcnow() + datetime.timedelta(seconds=10)
         pars['utcstart'] = tstart.strftime('%Y-%m-%d %H:%M:%S')
     else:
-        pars['utcstart'] = args.tstart
+        print "Specific start time not yet supported"
+        exit()
+    #else:
+    #    tstart = datetime.datetime(args.tstart)
+    #    pars['utcstart'] = args.tstart
     starttime = Time(pars['utcstart'], format='iso', scale='utc')
-    pars['date'] = '%04d%02d%02d' % tuple([int(el) for el in str(starttime.datetime).replace('-', ' ').split()[0:3]]) # Turn UTC into yyymmdd
-    pars['datetimesource'] = '%04d.%02d.%02d-%02d:%02d:%02d.%s' % (tuple([int(el) for el in str(starttime.datetime).replace('-', ' ').replace(':', '     ').split()[0:6]])+(pars['source'],))   # Turn UTC into yyyy.mm.dd-hh:mm:ss.source
+    pars['date'] = tstart.strftime("%Y%m%d")
+    pars['datetimesource'] = "{}.{}".format(pars['utcstart'].replace(' ','-'), pars['source'])
     pars['mjdstart'] = starttime.mjd
     # make sure startpacket is a long
     pars['startpacket'] = long(starttime.unix) * pars['time_unit']
@@ -104,31 +109,35 @@ def start_survey(args):
             continue
 
     # we have all parameters now, create psrdada header and config file for each beam
+    # config file
+    print pars['date']
+    print pars['datetimesource']
+    cfg = {}
+    cfg['dadakey'] = pars['network_port_start'] + beam
+    cfg['buffersize'] = pars['ntabs'] * pars['nchan'] * pars['pagesize']
+    cfg['pagesize'] = pars['pagesize']
+    cfg['nbuffer'] = pars['nbuffer']
+    cfg['startpacket'] = pars['startpacket']
+    cfg['source'] = pars['source']
+
     for beam in pars['beams']:
-
-        # config file
-        cfg = {}
-        cfg['dadakey'] = pars['network_port_start'] + beam
-        cfg['buffersize'] = pars['ntabs'] * pars['nchan'] * pars['pagesize']
-        cfg['pagesize'] = pars['pagesize']
-        cfg['nbuffer'] = pars['nbuffer']
-        cfg['startpacket'] = pars['startpacket']
-        cfg['source'] = pars['source']
-
-        # CB dependent
+        # add CB-dependent parameters
         cfg['ra'] = pars['ra']
         cfg['dec'] = pars['dec']
         cfg['header'] = os.path.join(os.path.dirname(os.path.realpath(__file__)), HEADER.format(beam))
 
-
+        # save to file
         filename = os.path.join(os.path.dirname(os.path.realpath(__file__)), NODECONFIG.format(beam))
         with open(filename, 'w') as f:
             yaml.dump(cfg, f, default_flow_style=False)
 
+        # load PSRDADA header template
+        with open(TEMPLATE, 'r') as f:
+            header_template = f.readlines()
+
         
 
 if __name__ == '__main__':
-    #parser = argparse.ArgumentParser(prog="start_survey_master.py", \
     parser = argparse.ArgumentParser(description="Start a survey mode observation on ARTS")
     # source info
     parser.add_argument("--src", type=str, help="Source name " \
@@ -141,8 +150,8 @@ if __name__ == '__main__':
     parser.add_argument("--duration", type=float, help="Observation duration in seconds " \
                             "(Default: 10.24)", default=10.24)
     parser.add_argument("--tstart", type=str, help="Start time (UTC), e.g. 2017-01-01 00:00:00 " \
-                            "(Default: now + 5 seconds)", default="default")
-    # either start and end beam or list of beams
+                            "(Default: now + 10 seconds)", default="default")
+    # either start and end beam or list of beams: make beams and sbeam mutually exclusive
     beamgroup = parser.add_mutually_exclusive_group()
     beamgroup.add_argument("--sbeam", type=int, help="No of first CB to record " \
                             "(Default: 21)", default=21)
@@ -155,9 +164,9 @@ if __name__ == '__main__':
     parser.add_argument("--science_case", type=int, help="Science case " \
                             "(Default: 4", default=4)
     parser.add_argument("--science_mode", type=str, help="Science mode. Can be I+TAB, IQUV+TAB, I+IAB, IQUV+IAB " \
-                            "(Default: I+TAB", default="I+TAB")
+                            "(Default: I+IAB", default="I+IAB")
     # amber
-    parser.add_argument("--snrmin", type=float, help="Minimum S/N in real-time search " \
+    parser.add_argument("--snrmin", type=float, help="AMBER minimum S/N " \
                             "(Default: 10)", default=10)
     args = parser.parse_args()
 
