@@ -10,7 +10,7 @@ general: &general
     missing_beams: [4, 9, 14, 19, 24, 29, 34, 39]
     # for psrdada reader
     nbuffer: 5
-    valid_modes: [scrub]
+    valid_modes: [scrub, dump, fil, fits, survey]
     network_port_start: 5000
 
 # Science case 3

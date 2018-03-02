@@ -7,40 +7,124 @@
 import os
 import sys
 import argparse
+import datetime
 
 import yaml
+import numpy as np
+from astropy.time import Time
 
-CONFIGFILE="config.yaml"
+CONFIGFILE = "config.yaml"
+NODECONFIG = "nodes/CB{:02d}.yaml"
+HEADER = "nodes/header_CB{:02d}.txt"
 
-class Survey(object):
-    """Class for setting up an ARTS survey mode observation"
+def start_survey(args):
+    """Sets up a survey mode observation from the master node
     """
 
-    def __init__(self, args):
-        self.parse_args(args)
+    # empty class for parameters
+    # initialize parameters
+    pars = {}
+    # Load static configuration settings
+    filename = os.path.join(os.path.dirname(os.path.realpath(__file__)), CONFIGFILE)
+    with open(filename, 'r') as f:
+        config = yaml.load(f)
+    conf_sc = 'sc{:.0f}'.format(args.science_case)  # sc4 or sc4
+    conf_mode = args.science_mode.lower()  # i+tab, iquv+tab, i+iab, iquv+iab
+    # load config, saving info only necessary for nodes to node_pars
+    # science case specific
+    pars['nbit'] = config[conf_sc]['nbit']
+    pars['nchan'] = config[conf_sc]['nchan']
+    pars['time_unit'] = config[conf_sc]['time_unit']
+    pars['nbeams'] = config[conf_sc]['nbeams']
+    pars['missing_beams'] = config[conf_sc]['missing_beams']
+    pars['nbuffer'] = config[conf_sc]['nbuffer']
+    pars['valid_modes'] = config[conf_sc]['valid_modes']
+    pars['network_port_start'] = config[conf_sc]['network_port_start']
+    pars['tsamp'] = config[conf_sc]['tsamp']
+    pars['pagesize'] = config[conf_sc]['pagesize']
+    # pol and beam specific
+    pars['ntabs'] = config[conf_mode]['ntabs']
+    pars['science_mode']  = config[conf_mode]['science_mode']
+
+    # load observation specific arguments
+    pars['snrmin'] = args.snrmin
+    pars['source'] = args.src
+    pars['ra'] = args.ra
+    pars['dec'] = args.dec
+    # Observing time, has to be multiple of 1.024 seconds
+    pars['nbatch'] = np.ceil(args.duration / 1.024)
+    pars['tobs'] = pars['nbatch'] * 1.024
+    # start time
+    if args.tstart == 'default':
+        tstart = datetime.datetime.utcnow() + datetime.timedelta(seconds=5)
+        pars['utcstart'] = tstart.strftime('%Y-%m-%d %H:%M:%S')
+    else:
+        pars['utcstart'] = args.tstart
+    starttime = Time(pars['utcstart'], format='iso', scale='utc')
+    pars['date'] = '%04d%02d%02d' % tuple([int(el) for el in str(starttime.datetime).replace('-', ' ').split()[0:3]]) # Turn UTC into yyymmdd
+    pars['datetimesource'] = '%04d.%02d.%02d-%02d:%02d:%02d.%s' % (tuple([int(el) for el in str(starttime.datetime).replace('-', ' ').replace(':', '     ').split()[0:6]])+(pars['source'],))   # Turn UTC into yyyy.mm.dd-hh:mm:ss.source
+    pars['mjdstart'] = starttime.mjd
+    # make sure startpacket is a long
+    pars['startpacket'] = long(starttime.unix) * pars['time_unit']
+    # observing mode
+    if args.obs_mode not in pars['valid_modes']:
+        print "ERROR: observation mode not valid: {}".format(args.obs_mode)
+        exit()
+    else:
+        pars['mode'] = args.obs_mode
+    # beams
+    if not args.beams is None:
+        pars['beams'] = [int(beam) for beam in args.beams.split(',')]
+        # make sure each beams is present only once
+        pars['beams'] = list(set(pars['beams']))
+    else:
+        pars['sbeam'] = args.sbeam
+        if args.ebeam == 0:
+            pars['ebeam'] = pars['sbeam']
+        elif args.ebeam < pars['sbeam']:
+            print "WARNING: ebeam cannot be smaller than sbeam. Setting ebeam to sbeam ({})".format(pars['sbeam'])
+            pars['ebeam'] = pars['sbeam']
+        else:
+            pars['ebeam'] = args.ebeam
+        pars['beams'] = range(pars['sbeam'], pars['ebeam']+1)
+   
+    # check validity of beams
+    if min(pars['beams']) < 0:
+        print "ERORR: CB index < 0 is impossible"
+        exit()
+    if max(pars['beams']) > pars['nbeams']-1:
+        print "ERROR: CB index > {} is impossible".format(pars['nbeams']-1)
+        exit()
+    # remove the missing beams
+    for beam in pars['missing_beams']:
+        try:
+            pars['beams'].remove(beam)
+        except ValueError:
+            # beam was not in list of beams anyway
+            continue
+
+    # we have all parameters now, create psrdada header and config file for each beam
+    for beam in pars['beams']:
+
+        # config file
+        cfg = {}
+        cfg['dadakey'] = pars['network_port_start'] + beam
+        cfg['buffersize'] = pars['ntabs'] * pars['nchan'] * pars['pagesize']
+        cfg['pagesize'] = pars['pagesize']
+        cfg['nbuffer'] = pars['nbuffer']
+        cfg['startpacket'] = pars['startpacket']
+        cfg['source'] = pars['source']
+
+        # CB dependent
+        cfg['ra'] = pars['ra']
+        cfg['dec'] = pars['dec']
+        cfg['header'] = os.path.join(os.path.dirname(os.path.realpath(__file__)), HEADER.format(beam))
 
 
-    def parse_args(self, args):
-        filename = os.path.join(os.path.dirname(os.path.realpath(__file__)), CONFIGFILE)
-        with open(filename, 'r') as f:
-            config = yaml.load(f)
-        conf_sc = 'sc{:.0f}'.format(args.science_case)
-        conf_mode = args.science_mode.lower()
-        # science case specific
-        self.nbit = config[conf_sc]['nbit']
-        self.nchan = config[conf_sc]['nchan']
-        self.time_unit = config[conf_sc]['time_unit']
-        self.nbeams = config[conf_sc]['nbeams']
-        self.missing_beams = config[conf_sc]['missing_beams']
-        self.nbuffer = config[conf_sc]['nbuffer']
-        self.valid_modes = config[conf_sc]['valid_modes']
-        self.network_port_start = config[conf_sc]['network_port_start']
-        self.tsamp = config[conf_sc]['tsamp']
-        self.pagesize = config[conf_sc]['pagesize']
-        # pol and beam specific
-        self.ntabs = config[conf_mode]['ntabs']
-        self.science_mode  = config[conf_mode]['science_mode']
-        
+        filename = os.path.join(os.path.dirname(os.path.realpath(__file__)), NODECONFIG.format(beam))
+        with open(filename, 'w') as f:
+            yaml.dump(cfg, f, default_flow_style=False)
+
         
 
 if __name__ == '__main__':
@@ -66,12 +150,15 @@ if __name__ == '__main__':
     parser.add_argument("--ebeam", type=int, help="No of last CB to record " \
                             "(Default: same as sbeam", default=0)
     # observing modes
-    parser.add_argument("--obs_mode", type=str, help="Observation mode. Can be bruteforce, subband, dump, scrub, fil, fits, survey" \
+    parser.add_argument("--obs_mode", type=str, help="Observation mode. Can be dump, scrub, fil, fits, survey" \
                             "(Default: fil", default="fil")
     parser.add_argument("--science_case", type=int, help="Science case " \
                             "(Default: 4", default=4)
-    parser.add_argument("--science_mode", type=str, help="Sciene mode. Can be I+TAB, IQUV+TAB, I+IAB, IQUV+IAB " \
+    parser.add_argument("--science_mode", type=str, help="Science mode. Can be I+TAB, IQUV+TAB, I+IAB, IQUV+IAB " \
                             "(Default: I+TAB", default="I+TAB")
+    # amber
+    parser.add_argument("--snrmin", type=float, help="Minimum S/N in real-time search " \
+                            "(Default: 10)", default=10)
     args = parser.parse_args()
 
-    Survey(args)
+    start_survey(args)
