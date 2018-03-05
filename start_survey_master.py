@@ -174,7 +174,7 @@ def start_survey(args):
     cfg['amber_conf_dir'] = os.path.join(os.path.dirname(os.path.realpath(__file__)), AMBERCONFDIR)
     cfg['amber_config'] = os.path.join(os.path.dirname(os.path.realpath(__file__)), AMBERCONFIG)
     cfg['amber_dir'] = pars['amber_dir']
-    cfg['log_prefix'] = pars['log_dir']
+    cfg['log_prefix'] = pars['log_prefix']
     cfg['snrmin'] = pars['snrmin']
 
     # load PSRDADA header template
