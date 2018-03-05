@@ -141,7 +141,7 @@ class Survey(object):
                    " -zapped_channels {amber_conf_dir}/zapped_channels.conf -integration_steps {amber_conf_dir}/integration_steps.conf -dedispersion_file"
                    " {amber_conf_dir}/dedispersion.conf -integration_file {amber_conf_dir}/integration.conf -snr_file {amber_conf_dir}/snr.conf -dms {num_dm}"
                    " -dm_first {dm_first} -dm_step {dm_step} -threshold {snrmin} -output {output_prefix} -beams {ntabs} -synthesized_beams {ntabs}"
-                   " -dada -dada_key {dadakey} -batches {nbatch} > {log_dir}/amber.{beam} &").format(**fullconfig)
+                   " -dada -dada_key {dadakey} -batches {nbatch} -compact_results > {log_dir}/amber.{beam} &").format(**fullconfig)
         elif ambercfg['mode'] == 'subband':
             self.log("ERROR: Subbanding mode not yet supported")
             exit()
