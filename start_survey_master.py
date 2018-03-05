@@ -22,19 +22,20 @@ def start_survey(args):
     """Sets up a survey mode observation from the master node
     """
 
-    # empty class for parameters
     # initialize parameters
     pars = {}
-    # Load static configuration settings
+    # Load static configuration
     filename = os.path.join(os.path.dirname(os.path.realpath(__file__)), CONFIGFILE)
     with open(filename, 'r') as f:
         config = yaml.load(f)
     conf_sc = 'sc{:.0f}'.format(args.science_case)  # sc4 or sc4
     conf_mode = args.science_mode.lower()  # i+tab, iquv+tab, i+iab, iquv+iab
-    # load config, saving info only necessary for nodes to node_pars
     # science case specific
+    pars['science_case'] = args.science_case
     pars['nbit'] = config[conf_sc]['nbit']
     pars['nchan'] = config[conf_sc]['nchan']
+    pars['freq'] = config[conf_sc]['freq']
+    pars['bw'] = config[conf_sc]['bw']
     pars['time_unit'] = config[conf_sc]['time_unit']
     pars['nbeams'] = config[conf_sc]['nbeams']
     pars['missing_beams'] = config[conf_sc]['missing_beams']
@@ -46,6 +47,9 @@ def start_survey(args):
     # pol and beam specific
     pars['ntabs'] = config[conf_mode]['ntabs']
     pars['science_mode']  = config[conf_mode]['science_mode']
+    # derived values
+    pars['chan_width'] = float(pars['bw']) / pars['nchan']
+    pars['min_freq'] = pars['freq'] - pars['bw'] / 2 + pars['chan_width'] / 2
 
     # load observation specific arguments
     pars['snrmin'] = args.snrmin
@@ -60,17 +64,18 @@ def start_survey(args):
         tstart = datetime.datetime.utcnow() + datetime.timedelta(seconds=10)
         pars['utcstart'] = tstart.strftime('%Y-%m-%d %H:%M:%S')
     else:
+        #tstart = datetime.datetime(args.tstart)
+        #pars['utcstart'] = args.tstart
         print "Specific start time not yet supported"
-        exit()
-    #else:
-    #    tstart = datetime.datetime(args.tstart)
-    #    pars['utcstart'] = args.tstart
+        exit()  
     starttime = Time(pars['utcstart'], format='iso', scale='utc')
     pars['date'] = tstart.strftime("%Y%m%d")
     pars['datetimesource'] = "{}.{}".format(pars['utcstart'].replace(' ','-'), pars['source'])
     pars['mjdstart'] = starttime.mjd
-    # make sure startpacket is a long
+    # startpacket has to be along
     pars['startpacket'] = long(starttime.unix) * pars['time_unit']
+    # output directory
+    pars['output_dir'] = config[conf_sc]['output_dir'].format(date=pars['date'], datetimesource=pars['datetimesource'])
     # observing mode
     if args.obs_mode not in pars['valid_modes']:
         print "ERROR: observation mode not valid: {}".format(args.obs_mode)
@@ -110,20 +115,16 @@ def start_survey(args):
 
     # we have all parameters now, create psrdada header and config file for each beam
     # config file
-    print pars['date']
-    print pars['datetimesource']
     cfg = {}
     cfg['dadakey'] = pars['network_port_start'] + beam
     cfg['buffersize'] = pars['ntabs'] * pars['nchan'] * pars['pagesize']
     cfg['pagesize'] = pars['pagesize']
     cfg['nbuffer'] = pars['nbuffer']
     cfg['startpacket'] = pars['startpacket']
-    cfg['source'] = pars['source']
+    cfg['output_dir'] = pars['output_dir']
 
     for beam in pars['beams']:
         # add CB-dependent parameters
-        cfg['ra'] = pars['ra']
-        cfg['dec'] = pars['dec']
         cfg['header'] = os.path.join(os.path.dirname(os.path.realpath(__file__)), HEADER.format(beam))
 
         # save to file
@@ -133,7 +134,31 @@ def start_survey(args):
 
         # load PSRDADA header template
         with open(TEMPLATE, 'r') as f:
-            header_template = f.readlines()
+            header_template = f.read()
+
+        # add header keys
+        header = header_template.format(source=pars['source'], 
+                    utc_start=pars['utcstart'],
+                    mjd_start=pars['mjdstart'],
+                    freq=pars['freq'],
+                    bw=pars['bw'],
+                    tsamp=pars['tsamp'],
+                    min_freq=pars['min_freq'],
+                    nchan=pars['nchan'],
+                    chan_width=pars['chan_width'],
+                    page_size=pars['pagesize'],
+                    nbit=pars['nbit'],
+                    resolution=pars['pagesize'] * pars['nchan'],
+                    bps=int(pars['pagesize'] * pars['nchan'] / 1.024),
+                    science_case=pars['science_case'],
+                    science_mode=pars['science_mode'],
+                    ra=pars['ra'].replace(':',''),
+                    dec=pars['dec'].replace(':',''),
+                    beam=beam,
+                    az_start=0,
+                    za_start=0)
+        print header
+        exit()
 
         
 
