@@ -9,6 +9,7 @@ import sys
 import argparse
 import datetime
 import socket
+from time import sleep
 
 import yaml
 import numpy as np
@@ -213,8 +214,9 @@ def start_survey(args):
     log("Copying files to nodes")
     for beam in pars['beams']:
         node = beam + 1
-        cmd = "scp -r nodes/ arts0{:02d}.apertif:ARTS-obs/".format(node)
+        cmd = "scp -r nodes/ arts0{:02d}.apertif:ARTS-obs/ &".format(node)
         os.system(cmd)
+    sleep(2)
     log("Done")
 
     # Start the node scripts
