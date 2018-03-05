@@ -176,6 +176,10 @@ def start_survey(args):
     cfg['log_dir'] = pars['log_dir']
     cfg['snrmin'] = pars['snrmin']
 
+    # load PSRDADA header template
+    with open(TEMPLATE, 'r') as f:
+        header_template = f.read()
+
     for beam in pars['beams']:
         # add CB-dependent parameters
         cfg['beam'] = beam
@@ -188,9 +192,7 @@ def start_survey(args):
         with open(filename, 'w') as f:
             yaml.dump(cfg, f, default_flow_style=False)
 
-        # load PSRDADA header template
-        with open(TEMPLATE, 'r') as f:
-            header_template = f.read()
+
 
         # fill in the header keys
         # cannot simply do **pars as some pars have to be changed a bit
