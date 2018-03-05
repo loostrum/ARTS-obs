@@ -17,7 +17,7 @@ from astropy.time import Time
 
 CONFIG = "config.yaml"
 NODECONFIG = "nodes/CB{:02d}.yaml"
-HEADER = "nodes/CB{:02d}_header.txt"
+NODEHEADER = "nodes/CB{:02d}_header.txt"
 TEMPLATE = "header_template.txt"
 AMBERCONFIG = "amber.yaml"
 AMBERCONFDIR = "amber_conf"
@@ -186,7 +186,7 @@ def start_survey(args):
         cfg['beam'] = beam
         cfg['dadakey'] = pars['network_port_start'] + beam
         cfg['network_port'] = pars['network_port_start'] + beam
-        cfg['header'] = os.path.join(os.path.dirname(os.path.realpath(__file__)), HEADER.format(beam))
+        cfg['header'] = os.path.join(os.path.dirname(os.path.realpath(__file__)), NODEHEADER.format(beam))
 
         # save to file
         filename = os.path.join(os.path.dirname(os.path.realpath(__file__)), NODECONFIG.format(beam))
@@ -207,7 +207,7 @@ def start_survey(args):
 
         header = header_template.format(**temppars)
 
-        with open(HEADER.format(beam), 'w') as f:
+        with open(NODEHEADER.format(beam), 'w') as f:
             f.write(header)
 
     # TEMP copy the nodes config

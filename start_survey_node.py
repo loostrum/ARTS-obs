@@ -160,9 +160,6 @@ if __name__ == '__main__':
     # from the master node, i.e. the commandline format is fixed
     conf_file = os.path.join(os.path.realpath(os.path.dirname(__file__)), sys.argv[1])
 
-    # TEMPORARY: copy config files from master node
-    os.system("scp -r arts041:ARTS-obs/nodes $HOME/ARTS-obs/ >/dev/null")
-
     # load config
     with open(conf_file, 'r') as f:
         config = yaml.load(f)
