@@ -117,7 +117,7 @@ def start_survey(args):
     pars['startpacket'] = long(starttime.unix) * pars['time_unit']
     # output directories
     pars['output_dir'] = config[conf_sc]['output_dir'].format(date=pars['date'], datetimesource=pars['datetimesource'])
-    pars['log_prefix'] = config[conf_sc]['log_prefix'].format(date=pars['date'], datetimesource=pars['datetimesource'])
+    pars['log_dir'] = config[conf_sc]['log_dir'].format(date=pars['date'], datetimesource=pars['datetimesource'])
     pars['amber_dir'] = config[conf_sc]['amber_dir'].format(date=pars['date'], datetimesource=pars['datetimesource'])
     # observing mode
     if args.obs_mode not in pars['valid_modes']:
@@ -174,7 +174,7 @@ def start_survey(args):
     cfg['amber_conf_dir'] = os.path.join(os.path.dirname(os.path.realpath(__file__)), AMBERCONFDIR)
     cfg['amber_config'] = os.path.join(os.path.dirname(os.path.realpath(__file__)), AMBERCONFIG)
     cfg['amber_dir'] = pars['amber_dir']
-    cfg['log_prefix'] = pars['log_prefix']
+    cfg['log_dir'] = pars['log_dir']
     cfg['snrmin'] = pars['snrmin']
 
     # load PSRDADA header template

@@ -28,7 +28,7 @@ general: &general
     # output directory of amber triggers
     amber_dir: "/export/astron/oostrum/observations/amber/{date}/{datetimesource}"
     # log prefix
-    log_prefix: "/export/astron/oostrum/observations/log/{date}/{datetimesource}/{datetimesource}"
+    log_dir: "/export/astron/oostrum/observations/log/{date}/{datetimesource}"
 
 # Science case 3
 sc3:

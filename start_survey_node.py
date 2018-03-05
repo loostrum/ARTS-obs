@@ -34,7 +34,7 @@ class Survey(object):
             self.log("WARNING: Requested to record CB {}, expected CB {}".format(config['beam'], expected_CB))        
 
         # create directory for log files
-        os.system("mkdir -p {}".format('/'.join(self.config['log_prefix'].split('/')[:-1])))
+        os.system("mkdir -p {}".format(self.config['log_dir']))
 
         # start the programmes
         # remove running ringbuffers, AMBER, etc.
@@ -80,7 +80,7 @@ class Survey(object):
 
     def ringbuffer(self):
         self.log("Starting ringbuffers")
-        log = "{}.dada_db.{}".format(self.config['log_prefix'], self.config['beam'])
+        log = "{}/dada_db.{}".format(self.config['log_dir'], self.config['beam'])
         cmd = "dada_db -k {} -b {} -n {} -p -r {} > {} &".format(self.config['dadakey'], self.config['buffersize'], self.config['nbuffer'], self.config['nreader'], log)
         self.log(cmd)
         os.system(cmd)
@@ -88,7 +88,7 @@ class Survey(object):
 
     def fill_ringbuffer(self):
         self.log("Starting fill_ringbuffer")
-        log = "{}.fill_ringbuffer.{}".format(self.config['log_prefix'], self.config['beam'])
+        log = "{}/fill_ringbuffer.{}".format(self.config['log_dir'], self.config['beam'])
         cmd = "fill_ringbuffer -c {} -m {} -b {} -k {} -s {} -d {} -p {} -h {} -l {} &".format(self.config['science_case'], self.config['science_mode'], self.config['pagesize'], \
                                                             self.config['dadakey'], self.config['startpacket'], self.config['duration'], self.config['network_port'], \
                                                             self.config['header'], log)
@@ -98,7 +98,7 @@ class Survey(object):
 
     def scrub(self):
         self.log("Starting dada_dbscrubber")
-        log = "{}.dada_dbscrubber.{}".format(self.config['log_prefix'], self.config['beam'])
+        log = "{}/dada_dbscrubber.{}".format(self.config['log_dir'], self.config['beam'])
         cmd = "dada_dbscrubber -k {} > {} &".format(self.config['dadakey'], log)
         self.log(cmd)
         os.system(cmd)
@@ -106,7 +106,7 @@ class Survey(object):
 
     def dump(self):
         self.log("Starting dada_dbdisk")
-        log = "{}.dada_dbdisk.{}".format(self.config['log_prefix'], self.config['beam'])
+        log = "{}/dada_dbdisk.{}".format(self.config['log_dir'], self.config['beam'])
         output_dir = os.path.join(self.config['output_dir'], 'filterbank')
         os.system("mkdir -p {}".format(output_dir))
         output_prefix = os.path.join(output_dir, 'CB{:02d}'.format(self.config['beam']))
@@ -117,7 +117,7 @@ class Survey(object):
 
     def dadafilterbank(self):
         self.log("Starting dadafilterbank")
-        log = "{}.dadafilterbank.{}".format(self.config['log_prefix'], self.config['beam'])
+        log = "{}/dadafilterbank.{}".format(self.config['log_dir'], self.config['beam'])
         output_dir = os.path.join(self.config['output_dir'], 'filterbank')
         os.system("mkdir -p {}".format(output_dir))
         output_prefix = os.path.join(output_dir, 'CB{:02d}'.format(self.config['beam']))
@@ -140,7 +140,7 @@ class Survey(object):
             cfg = yaml.load(f)
         # add output prefix
         cfg['output_prefix'] = os.path.join(self.config['amber_dir'], 'CB{:02d}'.format(self.config['beam']))
-        cfg['log'] = log = "{}.amber.{}".format(self.config['log_prefix'], self.config['beam'])
+        cfg['log'] = "{}/amber.{}".format(self.config['log_dir'], self.config['beam'])
         # make dict with fullconfig, because AMBER settings are spread over the general and node-specific config files
         fullconfig = cfg.copy()
         fullconfig.update(self.config)
