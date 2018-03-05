@@ -70,7 +70,7 @@ class Survey(object):
 
     def clean(self):
         self.log("Removing old ringbuffers")
-        cmd = "dada_db -d -k {} 2>/dev/null".format(self.config['dadakey'])
+        cmd = "dada_db -d -k {} 2>/dev/null; pkill fill_ringbuffer".format(self.config['dadakey'])
         self.log(cmd)
         os.system(cmd)
 
