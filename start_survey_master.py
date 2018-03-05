@@ -13,7 +13,7 @@ import yaml
 import numpy as np
 from astropy.time import Time
 
-CONFIGFILE = "config.yaml"
+CONFIG = "config.yaml"
 NODECONFIG = "nodes/CB{:02d}.yaml"
 HEADER = "nodes/CB{:02d}_header.txt"
 TEMPLATE = "header_template.txt"
@@ -25,11 +25,15 @@ def start_survey(args):
     # initialize parameters
     pars = {}
     # Load static configuration
-    filename = os.path.join(os.path.dirname(os.path.realpath(__file__)), CONFIGFILE)
+    filename = os.path.join(os.path.dirname(os.path.realpath(__file__)), CONFIG)
     with open(filename, 'r') as f:
         config = yaml.load(f)
     conf_sc = 'sc{:.0f}'.format(args.science_case)  # sc4 or sc4
     conf_mode = args.science_mode.lower()  # i+tab, iquv+tab, i+iab, iquv+iab
+    # IQUV not yet supported
+    if 'iquv' in conf_mode:
+        print "ERROR: IQUV modes not yet supported"
+        exit()
     # science case specific
     pars['science_case'] = args.science_case
     pars['nbit'] = config[conf_sc]['nbit']
@@ -53,7 +57,7 @@ def start_survey(args):
 
     # load observation specific arguments
     pars['snrmin'] = args.snrmin
-    pars['source'] = args.src
+    pars['source'] = args.source
     pars['ra'] = args.ra
     pars['dec'] = args.dec
     # Observing time, has to be multiple of 1.024 seconds
@@ -116,7 +120,6 @@ def start_survey(args):
     # we have all parameters now, create psrdada header and config file for each beam
     # config file
     cfg = {}
-    cfg['dadakey'] = pars['network_port_start'] + beam
     cfg['buffersize'] = pars['ntabs'] * pars['nchan'] * pars['pagesize']
     cfg['pagesize'] = pars['pagesize']
     cfg['nbuffer'] = pars['nbuffer']
@@ -125,6 +128,7 @@ def start_survey(args):
 
     for beam in pars['beams']:
         # add CB-dependent parameters
+        cfg['dadakey'] = pars['network_port_start'] + beam
         cfg['header'] = os.path.join(os.path.dirname(os.path.realpath(__file__)), HEADER.format(beam))
 
         # save to file
@@ -165,7 +169,7 @@ def start_survey(args):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Start a survey mode observation on ARTS")
     # source info
-    parser.add_argument("--src", type=str, help="Source name " \
+    parser.add_argument("--source", type=str, help="Source name " \
                             "(Default: None)", default="None")
     parser.add_argument("--ra", type=str, help="J2000 RA in hh:mm:ss.s format " \
                             "(Default: 00:00:00)", default="00:00:00")
