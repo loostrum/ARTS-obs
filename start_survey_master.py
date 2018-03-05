@@ -15,7 +15,7 @@ from astropy.time import Time
 
 CONFIGFILE = "config.yaml"
 NODECONFIG = "nodes/CB{:02d}.yaml"
-HEADER = "nodes/header_CB{:02d}.txt"
+HEADER = "nodes/CB{:02d}_header.txt"
 TEMPLATE = "header_template.txt"
 
 def start_survey(args):
@@ -157,8 +157,8 @@ def start_survey(args):
                     beam=beam,
                     az_start=0,
                     za_start=0)
-        print header
-        exit()
+        with open(HEADER.format(beam), 'w') as f:
+            f.write(header)
 
         
 
