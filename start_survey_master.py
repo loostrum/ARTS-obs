@@ -39,8 +39,15 @@ def run_on_node(node, command, background=False):
     else:
         #ssh_cmd = "ssh {} {}".format(hostname, command)
         ssh_cmd = "ssh {} 'source $HOME/venv/bin/activate; {}' &".format(hostname, command)
-    print "Executing '{}'".format(ssh_cmd)
+    log("Executing '{}'".format(ssh_cmd))
     os.system(ssh_cmd)
+
+
+def log(message):
+    """
+    Log a message. Prints the hostname, then the message
+    """
+    print "Master: {}".format(message)
 
 
 def start_survey(args):
@@ -57,7 +64,7 @@ def start_survey(args):
     conf_mode = args.science_mode.lower()  # i+tab, iquv+tab, i+iab, iquv+iab
     # IQUV not yet supported
     if 'iquv' in conf_mode:
-        print "ERROR: IQUV modes not yet supported"
+        log("ERROR: IQUV modes not yet supported")
         exit()
     # science case specific
     pars['science_case'] = args.science_case
@@ -99,7 +106,7 @@ def start_survey(args):
     else:
         #tstart = datetime.datetime(args.tstart)
         #pars['utcstart'] = args.tstart
-        print "Specific start time not yet supported"
+        log("Specific start time not yet supported")
         exit()  
     starttime = Time(pars['utcstart'], format='iso', scale='utc')
     pars['date'] = tstart.strftime("%Y%m%d")
@@ -111,7 +118,7 @@ def start_survey(args):
     pars['output_dir'] = config[conf_sc]['output_dir'].format(date=pars['date'], datetimesource=pars['datetimesource'])
     # observing mode
     if args.obs_mode not in pars['valid_modes']:
-        print "ERROR: observation mode not valid: {}".format(args.obs_mode)
+        log("ERROR: observation mode not valid: {}".format(args.obs_mode))
         exit()
     else:
         pars['obs_mode'] = args.obs_mode
@@ -125,7 +132,7 @@ def start_survey(args):
         if args.ebeam == 0:
             pars['ebeam'] = pars['sbeam']
         elif args.ebeam < pars['sbeam']:
-            print "WARNING: ebeam cannot be smaller than sbeam. Setting ebeam to sbeam ({})".format(pars['sbeam'])
+            log("WARNING: ebeam cannot be smaller than sbeam. Setting ebeam to sbeam ({})".format(pars['sbeam']))
             pars['ebeam'] = pars['sbeam']
         else:
             pars['ebeam'] = args.ebeam
@@ -133,10 +140,10 @@ def start_survey(args):
    
     # check validity of beams
     if min(pars['beams']) < 0:
-        print "ERORR: CB index < 0 is impossible"
+        log("ERORR: CB index < 0 is impossible")
         exit()
     if max(pars['beams']) > pars['nbeams']-1:
-        print "ERROR: CB index > {} is impossible".format(pars['nbeams']-1)
+        log("ERROR: CB index > {} is impossible".format(pars['nbeams']-1))
         exit()
     # remove the missing beams
     for beam in pars['missing_beams']:
@@ -207,12 +214,12 @@ def start_survey(args):
             f.write(header)
 
     # TEMP copy the nodes config
-    print "Copying files to nodes"
+    log("Copying files to nodes")
     for beam in pars['beams']:
         node = beam + 1
         cmd = "scp -r nodes/ arts0{:02d}.apertif:ARTS-obs/".format(node)
         os.system(cmd)
-    print "Done"
+    log("Done")
 
     # Start the node scripts
     for beam in pars['beams']:
@@ -228,7 +235,7 @@ if __name__ == '__main__':
     # check if this is the master node
     hostname = socket.gethostname()
     if not hostname == "arts041":
-        print "ERROR: an observation should be started from the master node (arts041)"
+        log("ERROR: an observation should be started from the master node (arts041)")
         exit()
 
     parser = argparse.ArgumentParser(description="Start a survey mode observation on ARTS")
