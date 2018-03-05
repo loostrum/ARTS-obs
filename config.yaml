@@ -20,7 +20,7 @@ general: &general
     # nr of buffers for readers
     nbuffer: 5
     # observation modes
-    valid_modes: [scrub, dump, fil, fits, survey]
+    valid_modes: [scrub, dump, fil, fits, amber, survey]
     # network port of CB00
     network_port_start: 5000
     # output directory of stokes I data
@@ -69,19 +69,3 @@ iquv+iab:
     ntabs: 1
     # dadafilterbank mode
     science_mode: 3
-
-# AMBER setup
-amber:
-    # platform (usually only one installed)
-    device_platform: 0
-    # name of device in config files
-    device_name: ARTS_BF
-    # dedispersion mode
-    mode: bruteforce
-    # first DM
-    dm_first: 0
-    # DM step size
-    dm_step: 1
-    # total nr of DMs. has to match AMBER config files
-    num_dm: 4096
-    

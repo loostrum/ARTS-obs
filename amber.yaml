@@ -1,0 +1,15 @@
+# AMBER setup
+# platform (usually only one installed)
+opencl_platform: 0
+# number of GPU to use
+opencl_device: 1
+# name of device in config files
+device_name: ARTS
+# dedispersion mode
+mode: bruteforce
+# first DM
+dm_first: 0
+# DM step size
+dm_step: .5
+# total nr of DMs. has to match AMBER config files
+num_dm: 512
