@@ -8,6 +8,7 @@ import os
 import sys
 import argparse
 import datetime
+import socket
 
 import yaml
 import numpy as np
@@ -224,6 +225,12 @@ def start_survey(args):
         
 
 if __name__ == '__main__':
+    # check if this is the master node
+    hostname = socket.gethostname()
+    if not hostname == "arts041":
+        print "ERROR: an observation should be started from the master node (arts041)"
+        exit()
+
     parser = argparse.ArgumentParser(description="Start a survey mode observation on ARTS")
     # source info
     parser.add_argument("--source", type=str, help="Source name " \
