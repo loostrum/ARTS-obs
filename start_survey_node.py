@@ -140,7 +140,8 @@ class Survey(object):
             cmd = ("amber -opencl_platform {opencl_platform} -opencl_device {opencl_device} -device_name {device_name} -padding_file {amber_conf_dir}/padding.conf"
                    " -zapped_channels {amber_conf_dir}/zapped_channels.conf -integration_steps {amber_conf_dir}/integration_steps.conf -dedispersion_file"
                    " {amber_conf_dir}/dedispersion.conf -integration_file {amber_conf_dir}/integration.conf -snr_file {amber_conf_dir}/snr.conf -dms {num_dm}"
-                   " -dm_first {dm_first} -dm_step {dm_step} -threshold {snrmin} -output {output_prefix} &").format(**fullconfig)
+                   " -dm_first {dm_first} -dm_step {dm_step} -threshold {snrmin} -output {output_prefix} -beams {ntabs} -synthesized_beams {ntabs}"
+                   " -dada -dada_key {dadakey} -batches {nbatch} &").format(**fullconfig)
         elif cfg['mode'] == 'subband':
             self.log("ERROR: Subbanding mode not yet supported")
             exit()
