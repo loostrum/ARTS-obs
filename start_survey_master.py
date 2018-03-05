@@ -257,14 +257,14 @@ if __name__ == '__main__':
                             "(Default: 21)", default=21)
     beamgroup.add_argument("--beams", type=str, help="List of beams to process. Use instead of sbeam and ebeam")
     parser.add_argument("--ebeam", type=int, help="No of last CB to record " \
-                            "(Default: same as sbeam", default=0)
+                            "(Default: same as sbeam)", default=0)
     # observing modes
     parser.add_argument("--obs_mode", type=str, help="Observation mode. Can be dump, scrub, fil, fits, amber, survey" \
-                            "(Default: fil", default="fil")
+                            "(Default: fil)", default="fil")
     parser.add_argument("--science_case", type=int, help="Science case " \
-                            "(Default: 4", default=4)
+                            "(Default: 4)", default=4)
     parser.add_argument("--science_mode", type=str, help="Science mode. Can be I+TAB, IQUV+TAB, I+IAB, IQUV+IAB " \
-                            "(Default: I+IAB", default="I+IAB")
+                            "(Default: I+IAB)", default="I+IAB")
     # amber
     parser.add_argument("--snrmin", type=float, help="AMBER minimum S/N " \
                             "(Default: 10)", default=10)
