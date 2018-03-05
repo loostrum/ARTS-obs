@@ -18,6 +18,26 @@ NODECONFIG = "nodes/CB{:02d}.yaml"
 HEADER = "nodes/CB{:02d}_header.txt"
 TEMPLATE = "header_template.txt"
 
+
+def run_on_node(node, command, background=False):
+    """Run command on an ARTS node. Assumes ssh keys have been set up
+        node: nr of node (string or int)
+        command: command to run
+        background: whether to run ssh in the background
+    """
+    if isinstance(node, str):
+        hostname = "arts0{}".format(node)
+    else:
+        hostname = "arts0{:02d}".format(node)
+
+    if background:
+        ssh_cmd = "ssh {} {} &".format(hostname, command)
+    else:
+        ssh_cmd = "ssh {} {}".format(hostname, command)
+    print "Executing '{}'".format(ssh_cmd)
+    os.system(ssh_cmd)
+
+
 def start_survey(args):
     """Sets up a survey mode observation from the master node
     """
