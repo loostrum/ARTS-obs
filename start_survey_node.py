@@ -155,7 +155,7 @@ class Survey(object):
 
 if __name__ == '__main__':
     # first argument is the config file
-    # no need for something like argsparse as this script should always be called
+    # no need for something like argparse as this script should always be called
     # from the master node, i.e. the commandline format is fixed
     conf_file = os.path.join(os.path.realpath(os.path.dirname(__file__)), sys.argv[1])
 

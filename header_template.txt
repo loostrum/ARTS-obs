@@ -4,8 +4,8 @@ HDR_SIZE     4096
 SOURCE       {source}
 RA           {ra}
 DEC          {dec}
-UTC_START    {utc_start}
-MJD_START    {mjd_start}
+UTC_START    {utcstart}
+MJD_START    {mjdstart}
 AZ_START     {az_start}
 ZA_START     {za_start}
 TELESCOPE    WSRT
@@ -21,8 +21,8 @@ NBIT         {nbit}
 NDIM         2
 NPOL         2
 IN_USE       1
-PADDED_SIZE {page_size}
-SAMPLES_PER_BATCH {page_size}
+PADDED_SIZE {pagesize}
+SAMPLES_PER_BATCH {pagesize}
 SCIENCE_CASE {science_case}
 SCIENCE_MODE {science_mode}
 RESOLUTION   {resolution}

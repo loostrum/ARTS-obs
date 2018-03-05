@@ -194,28 +194,18 @@ def start_survey(args):
 
 
 
-        # fill in the header keys
-        # cannot simply do **pars as some pars have to be changed a bit
-        header = header_template.format(source=pars['source'], 
-                    utc_start=pars['utcstart'],
-                    mjd_start=pars['mjdstart'],
-                    freq=pars['freq'],
-                    bw=pars['bw'],
-                    tsamp=pars['tsamp'],
-                    min_freq=pars['min_freq'],
-                    nchan=pars['nchan'],
-                    chan_width=pars['chan_width'],
-                    page_size=pars['pagesize'],
-                    nbit=pars['nbit'],
-                    resolution=pars['pagesize'] * pars['nchan'],
-                    bps=int(pars['pagesize'] * pars['nchan'] / 1.024),
-                    science_case=pars['science_case'],
-                    science_mode=pars['science_mode'],
-                    ra=pars['ra'].replace(':',''),
-                    dec=pars['dec'].replace(':',''),
-                    beam=beam,
-                    az_start=0,
-                    za_start=0)
+        # fill in the psrdada header keys
+        temppars = pars.copy()
+        temppars['ra'] = pars['ra'].replace(':', '')
+        temppars['dec'] = pars['dec'].replace(':','')
+        temppars['resolution'] = pars['pagesize'] * pars['nchan']
+        temppars['bps'] = int(pars['pagesize'] * pars['nchan'] / 1.024)
+        temppars['beam'] = beam
+        temppars['az_start'] = 0
+        temppars['za_start'] = 0
+
+        header = header_template.format(**temppars)
+
         with open(HEADER.format(beam), 'w') as f:
             f.write(header)
 
