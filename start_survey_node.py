@@ -81,7 +81,7 @@ class Survey(object):
     def ringbuffer(self):
         self.log("Starting ringbuffers")
         log = "{}.dada_db.{}".format(self.config['log_prefix'], self.config['beam'])
-        cmd = "dada_db -k {} -b {} -n {} -p -r {} &> {}".format(self.config['dadakey'], self.config['buffersize'], self.config['nbuffer'], self.config['nreader'], log)
+        cmd = "dada_db -k {} -b {} -n {} -p -r {} > {} &".format(self.config['dadakey'], self.config['buffersize'], self.config['nbuffer'], self.config['nreader'], log)
         self.log(cmd)
         os.system(cmd)
 
@@ -99,7 +99,7 @@ class Survey(object):
     def scrub(self):
         self.log("Starting dada_dbscrubber")
         log = "{}.dada_dbscrubber.{}".format(self.config['log_prefix'], self.config['beam'])
-        cmd = "dada_dbscrubber -k {} &> {}".format(self.config['dadakey'], log)
+        cmd = "dada_dbscrubber -k {} > {} &".format(self.config['dadakey'], log)
         self.log(cmd)
         os.system(cmd)
 
@@ -110,7 +110,7 @@ class Survey(object):
         output_dir = os.path.join(self.config['output_dir'], 'filterbank')
         os.system("mkdir -p {}".format(output_dir))
         output_prefix = os.path.join(output_dir, 'CB{:02d}'.format(self.config['beam']))
-        cmd = "dada_dbdisk -k {} &> {}".format(self.config['dadakey'], log)
+        cmd = "dada_dbdisk -k {} > {} &".format(self.config['dadakey'], log)
         self.log(cmd)
         os.system(cmd)
 
@@ -149,7 +149,7 @@ class Survey(object):
                    " -zapped_channels {amber_conf_dir}/zapped_channels.conf -integration_steps {amber_conf_dir}/integration_steps.conf -dedispersion_file"
                    " {amber_conf_dir}/dedispersion.conf -integration_file {amber_conf_dir}/integration.conf -snr_file {amber_conf_dir}/snr.conf -dms {num_dm}"
                    " -dm_first {dm_first} -dm_step {dm_step} -threshold {snrmin} -output {output_prefix} -beams {ntabs} -synthesized_beams {ntabs}"
-                   " -dada -dada_key {dadakey} -batches {nbatch} &> {log}").format(**fullconfig)
+                   " -dada -dada_key {dadakey} -batches {nbatch} > {log} &").format(**fullconfig)
         elif cfg['mode'] == 'subband':
             self.log("ERROR: Subbanding mode not yet supported")
             exit()
