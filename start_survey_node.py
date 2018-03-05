@@ -138,7 +138,7 @@ class Survey(object):
         fullconfig.update(self.config)
         if cfg['mode'] == 'bruteforce':
             cmd = ("amber -opencl_platform {opencl_platform} -opencl_device {opencl_device} -device_name {device_name} -padding_file {amber_conf_dir}/padding.conf"
-                   " -zapped_channels {amber_conf_dir}/zapped_channels.conf -integration_steps {amber_conf_dir}/integration_steps.conf -dedisperion_file"
+                   " -zapped_channels {amber_conf_dir}/zapped_channels.conf -integration_steps {amber_conf_dir}/integration_steps.conf -dedispersion_file"
                    " {amber_conf_dir}/dedispersion.conf -integration_file {amber_conf_dir}/integration.conf -snr_file {amber_conf_dir}/snr.conf -dms {num_dm}"
                    " -dm_first {dm_first} -dm_step {dm_step} -threshold {snrmin} -output {output_prefix} &").format(**fullconfig)
         elif cfg['mode'] == 'subband':
