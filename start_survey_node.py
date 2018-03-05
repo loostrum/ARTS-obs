@@ -92,7 +92,7 @@ class Survey(object):
 
     def scrub(self):
         self.log("Starting dada_dbscrubber")
-        cmd = "dada_dbscrubber -k {}".format(self.config['dadakey'])
+        cmd = "dada_dbscrubber -k {} &".format(self.config['dadakey'])
         self.log(cmd)
         os.system(cmd)
 
@@ -102,7 +102,7 @@ class Survey(object):
         output_dir = os.path.join(self.config['output_dir'], 'filterbank')
         os.system("mkdir -p {}".format(output_dir))
         output_prefix = os.path.join(output_dir, 'CB{:02d}'.format(self.config['beam']))
-        cmd = "dada_dbdisk -k {} "
+        cmd = "dada_dbdisk -k {} &"
 
 
     def dadafilterbank(self):
@@ -110,7 +110,7 @@ class Survey(object):
         output_dir = os.path.join(self.config['output_dir'], 'filterbank')
         os.system("mkdir -p {}".format(output_dir))
         output_prefix = os.path.join(output_dir, 'CB{:02d}'.format(self.config['beam']))
-        cmd = "dadafilterbank -k {} -n {} -l {}".format(self.config['dadakey'], output_prefix, "/dev/null")
+        cmd = "dadafilterbank -k {} -n {} -l {} &".format(self.config['dadakey'], output_prefix, "/dev/null")
 
 
     def dadafits(self):
@@ -135,7 +135,7 @@ class Survey(object):
             cmd = ("amber -opencl_platform {opencl_platform} -opencl_device {opencl_device} -device_name {device_name} -padding_file {amber_conf_dir}/padding.conf"
                    "-zapped_channels {amber_conf_dir}/zapped_channels.conf -integration_steps {amber_conf_dir}/integration_steps.conf -dedisperion_file"
                    "{amber_conf_dir}/dedispersion.conf -integration_file {amber_conf_dir}/integration.conf -snr_file {amber_conf_dir}/snr.conf -dms {num_dm}"
-                   " -dm_first {dm_first} -dm_step {dm_step} -threshold {snrmin} -output {output_prefix}").format(**fullconfig)
+                   " -dm_first {dm_first} -dm_step {dm_step} -threshold {snrmin} -output {output_prefix} &").format(**fullconfig)
         elif cfg['mode'] == 'subband':
             self.log("ERROR: Subbanding mode not yet supported")
             exit()
@@ -153,6 +153,9 @@ if __name__ == '__main__':
     # no need for something like argsparse as this script should always be called
     # from the master node, i.e. the commandline format is fixed
     conf_file = os.path.join(os.path.realpath(os.path.dirname(__file__)), sys.argv[1])
+
+    # TEMPORARY: copy config files from master node
+    os.system("scp -r arts041:ARTS-obs/nodes $HOME/ARTS-obs/")
 
     # load config
     with open(conf_file, 'r') as f:
