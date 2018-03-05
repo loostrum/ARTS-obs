@@ -23,6 +23,8 @@ general: &general
     valid_modes: [scrub, dump, fil, fits, survey]
     # network port of CB00
     network_port_start: 5000
+    # output directory of stokes I data
+    output_dir: "/data2/output/{date}/{datetimesource}"
 
 # Science case 3
 sc3:
