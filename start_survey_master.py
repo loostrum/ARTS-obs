@@ -227,6 +227,10 @@ def start_survey(args):
         cmd = "{} nodes/CB{:02d}.yaml".format(node_script, beam)
         run_on_node(node, cmd, background=True)
 
+    sleep(1)
+    # done
+    log("All nodes started for observation")
+
         
 
 if __name__ == '__main__':
