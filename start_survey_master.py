@@ -17,6 +17,8 @@ CONFIG = "config.yaml"
 NODECONFIG = "nodes/CB{:02d}.yaml"
 HEADER = "nodes/CB{:02d}_header.txt"
 TEMPLATE = "header_template.txt"
+AMBERCONFIG = "amber.yaml"
+AMBERCONFDIR = "amber_conf"
 
 
 def run_on_node(node, command, background=False):
@@ -48,7 +50,7 @@ def start_survey(args):
     filename = os.path.join(os.path.dirname(os.path.realpath(__file__)), CONFIG)
     with open(filename, 'r') as f:
         config = yaml.load(f)
-    conf_sc = 'sc{:.0f}'.format(args.science_case)  # sc4 or sc4
+    conf_sc = 'sc{:.0f}'.format(args.science_case)  # sc3 or sc4
     conf_mode = args.science_mode.lower()  # i+tab, iquv+tab, i+iab, iquv+iab
     # IQUV not yet supported
     if 'iquv' in conf_mode:
@@ -74,6 +76,10 @@ def start_survey(args):
     # derived values
     pars['chan_width'] = float(pars['bw']) / pars['nchan']
     pars['min_freq'] = pars['freq'] - pars['bw'] / 2 + pars['chan_width'] / 2
+    if args.obs_mode == 'survey':
+        pars['nreader'] = 2
+    else:
+        pars['nreader'] = 1
 
     # load observation specific arguments
     pars['snrmin'] = args.snrmin
@@ -81,7 +87,7 @@ def start_survey(args):
     pars['ra'] = args.ra
     pars['dec'] = args.dec
     # Observing time, has to be multiple of 1.024 seconds
-    pars['nbatch'] = np.ceil(args.duration / 1.024)
+    pars['nbatch'] = int(np.ceil(args.duration / 1.024))
     pars['tobs'] = pars['nbatch'] * 1.024
     # start time
     if args.tstart == 'default':
@@ -105,7 +111,7 @@ def start_survey(args):
         print "ERROR: observation mode not valid: {}".format(args.obs_mode)
         exit()
     else:
-        pars['mode'] = args.obs_mode
+        pars['obs_mode'] = args.obs_mode
     # beams
     if not args.beams is None:
         pars['beams'] = [int(beam) for beam in args.beams.split(',')]
@@ -140,15 +146,27 @@ def start_survey(args):
     # we have all parameters now, create psrdada header and config file for each beam
     # config file
     cfg = {}
+    cfg['science_case'] = pars['science_case']
+    cfg['science_mode'] = pars['science_mode']
     cfg['buffersize'] = pars['ntabs'] * pars['nchan'] * pars['pagesize']
     cfg['pagesize'] = pars['pagesize']
     cfg['nbuffer'] = pars['nbuffer']
+    cfg['nreader'] = pars['nreader']
+    cfg['obs_mode'] = pars['obs_mode']
     cfg['startpacket'] = pars['startpacket']
+    cfg['duration'] = pars['tobs']
+    cfg['nbatch'] = pars['nbatch']
     cfg['output_dir'] = pars['output_dir']
+    cfg['ntabs'] = pars['ntabs']
+    cfg['amber_conf_dir'] = os.path.join(os.path.dirname(os.path.realpath(__file__)), AMBERCONFDIR)
+    cfg['amber_config'] = os.path.join(os.path.dirname(os.path.realpath(__file__)), AMBERCONFIG)
+    cfg['snrmin'] = pars['snrmin']
 
     for beam in pars['beams']:
         # add CB-dependent parameters
+        cfg['beam'] = beam
         cfg['dadakey'] = pars['network_port_start'] + beam
+        cfg['network_port'] = pars['network_port_start'] + beam
         cfg['header'] = os.path.join(os.path.dirname(os.path.realpath(__file__)), HEADER.format(beam))
 
         # save to file
@@ -160,7 +178,7 @@ def start_survey(args):
         with open(TEMPLATE, 'r') as f:
             header_template = f.read()
 
-        # add header keys
+        # fill in the header keys
         header = header_template.format(source=pars['source'], 
                     utc_start=pars['utcstart'],
                     mjd_start=pars['mjdstart'],
@@ -208,7 +226,7 @@ if __name__ == '__main__':
     parser.add_argument("--ebeam", type=int, help="No of last CB to record " \
                             "(Default: same as sbeam", default=0)
     # observing modes
-    parser.add_argument("--obs_mode", type=str, help="Observation mode. Can be dump, scrub, fil, fits, survey" \
+    parser.add_argument("--obs_mode", type=str, help="Observation mode. Can be dump, scrub, fil, fits, amber, survey" \
                             "(Default: fil", default="fil")
     parser.add_argument("--science_case", type=int, help="Science case " \
                             "(Default: 4", default=4)
