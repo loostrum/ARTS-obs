@@ -103,6 +103,8 @@ class Survey(object):
         os.system("mkdir -p {}".format(output_dir))
         output_prefix = os.path.join(output_dir, 'CB{:02d}'.format(self.config['beam']))
         cmd = "dada_dbdisk -k {} &"
+        self.log(cmd)
+        os.system(cmd)
 
 
     def dadafilterbank(self):
@@ -111,6 +113,8 @@ class Survey(object):
         os.system("mkdir -p {}".format(output_dir))
         output_prefix = os.path.join(output_dir, 'CB{:02d}'.format(self.config['beam']))
         cmd = "dadafilterbank -k {} -n {} -l {} &".format(self.config['dadakey'], output_prefix, "/dev/null")
+        self.log(cmd)
+        os.system(cmd)
 
 
     def dadafits(self):
