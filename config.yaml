@@ -7,6 +7,10 @@ general: &general
     nbit: 8
     # total nr of channels
     nchan: 1536
+    # central frequency
+    freq: 1400
+    # bandwidth
+    bw: 300
     # seconds to timestamp conversion
     time_unit: 781250
     # total nr of beams
