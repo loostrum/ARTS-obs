@@ -84,7 +84,7 @@ class Survey(object):
 
     def fill_ringbuffer(self):
         self.log("Starting fill_ringbuffer")
-        cmd = "fill_ringbuffer -c {} -m {} -b {} -k {} -s {} -d {} -p {} -h {} -l {}".format(self.config['science_case'], self.config['science_mode'], self.config['pagesize'], \
+        cmd = "fill_ringbuffer -c {} -m {} -b {} -k {} -s {} -d {} -p {} -h {} -l {} &".format(self.config['science_case'], self.config['science_mode'], self.config['pagesize'], \
                                                             self.config['dadakey'], self.config['startpacket'], self.config['duration'], self.config['network_port'], \
                                                             self.config['header'], "/dev/null")
         self.log(cmd)
