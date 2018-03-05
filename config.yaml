@@ -3,54 +3,79 @@
 # general config for all science cases
 # also loaded when reading SC3 or SC4 config
 general: &general
+    # nr of bits per sample
     nbit: 8
+    # total nr of channels
     nchan: 1536
+    # seconds to timestamp conversion
     time_unit: 781250
+    # total nr of beams
     nbeams: 40
+    # beams that are not present
     missing_beams: [4, 9, 14, 19, 24, 29, 34, 39]
-    # for psrdada reader
+    # nr of buffers for readers
     nbuffer: 5
+    # observation modes
     valid_modes: [scrub, dump, fil, fits, survey]
+    # network port of CB00
     network_port_start: 5000
 
 # Science case 3
 sc3:
     <<: *general
+    # sampling time
     tsamp: 81.92E-6
+    # ringbuffer page size, is nr of samples per 1.024s
     pagesize: 12500
 
 # Science case 4
 sc4:
     <<: *general
+    # sampling time
     tsamp: 40.96E-6
     pagesize: 25000
+    # ringbuffer page size, is nr of samples per 1.024s
 
 # Stokes I + Tied Array Beam
 i+tab:
+    # number of tied-array beams
     ntabs: 12
+    # dadafilterbank mode
     science_mode: 0
 
 # Stokes IQUV + Tied Array Beam
 iquv+tab:
+    # number of tied-array beams
     ntabs: 12
+    # dadafilterbank mode
     science_mode: 1
 
 # Stokes I + Incoherent Array Beam
 i+iab:
+    # number of tied-array beams
     ntabs: 1
+    # dadafilterbank mode
     science_mode: 2
     
 # Stokes IQUV + Incoherent Array Beam
 iquv+iab:
+    # number of tied-array beams
     ntabs: 1
+    # dadafilterbank mode
     science_mode: 3
 
 # AMBER setup
 amber:
+    # platform (usually only one installed)
     device_platform: 0
+    # name of device in config files
     device_name: ARTS_BF
+    # dedispersion mode
     mode: bruteforce
+    # first DM
     dm_first: 0
+    # DM step size
     dm_step: 1
+    # total nr of DMs. has to match AMBER config files
     num_dm: 4096
     
