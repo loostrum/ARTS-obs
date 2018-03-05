@@ -116,9 +116,9 @@ def start_survey(args):
     # startpacket has to be along
     pars['startpacket'] = long(starttime.unix) * pars['time_unit']
     # output directories
-    pars['output_dir'] = config[conf_sc]['output_dir'].format(date=pars['date'], datetimesource=pars['datetimesource'])
-    pars['log_dir'] = config[conf_sc]['log_dir'].format(date=pars['date'], datetimesource=pars['datetimesource'])
-    pars['amber_dir'] = config[conf_sc]['amber_dir'].format(date=pars['date'], datetimesource=pars['datetimesource'])
+    pars['output_dir'] = config[conf_sc]['output_dir'].format(**pars)
+    pars['log_dir'] = config[conf_sc]['log_dir'].format(**pars)
+    pars['amber_dir'] = config[conf_sc]['amber_dir'].format(**pars)
     # observing mode
     if args.obs_mode not in pars['valid_modes']:
         log("ERROR: observation mode not valid: {}".format(args.obs_mode))

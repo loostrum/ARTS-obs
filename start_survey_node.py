@@ -73,55 +73,48 @@ class Survey(object):
 
     def clean(self):
         self.log("Removing old ringbuffers")
-        cmd = "dada_db -d -k {} 2>/dev/null; pkill fill_ringbuffer".format(self.config['dadakey'])
+        cmd = "dada_db -d -k {dadakey} 2>/dev/null; pkill fill_ringbuffer".format(**self.config)
         self.log(cmd)
         os.system(cmd)
 
 
     def ringbuffer(self):
         self.log("Starting ringbuffers")
-        log = "{}/dada_db.{}".format(self.config['log_dir'], self.config['beam'])
-        cmd = "dada_db -k {} -b {} -n {} -p -r {} > {} &".format(self.config['dadakey'], self.config['buffersize'], self.config['nbuffer'], self.config['nreader'], log)
+        cmd = "dada_db -k {dadakey} -b {buffersize} -n {nbuffer} -p -r {nreader} > {log_dir}/dada_db.{beam} &".format(**self.config)
         self.log(cmd)
         os.system(cmd)
 
 
     def fill_ringbuffer(self):
         self.log("Starting fill_ringbuffer")
-        log = "{}/fill_ringbuffer.{}".format(self.config['log_dir'], self.config['beam'])
-        cmd = "fill_ringbuffer -c {} -m {} -b {} -k {} -s {} -d {} -p {} -h {} -l {} &".format(self.config['science_case'], self.config['science_mode'], self.config['pagesize'], \
-                                                            self.config['dadakey'], self.config['startpacket'], self.config['duration'], self.config['network_port'], \
-                                                            self.config['header'], log)
+        cmd = ("fill_ringbuffer -c {science_case} -m {science_mode} -b {pagesize} -k {dadakey} -s {startpacket} -d {duration}"
+               " -p {network_port} -h {header} -l {log_dir}/fill_ringbuffer.{beam} &").format(**self.config)
         self.log(cmd)
         os.system(cmd)
 
 
     def scrub(self):
         self.log("Starting dada_dbscrubber")
-        log = "{}/dada_dbscrubber.{}".format(self.config['log_dir'], self.config['beam'])
-        cmd = "dada_dbscrubber -k {} > {} &".format(self.config['dadakey'], log)
+        cmd = "dada_dbscrubber -k {dadakey} > {log_dir}/dada_dbscrubber.{beam} &".format(**self.config)
         self.log(cmd)
         os.system(cmd)
 
 
     def dump(self):
         self.log("Starting dada_dbdisk")
-        log = "{}/dada_dbdisk.{}".format(self.config['log_dir'], self.config['beam'])
-        output_dir = os.path.join(self.config['output_dir'], 'filterbank')
+        output_dir = os.path.join(self.config['output_dir'], 'dada')
         os.system("mkdir -p {}".format(output_dir))
-        output_prefix = os.path.join(output_dir, 'CB{:02d}'.format(self.config['beam']))
-        cmd = "dada_dbdisk -k {} > {} &".format(self.config['dadakey'], log)
+        cmd = "dada_dbdisk -k {dadakey} -D {output_prefix} > {log_dir}/dada_dbdisk.{beam} &".format(output_prefix=output_dir, **self.config)
         self.log(cmd)
         os.system(cmd)
 
 
     def dadafilterbank(self):
         self.log("Starting dadafilterbank")
-        log = "{}/dadafilterbank.{}".format(self.config['log_dir'], self.config['beam'])
         output_dir = os.path.join(self.config['output_dir'], 'filterbank')
         os.system("mkdir -p {}".format(output_dir))
         output_prefix = os.path.join(output_dir, 'CB{:02d}'.format(self.config['beam']))
-        cmd = "dadafilterbank -k {} -n {} -l {} &".format(self.config['dadakey'], output_prefix, log)
+        cmd = "dadafilterbank -k {dadakey} -n {output_prefix} -l {log_dir}/dadafilterbank.{beam} &".format(output_prefix=output_prefix, **self.config)
         self.log(cmd)
         os.system(cmd)
 
@@ -137,19 +130,18 @@ class Survey(object):
         os.system("mkdir -p {}".format(self.config['amber_dir']))
         # load AMBER config
         with open(self.config['amber_config'], 'r') as f:
-            cfg = yaml.load(f)
+            ambercfg = yaml.load(f)
         # add output prefix
-        cfg['output_prefix'] = os.path.join(self.config['amber_dir'], 'CB{:02d}'.format(self.config['beam']))
-        cfg['log'] = "{}/amber.{}".format(self.config['log_dir'], self.config['beam'])
+        ambercfg['output_prefix'] = os.path.join(self.config['amber_dir'], 'CB{:02d}'.format(self.config['beam']))
         # make dict with fullconfig, because AMBER settings are spread over the general and node-specific config files
-        fullconfig = cfg.copy()
+        fullconfig = ambercfg.copy()
         fullconfig.update(self.config)
         if cfg['mode'] == 'bruteforce':
             cmd = ("amber -opencl_platform {opencl_platform} -opencl_device {opencl_device} -device_name {device_name} -padding_file {amber_conf_dir}/padding.conf"
                    " -zapped_channels {amber_conf_dir}/zapped_channels.conf -integration_steps {amber_conf_dir}/integration_steps.conf -dedispersion_file"
                    " {amber_conf_dir}/dedispersion.conf -integration_file {amber_conf_dir}/integration.conf -snr_file {amber_conf_dir}/snr.conf -dms {num_dm}"
                    " -dm_first {dm_first} -dm_step {dm_step} -threshold {snrmin} -output {output_prefix} -beams {ntabs} -synthesized_beams {ntabs}"
-                   " -dada -dada_key {dadakey} -batches {nbatch} > {log} &").format(**fullconfig)
+                   " -dada -dada_key {dadakey} -batches {nbatch} > {log_dir}/amber.{beam} &").format(**fullconfig)
         elif cfg['mode'] == 'subband':
             self.log("ERROR: Subbanding mode not yet supported")
             exit()
