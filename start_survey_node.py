@@ -126,13 +126,12 @@ class Survey(object):
 
     def amber(self):
         self.log("Starting AMBER")
-        output_dir = os.path.join(self.config['output_dir'], 'amber')
-        os.system("mkdir -p {}".format(output_dir))
+        os.system("mkdir -p {}".format(self.config['amber_dir']))
         # load AMBER config
         with open(self.config['amber_config'], 'r') as f:
             cfg = yaml.load(f)
         # add output prefix
-        cfg['output_prefix'] = os.path.join(output_dir, 'CB{:02d}'.format(self.config['beam']))
+        cfg['output_prefix'] = os.path.join(self.config['amber_dir'], 'CB{:02d}'.format(self.config['beam']))
         # make dict with fullconfig, because AMBER settings are spread over the general and node-specific config files
         fullconfig = cfg.copy()
         fullconfig.update(self.config)

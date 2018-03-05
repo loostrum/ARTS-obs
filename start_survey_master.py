@@ -114,8 +114,10 @@ def start_survey(args):
     pars['mjdstart'] = starttime.mjd
     # startpacket has to be along
     pars['startpacket'] = long(starttime.unix) * pars['time_unit']
-    # output directory
+    # output directories
     pars['output_dir'] = config[conf_sc]['output_dir'].format(date=pars['date'], datetimesource=pars['datetimesource'])
+    pars['log_dir'] = config[conf_sc]['log_dir'].format(date=pars['date'], datetimesource=pars['datetimesource'])
+    pars['amber_dir'] = config[conf_sc]['amber_dir'].format(date=pars['date'], datetimesource=pars['datetimesource'])
     # observing mode
     if args.obs_mode not in pars['valid_modes']:
         log("ERROR: observation mode not valid: {}".format(args.obs_mode))
@@ -170,6 +172,8 @@ def start_survey(args):
     cfg['ntabs'] = pars['ntabs']
     cfg['amber_conf_dir'] = os.path.join(os.path.dirname(os.path.realpath(__file__)), AMBERCONFDIR)
     cfg['amber_config'] = os.path.join(os.path.dirname(os.path.realpath(__file__)), AMBERCONFIG)
+    cfg['amber_dir'] = pars['amber_dir']
+    cfg['log_dir'] = pars['log_dir']
     cfg['snrmin'] = pars['snrmin']
 
     for beam in pars['beams']:

@@ -25,6 +25,10 @@ general: &general
     network_port_start: 5000
     # output directory of stokes I data
     output_dir: "/data2/output/{date}/{datetimesource}"
+    # output directory of amber triggers
+    amber_dir: "/export/astron/oostrum/observations/amber/{date}/{datetimesource}"
+    # log dir
+    log_dir: "/export/astron/oostrum/observations/log/{date}/{datetimesource}"
 
 # Science case 3
 sc3:
