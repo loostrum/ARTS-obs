@@ -33,9 +33,11 @@ def run_on_node(node, command, background=False):
         hostname = "arts0{:02d}".format(node)
 
     if background:
-        ssh_cmd = "ssh {} {} &".format(hostname, command)
+        #ssh_cmd = "ssh {} {} &".format(hostname, command)
+        ssh_cmd = "ssh {} 'source $HOME/venv/bin/activate; {}' &".format(hostname, command)
     else:
-        ssh_cmd = "ssh {} {}".format(hostname, command)
+        #ssh_cmd = "ssh {} {}".format(hostname, command)
+        ssh_cmd = "ssh {} 'source $HOME/venv/bin/activate; {}' &".format(hostname, command)
     print "Executing '{}'".format(ssh_cmd)
     os.system(ssh_cmd)
 
@@ -202,6 +204,14 @@ def start_survey(args):
                     za_start=0)
         with open(HEADER.format(beam), 'w') as f:
             f.write(header)
+
+    # TEMP copy the nodes config
+    print "Copying files to nodes"
+    for beam in pars['beams']:
+        node = beam + 1
+        cmd = "scp -r nodes/ arts0{:02d}.apertif:ARTS-obs/".format(node)
+        os.system(cmd)
+    print "Done"
 
     # Start the node scripts
     for beam in pars['beams']:
