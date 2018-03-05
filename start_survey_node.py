@@ -29,15 +29,11 @@ class Survey(object):
 
         # check CB
         self.config = config
-        if self.hostname == 'macoostrum':
-            expected_CB = 21
-        else:
-            expected_CB = int(self.hostname[5:7]) - 1
+        expected_CB = int(self.hostname[5:7]) - 1
         if not self.config['beam'] == expected_CB:
             self.log("WARNING: Requested to record CB {}, expected CB {}".format(config['beam'], expected_CB))        
 
         # start the programmes
-        #scrub, dump, fil, fits, survey
         # remove running ringbuffers, AMBER, etc.
         self.clean()
         sleep(waittime)
@@ -76,15 +72,14 @@ class Survey(object):
         self.log("Removing old ringbuffers")
         cmd = "dada_db -d {} 2>/dev/null".format(self.config['dadakey'])
         self.log(cmd)
-        #os.system(cmd)
+        os.system(cmd)
 
 
     def ringbuffer(self):
         self.log("Starting ringbuffers")
         cmd = "dada_db -k {} -b {} -n {} -p -r {} &".format(self.config['dadakey'], self.config['buffersize'], self.config['nbuffer'], self.config['nreader'])
         self.log(cmd)
-        #os.system(cmd)
-
+        os.system(cmd)
 
 
     def fill_ringbuffer(self):
@@ -92,19 +87,20 @@ class Survey(object):
         cmd = "fill_ringbuffer -c {} -m {} -b {} -k {} -s {} -d {} -p {}".format(self.config['science_case'], self.config['science_mode'], self.config['pagesize'], \
                                                             self.config['dadakey'], self.config['startpacket'], self.config['duration'], self.config['network_port'])
         self.log(cmd)
-        #os.system(cmd)
+        os.system(cmd)
+
 
     def scrub(self):
         self.log("Starting dada_dbscrubber")
         cmd = "dada_dbscrubber -k {}".format(self.config['dadakey'])
         self.log(cmd)
-        #os.system(cmd)
+        os.system(cmd)
 
 
     def dump(self):
         self.log("Starting dada_dbdisk")
         output_dir = os.path.join(self.config['output_dir'], 'filterbank')
-        #os.system("mkdir -p {}".format(output_dir))
+        os.system("mkdir -p {}".format(output_dir))
         output_prefix = os.path.join(output_dir, 'CB{:02d}'.format(self.config['beam']))
         cmd = "dada_dbdisk -k {} "
 
@@ -112,7 +108,7 @@ class Survey(object):
     def dadafilterbank(self):
         self.log("Starting dadafilterbank")
         output_dir = os.path.join(self.config['output_dir'], 'filterbank')
-        #os.system("mkdir -p {}".format(output_dir))
+        os.system("mkdir -p {}".format(output_dir))
         output_prefix = os.path.join(output_dir, 'CB{:02d}'.format(self.config['beam']))
         cmd = "dadafilterbank -k {} -n {} -l {}".format(self.config['dadakey'], output_prefix, "/dev/null")
 
@@ -126,7 +122,7 @@ class Survey(object):
     def amber(self):
         self.log("Starting AMBER")
         output_dir = os.path.join(self.config['output_dir'], 'amber')
-        #os.system("mkdir -p {}".format(output_dir))
+        os.system("mkdir -p {}".format(output_dir))
         # load AMBER config
         with open(self.config['amber_config'], 'r') as f:
             cfg = yaml.load(f)
@@ -144,7 +140,7 @@ class Survey(object):
             self.log("ERROR: Subbanding mode not yet supported")
             exit()
         self.log(cmd)
-        #os.system(cmd)
+        os.system(cmd)
 
 
     def survey(self):
@@ -156,12 +152,12 @@ if __name__ == '__main__':
     # first argument is the config file
     # no need for something like argsparse as this script should always be called
     # from the master node, i.e. the commandline format is fixed
-    conf_file = sys.argv[1]
+    conf_file = os.path.join(os.path.realpath(os.path.dirname(__file__)), sys.argv[1])
 
     # load config
     with open(conf_file, 'r') as f:
         config = yaml.load(f)
 
-    # start survey
+    # start observation
     Survey(config)
     

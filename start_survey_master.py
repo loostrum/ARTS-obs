@@ -179,6 +179,7 @@ def start_survey(args):
             header_template = f.read()
 
         # fill in the header keys
+        # cannot simply do **pars as some pars have to be changed a bit
         header = header_template.format(source=pars['source'], 
                     utc_start=pars['utcstart'],
                     mjd_start=pars['mjdstart'],
@@ -201,6 +202,14 @@ def start_survey(args):
                     za_start=0)
         with open(HEADER.format(beam), 'w') as f:
             f.write(header)
+
+    # Start the node scripts
+    for beam in pars['beams']:
+        node = beam + 1
+        script_path = os.path.realpath(os.path.dirname(__file__))
+        node_script = os.path.join(script_path, "start_survey_node.py")
+        cmd = "{} nodes/CB{:02d}.yaml".format(node_script, beam)
+        run_on_node(node, cmd, background=True)
 
         
 
