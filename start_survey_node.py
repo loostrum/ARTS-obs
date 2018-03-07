@@ -142,8 +142,8 @@ class Survey(object):
                 fullconfig.update(self.config)
                 # set the settings for this GPU
                 fullconfig['dm_first'] = ambercfg['dm_first'][ind]
-                fullonfig['dm_step'] = ambercfg['dm_step'][ind]
-                fullonfig['num_dm'] = ambercfg['num_dm'][ind]
+                fullconfig['dm_step'] = ambercfg['dm_step'][ind]
+                fullconfig['num_dm'] = ambercfg['num_dm'][ind]
                 fullconfig['opencl_device'] = ambercfg['opencl_device'][ind]
 
                 cmd = ("amber -opencl_platform {opencl_platform} -opencl_device {opencl_device} -device_name {device_name} -padding_file {amber_conf_dir}/padding.conf"
