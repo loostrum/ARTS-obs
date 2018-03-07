@@ -31,8 +31,8 @@ deactivate
 numtrigger=$(ls $outputdir/plot | wc -l)
 if [ $numtrigger -lt 1000 ]; then
     gs -dBATCH -dNOPAUSE -q -sDEVICE=pdfwrite -sOutputFile=merged.pdf $outputdir/plots/*pdf
-    $HOME/emailer merged.pdf
+    $HOME/bin/emailer merged.pdf
 else
     touch empty.pdf
-    $HOME/emailer empty.pdf
+    $HOME/bin/emailer empty.pdf
 fi
