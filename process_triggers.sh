@@ -18,7 +18,7 @@ filfile=$2
 triggerfile=$3
 snrmin=$4
 
-mkdir -p $outputdir
+mkdir -p $outputdir/plots
 cd $outputdir
 source $HOME/venv/bin/activate
 python $triggerscript --sig_thresh $snrmin --ndm $ndm --save_data $fmt --mk_plot --ntrig $ntrig --nfreq_plot $nfreq_plot --ntime_plot $ntime_plot --cmap $cmap $filfile $triggerfile 
