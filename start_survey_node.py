@@ -150,7 +150,7 @@ class Survey(object):
                        " -zapped_channels {amber_conf_dir}/zapped_channels.conf -integration_steps {amber_conf_dir}/integration_steps.conf -dedispersion_file"
                        " {amber_conf_dir}/dedispersion.conf -integration_file {amber_conf_dir}/integration.conf -snr_file {amber_conf_dir}/snr.conf -dms {num_dm}"
                        " -dm_first {dm_first} -dm_step {dm_step} -threshold {snrmin} -output {output_prefix}_step{ind} -beams 1 -synthesized_beams 1"
-                       " -dada -dada_key {dadakey} -batches {nbatch} -compact_results > {log_dir}/amber.{beam} &").format(ind=ind, **fullconfig)
+                       " -dada -dada_key {dadakey} -batches {nbatch} -compact_results > {log_dir}/amber.{beam} &").format(ind=ind+1, **fullconfig)
                 self.log(cmd)
                 os.system(cmd)
         elif ambercfg['mode'] == 'subband':
