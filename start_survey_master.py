@@ -159,10 +159,7 @@ def start_survey(args):
     # we have all parameters now, create psrdada header and config file for each beam
     # config file
     cfg = {}
-    cfg['science_case'] = pars['science_case']
-    cfg['science_mode'] = pars['science_mode']
     cfg['buffersize'] = pars['ntabs'] * pars['nchan'] * pars['pagesize']
-    cfg['pagesize'] = pars['pagesize']
     cfg['nbuffer'] = pars['nbuffer']
     cfg['nreader'] = pars['nreader']
     cfg['obs_mode'] = pars['obs_mode']

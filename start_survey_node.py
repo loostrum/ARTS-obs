@@ -87,7 +87,7 @@ class Survey(object):
 
     def fill_ringbuffer(self):
         self.log("Starting fill_ringbuffer")
-        cmd = ("fill_ringbuffer -c {science_case} -m {science_mode} -b {pagesize} -k {dadakey} -s {startpacket} -d {duration}"
+        cmd = ("fill_ringbuffer -k {dadakey} -s {startpacket} -d {duration}"
                " -p {network_port} -h {header} -l {log_dir}/fill_ringbuffer.{beam} &").format(**self.config)
         self.log(cmd)
         os.system(cmd)
