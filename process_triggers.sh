@@ -15,14 +15,17 @@ fmt=hdf5
 
 outputdir=$1
 filfile=$2
-triggerfile=$3
+prefix=$3
 snrmin=$4
+
+# create master trigger files
+cat ${prefix}*trigger > ${prefix}.trigger
 
 mkdir -p $outputdir/plots
 cd $outputdir
 source $HOME/venv/bin/activate
 # process the triggers
-python $triggerscript --sig_thresh $snrmin --ndm $ndm --save_data $fmt --mk_plot --ntrig $ntrig --nfreq_plot $nfreq_plot --ntime_plot $ntime_plot --cmap $cmap $filfile $triggerfile 
+python $triggerscript --sig_thresh $snrmin --ndm $ndm --save_data $fmt --mk_plot --ntrig $ntrig --nfreq_plot $nfreq_plot --ntime_plot $ntime_plot --cmap $cmap $filfile $prefix.trigger
 deactivate
 # make merged pdf if < 1000 triggers, then email
 numtrigger=$(ls $outputdir/plot | wc -l)
