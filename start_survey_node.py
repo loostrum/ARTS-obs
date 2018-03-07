@@ -151,11 +151,12 @@ class Survey(object):
                        " {amber_conf_dir}/dedispersion.conf -integration_file {amber_conf_dir}/integration.conf -snr_file {amber_conf_dir}/snr.conf -dms {num_dm}"
                        " -dm_first {dm_first} -dm_step {dm_step} -threshold {snrmin} -output {output_prefix}_step{ind} -beams 1 -synthesized_beams 1"
                        " -dada -dada_key {dadakey} -batches {nbatch} -compact_results > {log_dir}/amber.{beam} &").format(ind=ind, **fullconfig)
+                self.log(cmd)
+                os.system(cmd)
         elif ambercfg['mode'] == 'subband':
             self.log("ERROR: Subbanding mode not yet supported")
             exit()
-        self.log(cmd)
-        os.system(cmd)
+
 
 
     def survey(self):
