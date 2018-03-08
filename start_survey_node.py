@@ -63,10 +63,12 @@ class Survey(object):
         # Everything has been started
         self.log("Everything started")
         # proc trigger command
-        cmd = "mkdir -p {output_dir}/triggers".format(**self.config)
-        os.system(cmd)
-        cmd = "echo '$HOME/ARTS-obs/process_triggers.sh {output_dir}/triggers {output_dir}/filterbank/CB{beam}.fil {amber_dir}/CB{beam} {snrmin}' > cmd.sh".format(**self.config)
-        os.system(cmd)
+        if self.config['proctrigger']:
+            cmd = "mkdir -p {output_dir}/triggers".format(**self.config)
+            os.system(cmd)
+            self.log("Waiting for finish, then processing triggers")
+            cmd = "pid=$(pgrep -a fill_ringbuffer); tail --pid=$pid -f /dev/null; $HOME/ARTS-obs/process_triggers.sh {output_dir}/triggers {output_dir}/filterbank/CB{beam}.fil {amber_dir}/CB{beam} {snrmin}".format(**self.config)
+            os.system(cmd)
 
 
     def log(self, message):

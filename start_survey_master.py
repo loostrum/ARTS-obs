@@ -175,6 +175,7 @@ def start_survey(args):
     cfg['amber_dir'] = pars['amber_dir']
     cfg['log_dir'] = pars['log_dir']
     cfg['snrmin'] = pars['snrmin']
+    cfg['proctrigger'] = pars['proctrigger']
 
     # load PSRDADA header template
     with open(TEMPLATE, 'r') as f:
@@ -266,9 +267,11 @@ if __name__ == '__main__':
                             "(Default: 4)", default=4)
     parser.add_argument("--science_mode", type=str, help="Science mode. Can be I+TAB, IQUV+TAB, I+IAB, IQUV+IAB " \
                             "(Default: I+IAB)", default="I+IAB")
-    # amber
+    # amber and trigger processing
     parser.add_argument("--snrmin", type=float, help="AMBER minimum S/N " \
                             "(Default: 10)", default=10)
+    parser.add_argument("--proctrigger", type=bool, help="Process and email triggers. "\
+                            "(Default: False)", action="store_true")
     args = parser.parse_args()
 
     start_survey(args)
