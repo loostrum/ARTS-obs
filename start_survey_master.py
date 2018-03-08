@@ -68,6 +68,7 @@ def start_survey(args):
         log("ERROR: IQUV modes not yet supported")
         exit()
     # science case specific
+    pars['proctrigger'] = args.proctrigger
     pars['science_case'] = args.science_case
     pars['nbit'] = config[conf_sc]['nbit']
     pars['nchan'] = config[conf_sc]['nchan']
