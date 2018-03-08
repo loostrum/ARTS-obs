@@ -270,7 +270,7 @@ if __name__ == '__main__':
     # amber and trigger processing
     parser.add_argument("--snrmin", type=float, help="AMBER minimum S/N " \
                             "(Default: 10)", default=10)
-    parser.add_argument("--proctrigger", type=bool, help="Process and email triggers. "\
+    parser.add_argument("--proctrigger", help="Process and email triggers. "\
                             "(Default: False)", action="store_true")
     args = parser.parse_args()
 
