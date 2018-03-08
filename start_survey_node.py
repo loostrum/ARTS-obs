@@ -68,6 +68,7 @@ class Survey(object):
             os.system(cmd)
             self.log("Waiting for finish, then processing triggers")
             cmd = "pid=$(pgrep fill_ringbuffer); tail --pid=$pid -f /dev/null; $HOME/ARTS-obs/process_triggers.sh {output_dir}/triggers {output_dir}/filterbank/CB{beam}.fil {amber_dir}/CB{beam} {snrmin}".format(**self.config)
+            self.log(cmd)
             os.system(cmd)
 
 
