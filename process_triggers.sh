@@ -13,7 +13,7 @@ ntrig=1000000
 cmap=viridis
 ntime_plot=250
 nfreq_plot=32
-ndm=20
+ndm=1
 fmt=hdf5
 
 outputdir=$1
