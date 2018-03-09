@@ -8,6 +8,12 @@ There is one master node: arts041. All observation scripts, logs and plots are s
 
 ## Dependencies
 
+- numpy
+- matplotlib
+- h5py
+- pyaml
+- astropy
+
 - [PSRDADA](http://psrdada.sourceforge.net/current)
 - [AMBER](https://github.com/AA-ALERT/AMBER_setup)
 - [fill_ringbuffer](https://github.com/AA-ALERT/ringbuffer/tree/sc4)
