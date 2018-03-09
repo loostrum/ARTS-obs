@@ -147,7 +147,7 @@ class Survey(object):
         if self.config['amber_mode'] == 'bruteforce':
             self.log("Starting amber in bruteforce mode")
             # loop over the amber configs for all four GPUs
-            for ind in range(4):
+            for ind in range(len(ambercfg['device_name'])):
                 # make dict with fullconfig, because AMBER settings are spread over the general and node-specific config files
                 fullconfig = ambercfg.copy()
                 fullconfig.update(self.config)
@@ -165,7 +165,7 @@ class Survey(object):
         elif self.config['amber_mode'] == 'subband':
             self.log("Starting amber in subband mode")
             # loop over the amber configs for all GPUs
-            for ind in range(4):
+            for ind in range(len(ambercfg['device_name'])):
                 # make dict with fullconfig, because AMBER settings are spread over the general and node-specific config files
                 fullconfig = ambercfg.copy()
                 fullconfig.update(self.config)
