@@ -1,15 +1,37 @@
-# AMBER setup
-# platform (usually only one installed)
-opencl_platform: 0
-# number of GPU to use
-opencl_device: [0, 1, 2, 3]
-# name of device in config files
-device_name: ARTS
-# dedispersion mode
-mode: bruteforce
-# first DM
-dm_first: [0, 512, 1024, 1536]
-# DM step size
-dm_step: [1, 1, 1, 1]
-# total nr of DMs. has to match AMBER config files
-num_dm: [512, 512, 512, 512]
+# AMBER setup for bruteforce dedispersion
+bruteforce:
+    # platform (usually only one installed)
+    opencl_platform: 0
+    # number of GPU to use
+    opencl_device: [0, 1, 2, 3]
+    # name of device in config files
+    device_name: ARTS
+    # first DM
+    dm_first: [0, 512, 1024, 1536]
+    # DM step size
+    dm_step: [1, 1, 1, 1]
+    # total nr of DMs. has to match AMBER config files
+    num_dm: [512, 512, 512, 512]
+# AMBER setup for subband dedispersion
+subband:
+    # platform (usually only one installed)
+    opencl_platform: 0
+    # number of GPU to use
+    opencl_device: [0, 1, 2, 3]
+    # name of device in config files
+    device_name: [ARTS_step1, ARTS_step2, ARTS_step3, ARTS_step4]
+    # nr of subands (approx sqrt(nchan))
+    subbands: [32, 32, 32, 32]
+    # first DM (global)
+    subbanding_dm_first: [0, 409.6, 1228.8, 3276.8]
+    # DM step size outside of subband
+    subbanding_dm_step: [3.2, 6.4, 16, 96]
+    # number of DMs (outside of subbands)
+    subbanding_dms: [128, 128, 128, 128]
+    # first DM within a subband step
+    dm_first: [0, 0, 0, 0]
+    # DM step size with a subband step
+    dm_step: [.1, .2, .5, 3]
+    # total nr of DM within a subband step (approx nr of subbands, 
+    # if following DDplan.py)
+    num_dm: [32, 32, 32, 32]

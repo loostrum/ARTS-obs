@@ -138,21 +138,22 @@ class Survey(object):
         os.system("mkdir -p {}".format(self.config['amber_dir']))
         # load AMBER config
         with open(self.config['amber_config'], 'r') as f:
-            ambercfg = yaml.load(f)
+            cfg = yaml.load(f)
+        # load config for specified dedispersion mode
+        ambercfg = cfg[self.config['amber_mode']]
         # add output prefix
         ambercfg['output_prefix'] = os.path.join(self.config['amber_dir'], 'CB{:02d}'.format(self.config['beam']))
 
-        if ambercfg['mode'] == 'bruteforce':
+        if self.config['amber_mode'] == 'bruteforce':
+            self.log("Starting amber in bruteforce mode")
             # loop over the amber configs for all four GPUs
             for ind in range(4):
                 # make dict with fullconfig, because AMBER settings are spread over the general and node-specific config files
                 fullconfig = ambercfg.copy()
                 fullconfig.update(self.config)
                 # set the settings for this GPU
-                fullconfig['dm_first'] = ambercfg['dm_first'][ind]
-                fullconfig['dm_step'] = ambercfg['dm_step'][ind]
-                fullconfig['num_dm'] = ambercfg['num_dm'][ind]
-                fullconfig['opencl_device'] = ambercfg['opencl_device'][ind]
+                for key in ['dm_first', 'dm_step', 'num_dm', 'opencl_device']:
+                    fullconfig[key] = ambercfg[key][ind]
 
                 cmd = ("amber -opencl_platform {opencl_platform} -opencl_device {opencl_device} -device_name {device_name} -padding_file {amber_conf_dir}/padding.conf"
                        " -zapped_channels {amber_conf_dir}/zapped_channels.conf -integration_steps {amber_conf_dir}/integration_steps.conf -dedispersion_file"
@@ -161,10 +162,26 @@ class Survey(object):
                        " -dada -dada_key {dadakey} -batches {nbatch} -compact_results > {log_dir}/amber.{beam} &").format(ind=ind+1, **fullconfig)
                 self.log(cmd)
                 os.system(cmd)
-        elif ambercfg['mode'] == 'subband':
-            self.log("ERROR: Subbanding mode not yet supported")
-            exit()
+        elif self.config['amber_mode'] == 'subband':
+            self.log("Starting amber in subband mode")
+            # loop over the amber configs for all GPUs
+            for ind in range(4):
+                # make dict with fullconfig, because AMBER settings are spread over the general and node-specific config files
+                fullconfig = ambercfg.copy()
+                fullconfig.update(self.config)
+                # set the settings for this GPU
+                for key in ['dm_first', 'dm_step', 'num_dm', 'opencl_device', 'device_name', 'subbands', 'subbanding_dm_first', 'subbanding_dm_step', 'subbanding_dms']:
+                    fullconfig[key] = ambercfg[key][ind]
 
+                cmd = ("amber -opencl_platform {opencl_platform} -opencl_device {opencl_device} -device_name {device_name} -padding_file {amber_conf_dir}/padding.conf"
+                       " -zapped_channels {amber_conf_dir}/zapped_channels.conf -integration_steps {amber_conf_dir}/integration_steps.conf -subband_dedispersion"
+                       " -dedispersion_step_one_file {amber_conf_dir}/dedispersion_stepone.conf -dedispersion_step_two_file {amber_conf_dir}/dedispersion_steptwo.conf"
+                       " -integration_file {amber_conf_dir}/integration.conf -snr_file {amber_conf_dir}/snr.conf -dms {num_dm} -dm_first {dm_first} -dm_step {dm_step}"
+                       " -subbands {subbands} -subbanding_dms {subbanding_dms} -subbanding_dm_first {subbanding_dm_first} -subbanding_dm_step {subbanding_dm_step}"
+                       " -threshold {snrmin} -output {output_prefix}_step{ind} -beams 1 -synthesized_beams 1"
+                       " -dada -dada_key {dadakey} -batches {nbatch} -compact_results > {log_dir}/amber.{beam} &").format(ind=ind+1, **fullconfig)
+                self.log(cmd)
+                os.system(cmd)
 
 
     def survey(self):

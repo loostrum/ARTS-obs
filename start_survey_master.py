@@ -68,7 +68,6 @@ def start_survey(args):
         log("ERROR: IQUV modes not yet supported")
         exit()
     # science case specific
-    pars['proctrigger'] = args.proctrigger
     pars['science_case'] = args.science_case
     pars['nbit'] = config[conf_sc]['nbit']
     pars['nchan'] = config[conf_sc]['nchan']
@@ -96,6 +95,8 @@ def start_survey(args):
         pars['nreader'] = 1
 
     # load observation specific arguments
+    pars['proctrigger'] = args.proctrigger
+    pars['amber_mode'] = args.amber_mode
     pars['snrmin'] = args.snrmin
     pars['source'] = args.source
     pars['ra'] = args.ra
@@ -177,6 +178,7 @@ def start_survey(args):
     cfg['log_dir'] = pars['log_dir']
     cfg['snrmin'] = pars['snrmin']
     cfg['proctrigger'] = pars['proctrigger']
+    cfg['amber_mode'] = pars['amber_mode']
 
     # load PSRDADA header template
     with open(TEMPLATE, 'r') as f:
@@ -269,6 +271,8 @@ if __name__ == '__main__':
     parser.add_argument("--science_mode", type=str, help="Science mode. Can be I+TAB, IQUV+TAB, I+IAB, IQUV+IAB " \
                             "(Default: I+IAB)", default="I+IAB")
     # amber and trigger processing
+    parser.add_argument("--amber_mode", type=str, help="AMBER dedispersion mode, can be bruteforce or suband " \
+                            "(Default: subband", default="subband")
     parser.add_argument("--snrmin", type=float, help="AMBER minimum S/N " \
                             "(Default: 10)", default=10)
     parser.add_argument("--proctrigger", help="Process and email triggers. "\
