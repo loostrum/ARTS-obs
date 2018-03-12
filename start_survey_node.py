@@ -155,11 +155,11 @@ class Survey(object):
                 for key in ['dm_first', 'dm_step', 'num_dm', 'opencl_device']:
                     fullconfig[key] = ambercfg[key][ind]
 
-                cmd = ("amber -opencl_platform {opencl_platform} -opencl_device {opencl_device} -device_name {device_name} -padding_file {amber_conf_dir}/padding.conf"
+                cmd = ("export CUDA_VISIBLE_DEVICE={num}; amber -opencl_platform {opencl_platform} -opencl_device {opencl_device} -device_name {device_name} -padding_file {amber_conf_dir}/padding.conf"
                        " -zapped_channels {amber_conf_dir}/zapped_channels.conf -integration_steps {amber_conf_dir}/integration_steps.conf -dedispersion_file"
                        " {amber_conf_dir}/dedispersion.conf -integration_file {amber_conf_dir}/integration.conf -snr_file {amber_conf_dir}/snr.conf -dms {num_dm}"
                        " -dm_first {dm_first} -dm_step {dm_step} -threshold {snrmin} -output {output_prefix}_step{ind} -beams 1 -synthesized_beams 1"
-                       " -dada -dada_key {dadakey} -batches {nbatch} -compact_results > {log_dir}/amber.{beam} &").format(ind=ind+1, **fullconfig)
+                       " -dada -dada_key {dadakey} -batches {nbatch} -compact_results > {log_dir}/amber.{beam} &").format(num=ind, ind=ind+1, **fullconfig)
                 self.log(cmd)
                 os.system(cmd)
         elif self.config['amber_mode'] == 'subband':
