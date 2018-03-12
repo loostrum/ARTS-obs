@@ -24,9 +24,9 @@ if __name__ == '__main__':
     for i, cand in enumerate(data_frb_candidate):
         data_freq_time = cand[:, :, 0]
         prob = probability[i]
-        snr, dm, boxcar_width, t0 = params[i]
+        snr, dm, bin_width, t0 = params[i]
 
-        times = np.arange(data_freq_time.shape[1]) * 40.96E-3 * boxcar_width  # ms
+        times = np.arange(data_freq_time.shape[1]) * bin_width * 1E3 # convert to ms
         fmin = 1250.09765625
         fmax = 1549.90234375
 
