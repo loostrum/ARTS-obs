@@ -68,6 +68,7 @@ if [ $ncands -ne 0 ]; then
         echo "Hi there,"
         echo 
         echo "This is the FRB alert system at $(hostname --fqdn)."
+        echo
         echo "Please have a look at the attached FRB triggers from this filterbank file:"
         echo "$filfile"
         readfile $filfile
