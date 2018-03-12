@@ -33,26 +33,59 @@ cd $outputdir
 source $HOME/venv/bin/activate
 # process the triggers without making plots
 #python $triggerscript --sig_thresh $snrmin --ndm $ndm --save_data $fmt --mk_plot --ntrig $ntrig --nfreq_plot $nfreq_plot --ntime_plot $ntime_plot --cmap $cmap $filfile $prefix.trigger
-python $triggerscript --dm_thresh $dmmin --sig_thresh $snrmin --ndm $ndm --save_data $fmt --ntrig $ntrig --nfreq_plot $nfreq_plot --ntime_plot $ntime_plot --cmap $cmap $filfile ${prefix}.trigger
+#python $triggerscript --dm_thresh $dmmin --sig_thresh $snrmin --ndm $ndm --save_data $fmt --ntrig $ntrig --nfreq_plot $nfreq_plot --ntime_plot $ntime_plot --cmap $cmap $filfile ${prefix}.trigger
 # concatenate hdf5 files
-python $preproc --fnout combined.hdf5 --nfreq_f $nfreq_plot --ntime_f $ntime_plot $(pwd)
+#python $preproc --fnout combined.hdf5 --nfreq_f $nfreq_plot --ntime_f $ntime_plot $(pwd)
 deactivate
 # run the classifier
 spack unload cuda
 spack load cuda@9.0
 source /export/astron/oostrum/tensorflow/bin/activate
-python $classifier combined.hdf5
+#python $classifier combined.hdf5
 deactivate
 # make plots
 source $HOME/venv/bin/activate
-python $plotter combinefreq_time_candidates.hdf5
+#python $plotter combinefreq_time_candidates.hdf5
 deactivate
-# merge 
-ncands=$(ls plots | wc -l)
-if [ $ncands -eq 0 ]; then
-    touch candidates.pdf
+# merge and email
+ncands=$(ls $outputdir/plots | wc -l)
+mailto="oostrum@astron.nl"
+subject="$(date): FRB triggers from $(hostname --fqdn)"
+attachment=candidates.pdf
+if [ $ncands -ne 0 ]; then
+    gs -dBATCH -dNOPAUSE -q -sDEVICE=pdfwrite -sOutputFile=$attachment plots/*pdf
+    (
+        echo To: $mailto
+        echo Subject: $subject
+        echo "MIME-Version: 1.0"
+        echo "Content-Type: multipart/mixed; boundary="-q1w2e3r4t5""
+        echo
+        echo "---q1w2e3r4t5"
+        echo "Content-Type: text/plain; charset=utf-8"
+        echo "Content-Transfer-Encoding: 8bit"
+        echo
+        echo "Hi there,"
+        echo 
+        echo "This is the FRB alert system at $(hostname --fqdn)."
+        echo "Please have a look at the attached FRB triggers."
+        echo "---q1w2e3r4t5"
+        echo "Content-Type: application/pdf; charset=utf-8; name=$attachment"
+        echo "Content-Transfer-Encoding: base64"
+        echo "Content-Disposition: attachment; filename=$name"
+        echo
+        base64 < $attachment
+        echo
+        echo "---q1w2e3r4t5--"
+    ) | /usr/sbin/sendmail $mailto
 else
-    gs -dBATCH -dNOPAUSE -q -sDEVICE=pdfwrite -sOutputFile=candidates.pdf plots/*pdf
+    # no candidates found
+    (
+        echo To: $mailto
+        echo Subject: $subject
+        echo "Hi there,"
+        echo 
+        echo "This is the FRB alert system at $(hostname --fqdn)."
+        echo "No triggers were found."
+    ) | /usr/sbin/sendmail $mailto
+
 fi
-# email
-$HOME/bin/emailer candidates.pdf
