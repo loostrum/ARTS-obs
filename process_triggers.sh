@@ -34,7 +34,7 @@ source $HOME/venv/bin/activate
 # process the triggers without making plots
 python $triggerscript --dm_thresh $dmmin --sig_thresh $snrmin --ndm $ndm --save_data $fmt --ntrig $ntrig --nfreq_plot $nfreq_plot --ntime_plot $ntime_plot --cmap $cmap $filfile ${prefix}.trigger
 # get number of triggers after grouping
-ncand_grouped=$(wc -l grouped_pulses.singlepulse)
+ncand_grouped=$(wc -l grouped_pulses.singlepulse | awk '{print $1}')
 # concatenate hdf5 files
 python $preproc --fnout combined.hdf5 --nfreq_f $nfreq_plot --ntime_f $ntime_plot $(pwd)
 deactivate
