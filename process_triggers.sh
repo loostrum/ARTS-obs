@@ -32,7 +32,6 @@ mkdir -p $outputdir/plots
 cd $outputdir
 source $HOME/venv/bin/activate
 # process the triggers without making plots
-python $triggerscript --sig_thresh $snrmin --ndm $ndm --save_data $fmt --mk_plot --ntrig $ntrig --nfreq_plot $nfreq_plot --ntime_plot $ntime_plot --cmap $cmap $filfile $prefix.trigger
 python $triggerscript --dm_thresh $dmmin --sig_thresh $snrmin --ndm $ndm --save_data $fmt --ntrig $ntrig --nfreq_plot $nfreq_plot --ntime_plot $ntime_plot --cmap $cmap $filfile ${prefix}.trigger
 # get number of triggers after grouping
 ncand_grouped=$(wc -l grouped_pulses.singlepulse)
