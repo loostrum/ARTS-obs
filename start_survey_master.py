@@ -30,6 +30,12 @@ def run_on_node(node, command, background=False):
         background: whether to run ssh in the background
     """
     if isinstance(node, str):
+        if len(node) == 1:
+            # assume a leading 0 is missing
+            node = '0'+node
+        elif len(node) > 2:
+            # wrong, should only have 2 digits. Assume extra leading zeros
+            node = node[-3:]
         hostname = "arts0{}".format(node)
     else:
         hostname = "arts0{:02d}".format(node)
