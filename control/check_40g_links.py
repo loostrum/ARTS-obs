@@ -20,6 +20,6 @@ if __name__ == '__main__':
         if os.system(cmd) == 0:
             online_links.append("{:02d}".format(beam))
         else:
-            sys.stderr.write("WARNING: skipping offline link: CB{:02d}\n".format(beam))
+            sys.stderr.write("WARNING: skipping offline link: CB{:02d} @ {}\n".format(beam, hostname))
 
     print ','.join(online_links)
