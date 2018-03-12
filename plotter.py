@@ -26,18 +26,19 @@ if __name__ == '__main__':
         prob = probability[i]
         snr, dm, boxcar_width, t0 = params[i]
 
-        times = np.arange(data_freq_time.shape[1]) * 40.96E-3  # tsamp in ms
-        freqs = np.arange(data_freq_time.shape[0]) * 0.1953125 + 1250.09765625
+        times = np.arange(data_freq_time.shape[1]) * 40.96E-3 * boxcar_width  # ms
+        fmin = 1250.09765625
+        fmax = 1549.90234375
 
         fig, (ax1, ax2) = plt.subplots(nrows=2, sharex=True, gridspec_kw=dict(height_ratios=[1, 2]))
 
         # timeseries
-        ax1.plot(times, np.average(data_freq_time, axis=0), c='k')
+        ax1.plot(times, np.sum(data_freq_time, axis=0)/np.sqrt(data_freq_time.shape[0]), c='k')
         ax1.set_xlabel('Time (ms)')
         ax1.set_ylabel('S/N')
         # waterfall plot
         # scaling: std = 1, median=0
-        extent = [times[0], times[-1], freqs[0], freqs[-1]]
+        extent = [times[0], times[-1], fmin, fmax]
         ax2.imshow(data_freq_time, cmap='viridis', vmin=-3, vmax=3, interpolation='nearest', aspect='equal', origin='lower', extent=extent)
         ax2.set_xlabel('Time (ms)')
         ax2.set_ylabel('Freq (Mhz)')
