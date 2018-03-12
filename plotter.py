@@ -26,8 +26,8 @@ if __name__ == '__main__':
         prob = probability[i]
         snr, dm, boxcar_width, t0 = params[i]
 
-        times = np.arange(data_freq_time.shape[0]) * 40.96E-3  # tsamp in ms
-        freqs = np.arange(data_freq_time.shape[1]) * 0.1953125 + 1250.09765625
+        times = np.arange(data_freq_time.shape[1]) * 40.96E-3  # tsamp in ms
+        freqs = np.arange(data_freq_time.shape[0]) * 0.1953125 + 1250.09765625
 
         fig, (ax1, ax2) = plt.subplots(nrows=2, sharex=True, gridspec_kw=dict(height_ratios=[1, 2]))
 
