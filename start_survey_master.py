@@ -223,7 +223,7 @@ def start_survey(args):
     log("Copying files to nodes")
     for beam in pars['beams']:
         node = beam + 1
-        cmd = "scp -r nodes/ arts0{:02d}.apertif:ARTS-obs/ &".format(node)
+        cmd = "scp -r nodes/ arts0{:02d}.apertif:ARTS-obs/ >/dev/null &".format(node)
         os.system(cmd)
     sleep(2)
     log("Done")
