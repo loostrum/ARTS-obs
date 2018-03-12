@@ -37,7 +37,7 @@ if __name__ == '__main__':
         ax1.set_ylabel('S/N')
         # waterfall plot
         # scaling: std = 1, median=0
-        extent = [times[0], times[-1], freqs[0], freq[-1]]
+        extent = [times[0], times[-1], freqs[0], freqs[-1]]
         ax2.imshow(data_freq_time, cmap='viridis', vmin=-3, vmax=3, interpolation='nearest', aspect='equal', origin='lower', extent=extent)
         ax2.set_xlabel('Time (ms)')
         ax2.set_ylabel('Freq (Mhz)')
