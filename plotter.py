@@ -26,7 +26,7 @@ if __name__ == '__main__':
         prob = probability[i]
         snr, dm, bin_width, t0 = params[i]
 
-        times = np.arange(data_freq_time.shape[1]) * bin_width * 1E3 # convert to ms
+        times = np.arange(data_freq_time.shape[1]) * 40.96E-3  # ms
         fmin = 1250.09765625
         fmax = 1549.90234375
 
@@ -34,12 +34,11 @@ if __name__ == '__main__':
 
         # timeseries
         ax1.plot(times, np.sum(data_freq_time, axis=0)/np.sqrt(data_freq_time.shape[0]), c='k')
-        ax1.set_xlabel('Time (ms)')
         ax1.set_ylabel('S/N')
         # waterfall plot
         # scaling: std = 1, median=0
         extent = [times[0], times[-1], fmin, fmax]
-        ax2.imshow(data_freq_time, cmap='viridis', vmin=-3, vmax=3, interpolation='nearest', aspect='equal', origin='lower', extent=extent)
+        ax2.imshow(data_freq_time, cmap='viridis', vmin=-3, vmax=3, interpolation='nearest', aspect='auto', origin='lower', extent=extent)
         ax2.set_xlabel('Time (ms)')
         ax2.set_ylabel('Freq (Mhz)')
         fig.suptitle("p: {:.1f}, S/N: {:.0f}, DM: {:.2f}, T0: {:.2f}".format(prob, snr, dm, t0))
