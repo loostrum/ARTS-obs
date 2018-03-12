@@ -5,7 +5,7 @@ bruteforce:
     # number of GPU to use
     opencl_device: [0, 1, 2, 3]
     # name of device in config files
-    device_name: ARTS
+    device_name: ARTS_BF
     # first DM
     dm_first: [0, 1024, 2048, 3072]
     # DM step size
