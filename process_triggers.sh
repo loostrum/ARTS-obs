@@ -15,6 +15,7 @@ ntime_plot=250
 nfreq_plot=32
 ndm=1
 fmt=hdf5
+dmmin=5
 
 outputdir=$1
 filfile=$2
@@ -32,7 +33,7 @@ cd $outputdir
 source $HOME/venv/bin/activate
 # process the triggers without making plots
 #python $triggerscript --sig_thresh $snrmin --ndm $ndm --save_data $fmt --mk_plot --ntrig $ntrig --nfreq_plot $nfreq_plot --ntime_plot $ntime_plot --cmap $cmap $filfile $prefix.trigger
-python $triggerscript --sig_thresh $snrmin --ndm $ndm --save_data $fmt --ntrig $ntrig --nfreq_plot $nfreq_plot --ntime_plot $ntime_plot --cmap $cmap $filfile ${prefix}.trigger
+python $triggerscript --dm_thresh $dmmin --sig_thresh $snrmin --ndm $ndm --save_data $fmt --ntrig $ntrig --nfreq_plot $nfreq_plot --ntime_plot $ntime_plot --cmap $cmap $filfile ${prefix}.trigger
 # concatenate hdf5 files
 python $preproc --fnout combined.hdf5 --nfreq_f $nfreq_plot --ntime_f $ntime_plot $(pwd)
 deactivate
@@ -47,6 +48,11 @@ source $HOME/venv/bin/activate
 python $plotter combinefreq_time_candidates.hdf5
 deactivate
 # merge 
-gs -dBATCH -dNOPAUSE -q -sDEVICE=pdfwrite -sOutputFile=candidates.pdf plots/*pdf
+nands=$(ls plots | wc -l)
+if [ $ncands -eq 0 ]; then
+    touch candidates.pdf
+else
+    gs -dBATCH -dNOPAUSE -q -sDEVICE=pdfwrite -sOutputFile=candidates.pdf plots/*pdf
+fi
 # email
 $HOME/bin/emailer candidates.pdf
