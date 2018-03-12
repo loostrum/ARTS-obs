@@ -30,7 +30,7 @@ else
     pol=""
 fi
 
-ssh -t arts@192.168.3.74 python /home/arts/SVN/RadioHDL/trunk/applications/apertif/commissioning/main.py --app $sc --tel $tels --unb $unbs $opts $pol
+ssh -t arts@192.168.3.74 python /home/arts/SVN/RadioHDL/trunk/applications/apertif/commissioning/main.py --app arts_sc4 --tel $tels --unb $unbs $opts $pol
 
 # Gain, correcting for nr of pols
 if [ "$pol" == "" ]; then
