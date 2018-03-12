@@ -42,11 +42,11 @@ deactivate
 spack unload cuda
 spack load cuda@9.0
 source /export/astron/oostrum/tensorflow/bin/activate
-#python $classifier combined.hdf5
+python $classifier combined.hdf5
 deactivate
 # make plots
 source $HOME/venv/bin/activate
-#python $plotter combinefreq_time_candidates.hdf5
+python $plotter combinefreq_time_candidates.hdf5
 deactivate
 # merge and email
 ncands=$(ls $outputdir/plots | wc -l)
