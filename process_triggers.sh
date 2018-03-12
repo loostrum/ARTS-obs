@@ -48,7 +48,7 @@ source $HOME/venv/bin/activate
 python $plotter combinefreq_time_candidates.hdf5
 deactivate
 # merge 
-nands=$(ls plots | wc -l)
+ncands=$(ls plots | wc -l)
 if [ $ncands -eq 0 ]; then
     touch candidates.pdf
 else
