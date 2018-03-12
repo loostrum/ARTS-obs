@@ -24,6 +24,9 @@ snrmin=$4
 # create master trigger files
 cat ${prefix}_step*trigger > ${prefix}.trigger
 
+# make sure we start clean
+rm -f $outputdir/*hdf5
+rm -f $outputdir/plots/*pdf
 mkdir -p $outputdir/plots
 cd $outputdir
 source $HOME/venv/bin/activate
