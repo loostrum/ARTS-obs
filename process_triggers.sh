@@ -93,7 +93,7 @@ else
         echo "This is the FRB alert system at $(hostname --fqdn)."
         echo "No FRB triggers were found in this filterbank file:"
         echo "$filfile"
-        readfile $filfile
+        readfile $filfile | tail -n +5
         echo "Number of candidates after grouping: $ncand_grouped"
         echo "Number of candidates after ML classifier: $ncands"
     ) | /usr/sbin/sendmail $mailto
