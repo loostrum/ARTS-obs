@@ -32,10 +32,12 @@ mkdir -p $outputdir/plots
 cd $outputdir
 source $HOME/venv/bin/activate
 # process the triggers without making plots
-#python $triggerscript --sig_thresh $snrmin --ndm $ndm --save_data $fmt --mk_plot --ntrig $ntrig --nfreq_plot $nfreq_plot --ntime_plot $ntime_plot --cmap $cmap $filfile $prefix.trigger
-#python $triggerscript --dm_thresh $dmmin --sig_thresh $snrmin --ndm $ndm --save_data $fmt --ntrig $ntrig --nfreq_plot $nfreq_plot --ntime_plot $ntime_plot --cmap $cmap $filfile ${prefix}.trigger
+python $triggerscript --sig_thresh $snrmin --ndm $ndm --save_data $fmt --mk_plot --ntrig $ntrig --nfreq_plot $nfreq_plot --ntime_plot $ntime_plot --cmap $cmap $filfile $prefix.trigger
+python $triggerscript --dm_thresh $dmmin --sig_thresh $snrmin --ndm $ndm --save_data $fmt --ntrig $ntrig --nfreq_plot $nfreq_plot --ntime_plot $ntime_plot --cmap $cmap $filfile ${prefix}.trigger
+# get number of triggers after grouping
+ncand_grouped=$(wc -l grouped_pulses.singlepulse)
 # concatenate hdf5 files
-#python $preproc --fnout combined.hdf5 --nfreq_f $nfreq_plot --ntime_f $ntime_plot $(pwd)
+python $preproc --fnout combined.hdf5 --nfreq_f $nfreq_plot --ntime_f $ntime_plot $(pwd)
 deactivate
 # run the classifier
 spack unload cuda
@@ -67,7 +69,11 @@ if [ $ncands -ne 0 ]; then
         echo "Hi there,"
         echo 
         echo "This is the FRB alert system at $(hostname --fqdn)."
-        echo "Please have a look at the attached FRB triggers."
+        echo "Please have a look at the attached FRB triggers from this filterbank file:"
+        echo "$filfile"
+        readfile $filfile
+        echo "Number of candidates after grouping: $ncand_grouped"
+        echo "Number of candidates after ML classifier: $ncands"
         echo "---q1w2e3r4t5"
         echo "Content-Type: application/pdf; charset=utf-8; name=$attachment"
         echo "Content-Transfer-Encoding: base64"
@@ -85,7 +91,11 @@ else
         echo "Hi there,"
         echo 
         echo "This is the FRB alert system at $(hostname --fqdn)."
-        echo "No triggers were found."
+        echo "No FRB triggers were found in this filterbank file:"
+        echo "$filfile"
+        readfile $filfile
+        echo "Number of candidates after grouping: $ncand_grouped"
+        echo "Number of candidates after ML classifier: $ncands"
     ) | /usr/sbin/sendmail $mailto
 
 fi
