@@ -35,7 +35,7 @@ python $preproc --fnout combined.hdf5 --nfreq_f $nfreq_plot --ntime_f $ntime_plo
 deactivate
 # run the classifier
 spack unload cuda
-spack load cuda@9.1
+spack load cuda@9.0
 source /export/astron/oostrum/tensorflow/bin/activate
 python $classifier combined.hdf5
 deactivate
