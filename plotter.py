@@ -33,12 +33,14 @@ if __name__ == '__main__':
 
         # timeseries
         ax1.plot(times, np.average(data_freq_time, axis=0), c='k')
-        ax.set_xlabel('Time (ms)')
-        ax.set_ylabel('S/N')
+        ax1.set_xlabel('Time (ms)')
+        ax1.set_ylabel('S/N')
         # waterfall plot
         # scaling: std = 1, median=0
         extent = [times[0], times[-1], freqs[0], freq[-1]]
         ax2.imshow(data_freq_time, cmap='viridis', vmin=-3, vmax=3, interpolation='nearest', aspect='equal', origin='lower', extent=extent)
+        ax2.set_xlabel('Time (ms)')
+        ax2.set_ylabel('Freq (Mhz)')
         fig.suptitle("p: {:.1f}, S/N: {:.0f}, DM: {:.2f}, T0: {:.2f}".format(prob, snr, dm, t0))
         plt.savefig("plots/cand_{:04d}_snr{:.0f}_dm{:.0f}.pdf".format(i, snr, dm))
         plt.close(fig)
