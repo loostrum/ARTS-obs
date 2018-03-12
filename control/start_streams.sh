@@ -11,10 +11,10 @@ if [ "$#" -ne 2 ] && [ "$#" -ne 3 ] && [ "$#" -ne 4 ]; then
     exit
 fi
 
-unbs="$2"
-tels="$3"
-opts="$4"
-pol="$5"
+unbs="$1"
+tels="$2"
+opts="$3"
+pol="$4"
 
 if [ x"$opts" == x ]; then
     opts="--opt none"
