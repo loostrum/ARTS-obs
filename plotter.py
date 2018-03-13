@@ -38,7 +38,7 @@ if __name__ == '__main__':
         # waterfall plot
         # scaling: std = 1, median=0
         extent = [times[0], times[-1], fmin, fmax]
-        ax2.imshow(data_freq_time, cmap='viridis', vmin=-3, vmax=3, interpolation='nearest', aspect='auto', origin='lower', extent=extent)
+        ax2.imshow(data_freq_time, cmap='viridis', vmin=-3, vmax=3, interpolation='nearest', aspect='auto', origin='upper', extent=extent)
         ax2.set_xlabel('Time (ms)')
         ax2.set_ylabel('Freq (Mhz)')
         fig.suptitle("p: {:.1f}, S/N: {:.0f}, DM: {:.2f}, T0: {:.2f}".format(prob, snr, dm, t0))
