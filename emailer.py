@@ -5,6 +5,7 @@
 
 import os
 import smtplib
+from email.mime.application import MIMEApplication
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 
@@ -12,6 +13,7 @@ from email.mime.text import MIMEText
 if __name__ == '__main__':
     frm = "ARTS FRB Detection System <arts@arts041.apertif>"
     to = "oostrum@astron.nl"
+    files = ["empty.pdf"]
 
     msg = MIMEMultipart('alternative')
     msg['Subject'] = "subject"
@@ -44,6 +46,12 @@ if __name__ == '__main__':
     </html>"""
 
     msg.attach(MIMEText(txt, 'html'))
+
+    for fname in files or ():
+        with open(fname, 'rb') as f:
+            part = MIMEApplication(f.read(), Name=os.path.basename(fname))
+        part['Content-Disposition'] = 'attachment; filename="{}"'.format(os.path.basename(fname))
+        msg.attach(part)
 
     smtp = smtplib.SMTP()
     smtp.connect()
