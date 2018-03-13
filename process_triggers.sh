@@ -56,7 +56,7 @@ attachment=candidates.pdf
 if [ $ncands -ne 0 ]; then
     gs -dBATCH -dNOPAUSE -q -sDEVICE=pdfwrite -sOutputFile=$attachment plots/*pdf
     (
-        echo "From: ARTS FRB Alert System <arts@${hostname}.apertif>"
+        echo "From: ARTS FRB Alert System <arts@$(hostname).apertif>"
         echo "To: $mailto"
         echo "Subject: $subject"
         echo "MIME-Version: 1.0"
@@ -87,7 +87,7 @@ if [ $ncands -ne 0 ]; then
 else
     # no candidates found
     (
-        echo "From: ARTS FRB Alert System <arts@${hostname}.apertif>"
+        echo "From: ARTS FRB Alert System <arts@$(hostname).apertif>"
         echo "To: $mailto"
         echo "Subject: $subject"
         echo "Hi there,"
