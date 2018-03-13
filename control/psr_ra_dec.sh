@@ -7,8 +7,8 @@ if [ -z $psr ]; then
     exit
 fi
 
-RA=$(psrcat -e $psr | grep RAJ | awk '{echo $2}')
-DEC=$(psrcat -e $psr | grep DECJ | awk '{echo $2}')
+RA=$(psrcat -e $psr | grep RAJ | awk '{print $2}')
+DEC=$(psrcat -e $psr | grep DECJ | awk '{print $2}')
 
 if [ -z $RA ]; then
     echo "Warning: coordinates not found for PSR $psr"
