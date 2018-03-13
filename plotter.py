@@ -26,7 +26,7 @@ if __name__ == '__main__':
         prob = probability[i]
         snr, dm, bin_width, t0 = params[i]
 
-        times = np.arange(data_freq_time.shape[1]) * 40.96E-3  # ms
+        times = np.arange(data_freq_time.shape[1]) * bin_width * 1E3  # ms
         fmin = 1250.09765625
         fmax = 1549.90234375
 
@@ -41,6 +41,6 @@ if __name__ == '__main__':
         ax2.imshow(data_freq_time, cmap='viridis', vmin=-3, vmax=3, interpolation='nearest', aspect='auto', origin='upper', extent=extent)
         ax2.set_xlabel('Time (ms)')
         ax2.set_ylabel('Freq (Mhz)')
-        fig.suptitle("p: {:.1f}, S/N: {:.0f}, DM: {:.2f}, T0: {:.2f}".format(prob, snr, dm, t0))
+        fig.suptitle("p: {:.2f}, S/N: {:.0f}, DM: {:.2f}, T0: {:.2f}".format(prob, snr, dm, t0))
         plt.savefig("plots/cand_{:04d}_snr{:.0f}_dm{:.0f}.pdf".format(i, snr, dm))
         plt.close(fig)
