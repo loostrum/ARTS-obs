@@ -49,7 +49,7 @@ if __name__ == '__main__':
 
     for fname in files or ():
         with open(fname, 'rb') as f:
-            part = MIMEApplication(f.read(), Name=os.path.basename(fname))
+            part = MIMEApplication(f.read(), 'pdf', Name=os.path.basename(fname))
         part['Content-Disposition'] = 'attachment; filename="{}"'.format(os.path.basename(fname))
         msg.attach(part)
 
