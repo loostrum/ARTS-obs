@@ -166,7 +166,14 @@ def start_survey(args):
             # beam was not in list of beams anyway
             continue
 
-    # we have all parameters now, create psrdada header and config file for each beam
+    # we have all parameters now
+    # create output dirs on master node
+    for beam in pars['beams']:
+        cmd = "mkdir -p {master_dir}/CB{beam:02d}".format(beam=beam, **pars))
+        log(cmd)
+        os.system(cmd)
+
+    #create psrdada header and config file for each beam
     # config file
     cfg = {}
     cfg['buffersize'] = pars['ntabs'] * pars['nchan'] * pars['pagesize']
