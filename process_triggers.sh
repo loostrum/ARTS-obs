@@ -7,6 +7,7 @@
 triggerscript=$HOME/software/arts-analysis/triggers.py
 preproc=$HOME/software/arts-analysis/preprocess.py
 classifier=$HOME/software/single_pulse_ml/single_pulse_ml/run_single_pulse_DL.py
+trigger_to_master=$HOME/ARTS-obs/trigger_to_master.py
 plotter=$HOME/ARTS-obs/plotter.py
 
 ntrig=1000000
@@ -20,7 +21,8 @@ dmmin=5
 outputdir=$1
 filfile=$2
 prefix=$3
-snrmin=$4
+master_dir=$4
+snrmin=$5
 
 # create master trigger files
 cat ${prefix}_step*trigger > ${prefix}.trigger
@@ -48,56 +50,64 @@ deactivate
 source $HOME/venv/bin/activate
 python $plotter combinefreq_time_candidates.hdf5
 deactivate
-# merge and email
+# merge and copy to master node
 ncands=$(ls $outputdir/plots | wc -l)
-mailto="oostrum@astron.nl"
-subject="$(date): FRB triggers from $(hostname --fqdn)"
-attachment=candidates.pdf
+merged=candidates.pdf
 if [ $ncands -ne 0 ]; then
-    gs -dBATCH -dNOPAUSE -q -sDEVICE=pdfwrite -sOutputFile=$attachment plots/*pdf
-    (
-        echo "From: ARTS FRB Alert System <arts@$(hostname).apertif>"
-        echo "To: $mailto"
-        echo "Subject: $subject"
-        echo "MIME-Version: 1.0"
-        echo "Content-Type: multipart/mixed; boundary="-q1w2e3r4t5""
-        echo
-        echo "---q1w2e3r4t5"
-        echo "Content-Type: text/plain; charset=utf-8"
-        echo "Content-Transfer-Encoding: 8bit"
-        echo
-        echo "Hi there,"
-        echo 
-        echo "This is the FRB alert system at $(hostname --fqdn)."
-        echo
-        echo "Please have a look at the attached FRB triggers from this filterbank file:"
-        echo "$filfile"
-        readfile $filfile
-        echo "Number of candidates after grouping: $ncand_grouped"
-        echo "Number of candidates after ML classifier: $ncands"
-        echo "---q1w2e3r4t5"
-        echo "Content-Type: application/pdf; charset=utf-8; name=$attachment"
-        echo "Content-Transfer-Encoding: base64"
-        echo "Content-Disposition: attachment; filename=$name"
-        echo
-        base64 < $attachment
-        echo
-        echo "---q1w2e3r4t5--"
-    ) | /usr/sbin/sendmail $mailto
-else
-    # no candidates found
-    (
-        echo "From: ARTS FRB Alert System <arts@$(hostname).apertif>"
-        echo "To: $mailto"
-        echo "Subject: $subject"
-        echo "Hi there,"
-        echo 
-        echo "This is the FRB alert system at $(hostname --fqdn)."
-        echo "No FRB triggers were found in this filterbank file:"
-        echo "$filfile"
-        readfile $filfile | tail -n +5
-        echo "Number of candidates after grouping: $ncand_grouped"
-        echo "Number of candidates after ML classifier: $ncands"
-    ) | /usr/sbin/sendmail $mailto
-
+    # create merged pdf
+    gs -dBATCH -dNOPAUSE -q -sDEVICE=pdfwrite -sOutputFile=$merged plots/*pdf
 fi
+# copy results to masternode
+python $trigger_to_master combinefreq_time_candidates.hdf5 $ncand_grouped $master_dir
+
+#mailto="oostrum@astron.nl"
+#subject="$(date): FRB triggers from $(hostname --fqdn)"
+#attachment=candidates.pdf
+#if [ $ncands -ne 0 ]; then
+#    gs -dBATCH -dNOPAUSE -q -sDEVICE=pdfwrite -sOutputFile=$attachment plots/*pdf
+#    (
+#        echo "From: ARTS FRB Alert System <arts@$(hostname).apertif>"
+#        echo "To: $mailto"
+#        echo "Subject: $subject"
+#        echo "MIME-Version: 1.0"
+#        echo "Content-Type: multipart/mixed; boundary="-q1w2e3r4t5""
+#        echo
+#        echo "---q1w2e3r4t5"
+#        echo "Content-Type: text/plain; charset=utf-8"
+#        echo "Content-Transfer-Encoding: 8bit"
+#        echo
+#        echo "Hi there,"
+#        echo 
+#        echo "This is the FRB alert system at $(hostname --fqdn)."
+#        echo
+#        echo "Please have a look at the attached FRB triggers from this filterbank file:"
+#        echo "$filfile"
+#        readfile $filfile
+#        echo "Number of candidates after grouping: $ncand_grouped"
+#        echo "Number of candidates after ML classifier: $ncands"
+#        echo "---q1w2e3r4t5"
+#        echo "Content-Type: application/pdf; charset=utf-8; name=$attachment"
+#        echo "Content-Transfer-Encoding: base64"
+#        echo "Content-Disposition: attachment; filename=$name"
+#        echo
+#        base64 < $attachment
+#        echo
+#        echo "---q1w2e3r4t5--"
+#    ) | /usr/sbin/sendmail $mailto
+#else
+#    # no candidates found
+#    (
+#        echo "From: ARTS FRB Alert System <arts@$(hostname).apertif>"
+#        echo "To: $mailto"
+#        echo "Subject: $subject"
+#        echo "Hi there,"
+#        echo 
+#        echo "This is the FRB alert system at $(hostname --fqdn)."
+#        echo "No FRB triggers were found in this filterbank file:"
+#        echo "$filfile"
+#        readfile $filfile | tail -n +5
+#        echo "Number of candidates after grouping: $ncand_grouped"
+#        echo "Number of candidates after ML classifier: $ncands"
+#    ) | /usr/sbin/sendmail $mailto
+#
+#fi
