@@ -12,7 +12,7 @@ CONTROL=$SOURCE_DIR/control
 
 # scripts only for master node
 if [ "$(hostname)" == "$MASTER" ]; then
-    alias start_streams$CONTROL/start_streams.sh
+    alias start_streams=$CONTROL/start_streams.sh
     alias set_gain=$CONTROL/set_gain.sh
     alias read_gain=$CONTROL/read_gain.sh
     alias point_array=$CONTROL/point_array.sh
