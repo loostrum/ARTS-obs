@@ -194,7 +194,7 @@ def start_survey(args):
     cfg['amber_mode'] = pars['amber_mode']
 
     # load PSRDADA header template
-    with open(TEMPLATE, 'r') as f:
+    with open(os.path.join(os.path.dirname(os.path.realpath(__file__)), TEMPLATE), 'r') as f:
         header_template = f.read()
 
     for beam in pars['beams']:
