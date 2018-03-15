@@ -36,29 +36,33 @@ source $HOME/venv/bin/activate
 # process the triggers without making plots
 python $triggerscript --dm_thresh $dmmin --sig_thresh $snrmin --ndm $ndm --save_data $fmt --ntrig $ntrig --nfreq_plot $nfreq_plot --ntime_plot $ntime_plot --cmap $cmap $filfile ${prefix}.trigger
 # get number of triggers after grouping
-ncand_grouped=$(wc -l grouped_pulses.singlepulse | awk '{print $1}')
-# concatenate hdf5 files
-python $preproc --fnout combined.hdf5 --nfreq_f $nfreq_plot --ntime_f $ntime_plot $(pwd)
-deactivate
-# run the classifier
-spack unload cuda
-spack load cuda@9.0
-source /export/astron/oostrum/tensorflow/bin/activate
-python $classifier combined.hdf5
-deactivate
-# make plots
-source $HOME/venv/bin/activate
-python $plotter combinefreq_time_candidates.hdf5
-deactivate
-# merge and copy to master node
-ncands=$(ls $outputdir/plots | wc -l)
-merged=candidates.pdf
-if [ $ncands -ne 0 ]; then
-    # create merged pdf
-    gs -dBATCH -dNOPAUSE -q -sDEVICE=pdfwrite -sOutputFile=$merged plots/*pdf
+if [ ! -f grouped_pulses.singlepulse ]; then
+    ncand_grouped=0
+else
+    ncand_grouped=$(wc -l grouped_pulses.singlepulse | awk '{print $1}')
+    # concatenate hdf5 files
+    python $preproc --fnout combined.hdf5 --nfreq_f $nfreq_plot --ntime_f $ntime_plot $(pwd)
+    deactivate
+    # run the classifier
+    spack unload cuda
+    spack load cuda@9.0
+    source /export/astron/oostrum/tensorflow/bin/activate
+    python $classifier combined.hdf5
+    deactivate
+    # make plots
+    source $HOME/venv/bin/activate
+    python $plotter combinefreq_time_candidates.hdf5
+    # merge and copy to master node
+    ncands=$(ls $outputdir/plots | wc -l)
+    merged=candidates.pdf
+    if [ $ncands -ne 0 ]; then
+        # create merged pdf
+        gs -dBATCH -dNOPAUSE -q -sDEVICE=pdfwrite -sOutputFile=$merged plots/*pdf
+    fi
 fi
 # copy results to masternode
 python $trigger_to_master combinefreq_time_candidates.hdf5 $ncand_grouped $master_dir
+deactivate
 
 #mailto="oostrum@astron.nl"
 #subject="$(date): FRB triggers from $(hostname --fqdn)"

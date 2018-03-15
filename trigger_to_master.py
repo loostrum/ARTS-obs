@@ -46,7 +46,7 @@ if __name__ == '__main__':
 
     # copy candidates file if it exists
     fname = 'candidates.pdf'
-    if os.path.isfile(fname)
+    if os.path.isfile(fname):
         cmd = "scp {fname} arts041:{master_dir}/CB{beam:02d} &".format(fname=fname, master_dir=master_dir, beam=beam)
         os.system(cmd)
 
