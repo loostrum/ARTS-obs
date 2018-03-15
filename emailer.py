@@ -133,7 +133,7 @@ if __name__ == '__main__':
 
     <hr align="left" width="50%" />
 
-    <p><h2>Statistics per Compound Beam</h2><br />
+    <p><h2>Compound Beam statistics</h2><br />
     <table style="width:50%">
     <tr style="text-align:left">
         <th>CB</th>
