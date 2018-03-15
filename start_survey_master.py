@@ -14,7 +14,8 @@ from time import sleep
 import yaml
 import numpy as np
 from astropy.time import Time
-from astropy.coordinates import SkyCoord
+from astropy import units as u
+from astropy.coordinates import SkyCoord, EarthLocation, AltAz
 
 CONFIG = "config.yaml"
 NODECONFIG = "nodes/CB{:02d}.yaml"
@@ -313,17 +314,22 @@ def start_survey(args):
         with open(filename, 'w') as f:
             yaml.dump(cfg, f, default_flow_style=False)
 
-
+        # define coordinates for both master and nodes
+        coord = SkyCoord(pars['ra'], pars['dec'], unit=(u.hourangle, u.deg))
+        wsrt_loc = EarthLocation(lat=52.915184*u.deg, lon=6.60387*u.deg, height=0*u.m)
+        gl, gb = coord.galactic.to_string().split(' ')
+        alt, az = coord.transform_to(AltAz(obstime=starttime,location=wsrt_loc)).to_string().split(' ')
+        za = 90 - float(alt)
 
         # fill in the psrdada header keys
         temppars = pars.copy()
         temppars['ra'] = pars['ra'].replace(':', '')
         temppars['dec'] = pars['dec'].replace(':','')
+        temppars['az_start'] = az
+        temppars['za_start'] = za
         temppars['resolution'] = pars['pagesize'] * pars['nchan']
         temppars['bps'] = int(pars['pagesize'] * pars['nchan'] / 1.024)
         temppars['beam'] = beam
-        temppars['az_start'] = 0
-        temppars['za_start'] = 0
 
         header = header_template.format(**temppars)
 
