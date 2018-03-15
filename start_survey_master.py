@@ -169,7 +169,7 @@ def start_survey(args):
     # we have all parameters now
     # create output dirs on master node
     for beam in pars['beams']:
-        cmd = "mkdir -p {master_dir}/CB{beam:02d}".format(beam=beam, **pars))
+        cmd = "mkdir -p {master_dir}/CB{beam:02d}".format(beam=beam, **pars)
         log(cmd)
         os.system(cmd)
 
