@@ -273,11 +273,10 @@ def start_survey(args):
             continue
 
     # we have all parameters now
-    # create output dirs on master node
-    for beam in pars['beams']:
-        cmd = "mkdir -p {master_dir}/".format(**pars)
-        log(cmd)
-        os.system(cmd)
+    # create output dir on master node
+    cmd = "mkdir -p {master_dir}/".format(**pars)
+    os.system(cmd)
+    log(cmd)
 
     #create psrdada header and config file for each beam
     # config file
