@@ -322,7 +322,7 @@ def start_survey(args):
 
         # save the coordinates of the beams
         this_cb_coord = pointing_to_CB_pos(beam, coord)
-        gl, gb = coord.galactic.to_string().split(' ')
+        gl, gb = coord.galactic.to_string(precision=8).split(' ')
         alt, az = coord.transform_to(AltAz(obstime=starttime, location=wsrt_loc)).to_string().split(' ')
         ra = this_cb_coord.ra.to_string(unit=u.hourangle, sep=':', pad=True)
         dec = this_cb_coord.dec.to_string(unit=u.degree, sep=':', pad=True)
@@ -369,6 +369,7 @@ def start_survey(args):
     # start the trigger listener + emailer
     email_script = os.path.join(script_path, "emailer.py")
     cmd = "python {email_script} {master_dir} {beams} &".format(email_script=email_script, **pars)
+    log(cmd)
     os.system(cmd)
 
     sleep(1)
