@@ -14,6 +14,7 @@ from time import sleep
 import yaml
 import numpy as np
 from astropy.time import Time
+from astropy.coordinates import SkyCoord
 
 CONFIG = "config.yaml"
 NODECONFIG = "nodes/CB{:02d}.yaml"
@@ -55,6 +56,108 @@ def log(message):
     Log a message. Prints the hostname, then the message
     """
     print "Master: {}".format(message)
+
+
+def pointing_to_CB_pos(CB, coords, pol='X'):
+    """
+    Convert dish pointing to RA and DEC of specified CB
+    CB: number of CB to get position of
+    coords: astropy.coordinates.SkyCoord object with dish pointing
+    pol: polarization to use: X, Y, or average. Default: X
+    returns: SkyCoord object with shifted coordinates
+    """
+
+    # PAF layout is based on generic elements (gels):
+    # generic element (gel) layout:
+    #
+    #  0-----55------110
+    #  |      |      |
+    #  |      |      |
+    #  5-----60------115
+    #  |      |      |
+    #  |      |      |
+    #  10----65------120
+    #
+    # +DEC = North = down, +HA is West = right
+    # +RA = east = left
+
+    # 11*11 grid of elements
+    nrows = 11
+    ncols = 11
+    # gel offsets
+    offset_to_RADEC = 0.375  # degrees
+    shift = 0.075  # degrees, extra shift needed for some rows/cols to match Apertif layout
+
+    # gel for each CB, -1 means gel is not used
+    # because gels use fortran ordering, this looks like the transpose of the beam layout on-sky
+    gel_to_CB = [ -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1, \
+                  -1,  -1,   0,  -1,  12,  -1,  26,  -1,  23,  -1,  -1, \
+                  -1,   3,   0,   6,  12,  20,  26,  32,  23,  -1,  -1, \
+                  -1,   3,   1,   6,  15,  20,  27,  32,  28,  -1,  -1, \
+                  -1,   8,   1,   7,  15,  21,  27,  35,  28,  -1,  -1, \
+                  -1,   8,   2,   7,  16,  21,  30,  35,  33,  -1,  -1, \
+                  -1,  13,   2,  10,  16,  22,  30,  36,  33,  -1,  -1, \
+                  -1,  13,   5,  10,  17,  22,  31,  36,  38,  -1,  -1, \
+                  -1,  18,   5,  11,  17,  25,  31,  37,  38,  -1,  -1, \
+                  -1,  18,  -1,  11,  -1,  25,  -1,  37,  -1,  -1,  -1, \
+                  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1]
+    # create CB -> gel mapping
+    CB_to_gel_X = {}
+    CB_to_gel_Y = {}
+    for gel, cb in enumerate(gel_to_CB):
+        if gel % 2:
+            CB_to_gel_Y[cb] = gel
+        else:
+            CB_to_gel_X[cb] = gel
+
+    # get the gel numbers of the requested CB
+    try:
+        gel = [CB_to_gel_X[CB], CB_to_gel_Y[CB]]
+    except KeyError:
+        # CB is not in IAB selection
+        log("Could not get gel of CB{:02d}, returning input coordinates".format(CB))
+        return coords
+
+    # get row and column of gel
+    # loop over X and Y element
+    tmpshift = []
+    for ele in gel:
+        # Negative offsets are up and left with respect to central element. 
+        # That corresponds to a negative offset in DEC and a positive offset in RA
+        # gels use fortran ordering: row = RA, col = DEC
+        # rows: negative offset = left = positive RA: multiply by -1
+        # cols: negative ofset = up = negative DEC: correct
+        row = -1 * (np.floor(ele/ncols) - nrows//2)
+        col = (ele % nrows - nrows//2)
+
+        dRA = row * offset_to_RADEC 
+        dDEC = col * offset_to_RADEC
+        # apply shifts (do not understand yet why these are needed to match Apertif layout)
+        # RA (only row 3 and -3 from center, maybe more?)
+        if row % 3 == 0:
+            dRA -= shift * np.sign(dRA)
+        # DEC (every odd row from center)
+        if col % 2 == 1:
+            # odd row, shift DEC
+            dDEC -= shift * np.sign(dDEC)
+        # save
+        tmpshift.append([dRA, dDEC])
+    # choose RA DEC shift to apply
+    if pol.upper() == 'X':
+        radec_shift = tmpshift[0]
+    elif pol.upper() == 'Y':
+        radec_shift = tmpshift[1]
+    else:
+        radec_shift = np.average(tmpshift, axis=0)
+    # fix RA
+    radec_shift[0] = radec_shift[0] / np.cos(coord.dec.radian)
+
+    # apply offset
+    newra = coord.ra.degree + radec_shift[0] * u.degree
+    newdec = coord.dec.degree + radec_shift[1] * u.degree
+    newcoord = SkyCoord(newra, newdec, unit=[u.degree, u.degree])
+    return newcoord
+
 
 
 def start_survey(args):
