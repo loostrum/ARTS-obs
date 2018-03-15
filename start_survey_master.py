@@ -275,7 +275,7 @@ def start_survey(args):
     # we have all parameters now
     # create output dirs on master node
     for beam in pars['beams']:
-        cmd = "mkdir -p {master_dir}/CB{beam:02d}".format(beam=beam, **pars)
+        cmd = "mkdir -p {master_dir}/".format(**pars)
         log(cmd)
         os.system(cmd)
 
@@ -366,6 +366,11 @@ def start_survey(args):
         node_script = os.path.join(script_path, "start_survey_node.py")
         cmd = "{} nodes/CB{:02d}.yaml".format(node_script, beam)
         run_on_node(node, cmd, background=True)
+
+    # start the trigger listener + emailer
+    email_script = os.path.join(script_path, "emailer.py")
+    cmd = "python {email_script} {master_dir} {beams} &".format(email_script=email_script, **pars)
+    os.system(cmd)
 
     sleep(1)
     # done

@@ -47,7 +47,7 @@ if __name__ == '__main__':
     # copy candidates file if it exists
     fname = 'candidates.pdf'
     if os.path.isfile(fname):
-        cmd = "scp {fname} arts041:{master_dir}/CB{beam:02d} &".format(fname=fname, master_dir=master_dir, beam=beam)
+        cmd = "scp {fname} arts041:{master_dir}/ &".format(fname=fname, master_dir=master_dir)
         os.system(cmd)
 
     # create summary file
