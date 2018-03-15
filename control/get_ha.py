@@ -4,9 +4,13 @@ import sys
 import warnings
 
 import numpy as np
-from astropy.time import Time, TimeDelta
-import astropy.coordinates as c
-import astropy.units as u
+try:
+    from astropy.time import Time, TimeDelta
+    import astropy.coordinates as c
+    import astropy.units as u
+except ImportError:
+    print "Cannot import astropy"
+    exit()
 
 
 if __name__ == '__main__':
