@@ -1,4 +1,3 @@
 *.pyc
 nodes/*yaml
 nodes/*txt
-coordinates.txt

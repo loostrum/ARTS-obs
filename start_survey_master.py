@@ -345,7 +345,7 @@ def start_survey(args):
             f.write(header)
 
     # save coordinate overview to disk
-    filename = os.path.join(os.path.dirname(os.path.realpath(__file__)), COORD)
+    filename = os.path.join(pars['master_dir'], COORD)
     with open(filename, 'w') as f:
         for line in coordinates:
             f.write(' '.join(line)+'\n')
