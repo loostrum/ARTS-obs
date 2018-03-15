@@ -4,19 +4,62 @@
 # Author: L.C. Oostrum
 
 import os
+import sys
+import ast
+from time import sleep
+
+import numpy as np
 import smtplib
 from email.mime.application import MIMEApplication
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 
 
+def log(message):
+    """
+    Log a message. Prints the hostname, then the message
+    """
+    print "Master-emailer: {}".format(message)
+
+
 if __name__ == '__main__':
+    master_dir = sys.argv[1]
+    expected_beams = np.array(ast.literal_eval(sys.argv[2]), dtype=int)
+    nbeam = len(expected_beams)
+
+    # load coordinate file
+    coord_file = os.path.join(master_dir, 'coordinates.txt')
+    # columns are beam, ra, dec, gl, gb
+    coordinates = np.loadtxt(coord_file, dtype=str, ndmin=2)
+    # convert to html
+    beaminfo = ""
+    for line in coordinates:
+        beaminfo += "<tr>"
+        for val in line:
+            beaminfo += "<td>{}</td>".format(val)
+        beaminfo += "</tr>"
+        
+
+    log("Expecting {} beams".format(nbeam))
+    # wait until summary file for all beams is present
+    received_beams = 0
+    while received_beams < nbeam:
+        received_beams = 0
+        for beam in expected_beams:
+            summary_file = os.path.join(master_dir, "CB{:02d}_summary.yaml".format(beam))
+            if os.path.isfile(summary_file):
+                received_beams += 1 
+        log("Received {} out of {} beams".format(received_beams, nbeam))
+        sleep(5)
+
+    # create email
+
     frm = "ARTS FRB Detection System <arts@arts041.apertif>"
     to = "oostrum@astron.nl"
-    files = ["empty.pdf"]
+    files = ['empty.pdf']
 
     msg = MIMEMultipart('alternative')
-    msg['Subject'] = "subject"
+    msg['Subject'] = "ARTS FRB Detection System"
     msg['From'] = frm
     msg['To'] = to
 
@@ -30,20 +73,29 @@ if __name__ == '__main__':
     <b>YMW16 DM</b><br />
     </p>
 
-    <hr />
+    <hr align="left" width="50%" />
 
     <p><h2>FRB Detections</h2><br />
-    <b>SNR&emsp;Time&emsp;DM&emsp;Length&emsp;Beam</b><br />
+    <b>Probablitiy&emsp;SNR&emsp;Time&emsp;DM&emsp;Length&emsp;Beam</b><br />
     </p>
 
-    <hr .>
+    <hr align="left" width="50%" />
 
     <p><h2>Beam positions</h2><br />
-    <b>Beam&emsp;RA&emsp;DEC&emsp;Gl&emsp;Gb</b><br />
+    <table style="width:80%">
+    <tr style="text-align:left">
+        <th>Beam</th>
+        <th>RA</th>
+        <th>DEC</th>
+        <th>Gl</th>
+        <th>Gb</th>
+    </tr>
+    {beaminfo}
+    </table>
     </p>
 
     </body>
-    </html>"""
+    </html>""".format(beaminfo=beaminfo)
 
     msg.attach(MIMEText(txt, 'html'))
 

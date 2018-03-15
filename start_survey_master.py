@@ -368,7 +368,7 @@ def start_survey(args):
 
     # start the trigger listener + emailer
     email_script = os.path.join(script_path, "emailer.py")
-    cmd = "python {email_script} {master_dir} {beams} &".format(email_script=email_script, **pars)
+    cmd = "python {email_script} {master_dir} '{beams}' &".format(email_script=email_script, **pars)
     log(cmd)
     os.system(cmd)
 
