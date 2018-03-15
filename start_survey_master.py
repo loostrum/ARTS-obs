@@ -151,12 +151,10 @@ def pointing_to_CB_pos(CB, coords, pol='X'):
         radec_shift = tmpshift[1]
     else:
         radec_shift = np.average(tmpshift, axis=0)
-    # fix RA
-    radec_shift[0] = radec_shift[0] / np.cos(coord.dec.radian)
 
     # apply offset
-    newdec = coord.dec.degree + radec_shift[1]  * u.degree
-    newra = coord.ra.degree + radec_shift[0] / np.cos(newdec.radian) * u.degree
+    newdec = coords.dec.degree + radec_shift[1]
+    newra = coords.ra.degree + radec_shift[0] / np.cos(newdec * np.pi/180)
     newcoord = SkyCoord(newra, newdec, unit=[u.degree, u.degree])
     return newcoord
 
@@ -297,6 +295,7 @@ def start_survey(args):
     cfg['amber_config'] = os.path.join(os.path.dirname(os.path.realpath(__file__)), AMBERCONFIG)
     cfg['amber_dir'] = pars['amber_dir']
     cfg['log_dir'] = pars['log_dir']
+    cfg['master_dir'] = pars['master_dir']
     cfg['snrmin'] = pars['snrmin']
     cfg['proctrigger'] = pars['proctrigger']
     cfg['amber_mode'] = pars['amber_mode']
@@ -323,7 +322,7 @@ def start_survey(args):
             yaml.dump(cfg, f, default_flow_style=False)
 
         # save the coordinates of the beams
-        this_cb_coord = pointing_to_CB_pos(beam, coord):
+        this_cb_coord = pointing_to_CB_pos(beam, coord)
         gl, gb = coord.galactic.to_string().split(' ')
         alt, az = coord.transform_to(AltAz(obstime=starttime, location=wsrt_loc)).to_string().split(' ')
         ra = this_cb_coord.ra.to_string(unit=u.hourangle, sep=':', pad=True)
@@ -334,8 +333,8 @@ def start_survey(args):
         temppars = pars.copy()
         temppars['ra'] = ra.replace(':', '')
         temppars['dec'] = dec.replace(':', '')
-        temppars['az_start'] = az.degree
-        temppars['za_start'] = str(90 - float(alt.degree))
+        temppars['az_start'] = az
+        temppars['za_start'] = str(90 - float(alt))
         temppars['resolution'] = pars['pagesize'] * pars['nchan']
         temppars['bps'] = int(pars['pagesize'] * pars['nchan'] / 1.024)
         temppars['beam'] = beam
@@ -348,7 +347,8 @@ def start_survey(args):
     # save coordinate overview to disk
     filename = os.path.join(os.path.dirname(os.path.realpath(__file__)), COORD)
     with open(filename, 'w') as f:
-        f.writelines(coordinates)
+        for line in coordinates:
+            f.write(' '.join(line)+'\n')
 
     # TEMP copy the nodes config
     log("Copying files to nodes")
