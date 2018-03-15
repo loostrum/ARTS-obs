@@ -9,6 +9,7 @@ import sys
 import argparse
 import datetime
 import socket
+import subprocess
 from time import sleep
 
 import yaml
@@ -24,6 +25,7 @@ TEMPLATE = "header_template.txt"
 AMBERCONFIG = "amber.yaml"
 AMBERCONFDIR = "amber_conf"
 COORD = "coordinates.txt"
+INFO = "info.yaml"
 
 
 def run_on_node(node, command, background=False):
@@ -349,6 +351,25 @@ def start_survey(args):
         for line in coordinates:
             f.write(' '.join(line)+'\n')
 
+    # save obs info to disk
+    info = {}
+    for key in ['utcstart', 'source', 'tobs']:
+        info[key] = pars[key]
+    # get MW DMs
+    # YMW16
+    # mode, Gl, Gb, dist(pc), dist->DM. 1E6 pc should cover entire MW
+    cmd = "ymw16 Gal {} {} 1E6 2 | awk '{{print $8}}'".format(*coord.galactic.to_string(precision=8).split(' '))
+    log(cmd)
+    ymw16_dm = subprocess.check_output(cmd, shell=True)
+    try:
+        ymw16_dm = str(float(ymw16_dm))
+    except ValueError:
+        ymw16_dm = "-"
+    info['ymw16'] = ymw16_dm
+    filename = os.path.join(pars['master_dir'], INFO)
+    with open(filename, 'w') as f:
+        yaml.dump(info, f, default_flow_style=False)
+
     # TEMP copy the nodes config
     log("Copying files to nodes")
     for beam in pars['beams']:
@@ -366,9 +387,10 @@ def start_survey(args):
         cmd = "{} nodes/CB{:02d}.yaml".format(node_script, beam)
         run_on_node(node, cmd, background=True)
 
-    # start the trigger listener + emailer
+    # start the trigger listener + emailer NOTE: this is the only command that keeps running in the foreground during the obs
     email_script = os.path.join(script_path, "emailer.py")
-    cmd = "python {email_script} {master_dir} '{beams}' &".format(email_script=email_script, **pars)
+    #cmd = "sleep {tobs}; python {email_script} {master_dir} '{beams}'".format(email_script=email_script, **pars)
+    cmd = "python {email_script} {master_dir} '{beams}'".format(email_script=email_script, **pars)
     log(cmd)
     os.system(cmd)
 

@@ -15,10 +15,12 @@ if __name__ == '__main__':
     success = True
     # input hdf5 file = output of clasifier
     fname = sys.argv[1]
+    # number of candidates before grouping
+    ncand_raw = int(sys.argv[2])
     # number of candidates before ML
-    ncand_trigger = int(sys.argv[2])
+    ncand_trigger = int(sys.argv[3])
     # dir on master node
-    master_dir = sys.argv[3]
+    master_dir = sys.argv[4]
     # beam of this node
     beam = int(socket.gethostname()[5:7]) - 1
     try:
@@ -45,14 +47,16 @@ if __name__ == '__main__':
         os.system(cmd)
 
     # copy candidates file if it exists
-    fname = 'candidates.pdf'
     if os.path.isfile(fname):
-        cmd = "scp {fname} arts041:{master_dir}/ &".format(fname=fname, master_dir=master_dir)
+        cmd = "scp {fname} arts041:{master_dir}/CB{beam:02d}_candidates.pdf &".format(beam=beam, master_dir=master_dir)
         os.system(cmd)
+    else:
+        success = False
 
     # create summary file
     summary = {}
     summary['success'] = success
+    summary['ncand_raw'] = ncand_raw
     summary['ncand_trigger'] = ncand_trigger
     summary['ncand_classifier'] = ncand_classifier
     fname = "CB{:02d}_summary.yaml".format(beam)

@@ -26,6 +26,8 @@ snrmin=$5
 
 # create master trigger files
 cat ${prefix}_step*trigger > ${prefix}.trigger
+# get number of raw candidates
+ncand_raw=$(grep -v \# ${prefix}.trigger | wc -l)
 
 # make sure we start clean
 rm -f $outputdir/*hdf5
@@ -61,7 +63,7 @@ else
     fi
 fi
 # copy results to masternode
-python $trigger_to_master combinefreq_time_candidates.hdf5 $ncand_grouped $master_dir
+python $trigger_to_master combinefreq_time_candidates.hdf5 $ncand_raw $ncand_grouped $master_dir
 deactivate
 
 #mailto="oostrum@astron.nl"

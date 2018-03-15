@@ -7,8 +7,10 @@ import os
 import sys
 import ast
 from time import sleep
+from datetime import datetime
 
 import numpy as np
+import yaml
 import smtplib
 from email.mime.application import MIMEApplication
 from email.mime.multipart import MIMEMultipart
@@ -17,7 +19,7 @@ from email.mime.text import MIMEText
 
 def log(message):
     """
-    Log a message. Prints the hostname, then the message
+    Log a message. Prepends mesage with a fixed string
     """
     print "Master-emailer: {}".format(message)
 
@@ -32,34 +34,62 @@ if __name__ == '__main__':
     # columns are beam, ra, dec, gl, gb
     coordinates = np.loadtxt(coord_file, dtype=str, ndmin=2)
     # convert to html
-    beaminfo = ""
+    coordinfo = ""
     for line in coordinates:
-        beaminfo += "<tr>"
+        coordinfo += "<tr>"
         for val in line:
-            beaminfo += "<td>{}</td>".format(val)
-        beaminfo += "</tr>"
-        
+            coordinfo += "<td>{}</td>".format(val)
+        coordinfo += "</tr>"
 
-    log("Expecting {} beams".format(nbeam))
+    # load obs info file
+    info_file = os.path.join(master_dir, 'info.yaml')
+    with open(info_file, 'r') as f:
+        obsinfo = yaml.load(f)
+        
     # wait until summary file for all beams is present
+    log("Expecting {} beams".format(nbeam))
     received_beams = 0
     while received_beams < nbeam:
+        sleep(5)
         received_beams = 0
         for beam in expected_beams:
             summary_file = os.path.join(master_dir, "CB{:02d}_summary.yaml".format(beam))
             if os.path.isfile(summary_file):
                 received_beams += 1 
         log("Received {} out of {} beams".format(received_beams, nbeam))
-        sleep(5)
 
+    # load beam stats
+    log("Loading stats and triggers")
+    triggers = {}
+    beamstats = ""
+    for i, beam in enumerate(expected_beams):
+        summary_file = os.path.join(master_dir, "CB{:02d}_summary.yaml".format(beam))
+        with open(summary_file, 'r') as f:
+            summary = yaml.load(f)
+        beamstats += "<tr><td>{:02d}</td><td>{}</td><td>{}</td><td>{}</td></tr>".format(beam, summary['ncand_raw'], summary['ncand_trigger'], summary['ncand_classifier'])
+        if summary['success']:
+            trigger_file = os.path.join(master_dir, "CB{:02d}_triggers.txt".format(beam))
+            triggers[beam] = np.loadtxt(trigger_file, dtype=str)
+
+    # convert triggers to html
+    # cols of trigger file:  SNR DM Width T0 p
+    # order in email: p SNR DM T0 Width beam
+    triggerinfo = ""
+    for beam in triggers.keys():
+        triggerinfo += "<tr><td>{5}</td><td>{1}</td><td>{2}</td><td>{4}</td><td>{3}</td><td>{0:02d}</td></tr>".format(beam, *triggers[beam])
+    
+        
     # create email
-
+    # kwarg for tables
+    kwargs=dict(beamstats=beamstats, coordinfo=coordinfo, triggerinfo=triggerinfo)
+    # add obs info
+    kwargs.update(obsinfo)
     frm = "ARTS FRB Detection System <arts@arts041.apertif>"
     to = "oostrum@astron.nl"
-    files = ['empty.pdf']
+    files = []
 
     msg = MIMEMultipart('alternative')
-    msg['Subject'] = "ARTS FRB Detection System"
+    msg['Subject'] = "ARTS FRB Detection System @ {}".format(datetime.utcnow())
     msg['From'] = frm
     msg['To'] = to
 
@@ -67,35 +97,71 @@ if __name__ == '__main__':
     <head><title>FRB Alert System</title></head>
     <body>
 
-    <p><b>UTC START</b><br />
-    <b>Source</b><br />
-    <b>NE2001 DM</b><br />
-    <b>YMW16 DM</b><br />
+
+    <p>
+    <table style="width:20%">
+    <tr>
+        <th style="text-align:left">UTC start</th><td>{utcstart}</td>
+    </tr><tr>
+        <th style="text-align:left">Source</th><td>{source}</td>
+    </tr><tr>
+        <th style="text-align:left">Observation duration</th><td>{tobs}</td>
+    </tr><tr>
+        <th style="text-align:left">NE2001 DM (central beam)</th><td>TBD</td>
+    </tr><tr>
+        <th style="text-align:left">YMW16 DM (central beam)</th><td>{ymw16}</td>
+    </tr>
+    </table>
     </p>
+    
 
     <hr align="left" width="50%" />
 
     <p><h2>FRB Detections</h2><br />
-    <b>Probablitiy&emsp;SNR&emsp;Time&emsp;DM&emsp;Length&emsp;Beam</b><br />
+    <table style="width:50%">
+    <tr style="text-align:left">
+        <th>Probability</th>
+        <th>SNR</th>
+        <th>DM</th>
+        <th>Arrival time</th>
+        <th>Width</th>
+        <th>CB</th>
+    </tr>
+    {triggerinfo}
+    </table>
     </p>
 
     <hr align="left" width="50%" />
 
-    <p><h2>Beam positions</h2><br />
-    <table style="width:80%">
+    <p><h2>Statistics per Compound Beam</h2><br />
+    <table style="width:50%">
     <tr style="text-align:left">
-        <th>Beam</th>
+        <th>CB</th>
+        <th>Raw candidates</th>
+        <th>Candidates after grouping</th>
+        <th>Candidates after classifier</th>
+    </tr>
+    {beamstats}
+    </table>
+    </p>
+
+    <hr align="left" width="50%" />
+
+    <p><h2>Compound Beam positions</h2><br />
+    <table style="width:50%">
+    <tr style="text-align:left">
+        <th>CB</th>
         <th>RA</th>
         <th>DEC</th>
         <th>Gl</th>
         <th>Gb</th>
     </tr>
-    {beaminfo}
+    {coordinfo}
     </table>
     </p>
 
     </body>
-    </html>""".format(beaminfo=beaminfo)
+    </html>""".format(**kwargs)
 
     msg.attach(MIMEText(txt, 'html'))
 
@@ -105,6 +171,7 @@ if __name__ == '__main__':
         part['Content-Disposition'] = 'attachment; filename="{}"'.format(os.path.basename(fname))
         msg.attach(part)
 
+    log("Sending email to: {}".format(to))
     smtp = smtplib.SMTP()
     smtp.connect()
     smtp.sendmail(frm, to, msg.as_string())
