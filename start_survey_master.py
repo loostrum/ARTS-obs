@@ -126,6 +126,7 @@ def start_survey(args):
     # startpacket has to be along
     pars['startpacket'] = long(starttime.unix) * pars['time_unit']
     # output directories
+    pars['master_dir'] = config[conf_sc]['master_dir'].format(**pars)
     pars['output_dir'] = config[conf_sc]['output_dir'].format(**pars)
     pars['log_dir'] = config[conf_sc]['log_dir'].format(**pars)
     pars['amber_dir'] = config[conf_sc]['amber_dir'].format(**pars)
