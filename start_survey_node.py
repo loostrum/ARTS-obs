@@ -62,6 +62,8 @@ class Survey(object):
         sleep(waittime)
         # Everything has been started
         self.log("Everything started")
+        # flush stdout
+        sys.stdout.flush()
         # proc trigger command
         if self.config['proctrigger']:
             cmd = "mkdir -p {output_dir}/triggers".format(**self.config)
