@@ -396,8 +396,7 @@ def start_survey(args):
     # start the trigger listener + emailer NOTE: this is the only command that keeps running in the foreground during the obs
     if pars['proctrigger']:
         email_script = os.path.join(script_path, "emailer.py")
-        #cmd = "sleep {tobs}; python {email_script} {master_dir} '{beams}'".format(email_script=email_script, **pars)
-        cmd = "python {email_script} {master_dir} '{beams}'".format(email_script=email_script, **pars)
+        cmd = "sleep {tobs}; python {email_script} {master_dir} '{beams}'".format(email_script=email_script, **pars)
         log(cmd)
         os.system(cmd)
 
