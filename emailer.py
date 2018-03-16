@@ -71,14 +71,15 @@ if __name__ == '__main__':
         if summary['success']:
             trigger_file = os.path.join(master_dir, "CB{:02d}_triggers.txt".format(beam))
             triggers[beam] = np.loadtxt(trigger_file, dtype=str)
-            attachments.append(os.path.join(master_dir, "CB{:02d}_candidates.pdf"))
+            attachments.append(os.path.join(master_dir, "CB{:02d}_candidates.pdf".format(beam)))
 
     # convert triggers to html
     # cols of trigger file:  SNR DM Width T0 p
     # order in email: p SNR DM T0 Width beam
     triggerinfo = ""
     for beam in triggers.keys():
-        triggerinfo += "<tr><td>{5}</td><td>{1}</td><td>{2}</td><td>{4}</td><td>{3}</td><td>{0:02d}</td></tr>".format(beam, *triggers[beam])
+        for line in triggers[beam]:
+            triggerinfo += "<tr><td>{5}</td><td>{1}</td><td>{2}</td><td>{4}</td><td>{3}</td><td>{0:02d}</td></tr>".format(beam, *line)
     
         
     # create email
