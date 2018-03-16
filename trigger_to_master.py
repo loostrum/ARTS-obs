@@ -34,10 +34,14 @@ if __name__ == '__main__':
         ncand_classifier = 0
     # else only gets executed if the try succeeds
     else:
+        # convert widths to ms instead of s
+        params[:, 2] *= 1000
         # number of canddiates
         ncand_classifier = len(params)
         # make one big matrix with candidates
         data = np.column_stack([params, probability])
+        # sort by probability
+        data = data[data[:, -1].argsort()]
         # save to file
         header = "SNR DM Width T0 p"
         fname = "CB{:02d}_triggers.txt".format(beam)
