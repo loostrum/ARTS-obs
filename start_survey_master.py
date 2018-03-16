@@ -325,7 +325,9 @@ def start_survey(args):
         # save the coordinates of the beams
         this_cb_coord = pointing_to_CB_pos(beam, coord)
         gl, gb = this_cb_coord.galactic.to_string(precision=8).split(' ')
-        alt, az = this_cb_coord.transform_to(AltAz(obstime=starttime, location=wsrt_loc)).to_string().split(' ')
+        altaz = this_cb_coord.transform_to(AltAz(obstime=starttime, location=wsrt_loc))
+        az = altaz.az.deg
+        za = 90 - altaz.alt.deg
         ra = this_cb_coord.ra.to_string(unit=u.hourangle, sep=':', pad=True, precision=1)
         dec = this_cb_coord.dec.to_string(unit=u.degree, sep=':', pad=True, precision=1)
         coordinates.append(["{:02d}".format(beam), ra, dec, gl, gb])
@@ -335,7 +337,7 @@ def start_survey(args):
         temppars['ra'] = ra.replace(':', '')
         temppars['dec'] = dec.replace(':', '')
         temppars['az_start'] = az
-        temppars['za_start'] = str(90 - float(alt))
+        temppars['za_start'] = za
         temppars['resolution'] = pars['pagesize'] * pars['nchan']
         temppars['bps'] = int(pars['pagesize'] * pars['nchan'] / 1.024)
         temppars['beam'] = beam
