@@ -70,7 +70,7 @@ if __name__ == '__main__':
         beamstats += "<tr><td>{:02d}</td><td>{}</td><td>{}</td><td>{}</td></tr>".format(beam, summary['ncand_raw'], summary['ncand_trigger'], summary['ncand_classifier'])
         if summary['success']:
             trigger_file = os.path.join(master_dir, "CB{:02d}_triggers.txt".format(beam))
-            triggers[beam] = np.loadtxt(trigger_file, dtype=str)
+            triggers[beam] = np.loadtxt(trigger_file, dtype=str, ndmin=2)
             attachments.append(os.path.join(master_dir, "CB{:02d}_candidates.pdf".format(beam)))
 
     # convert triggers to html
