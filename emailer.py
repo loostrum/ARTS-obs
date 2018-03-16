@@ -61,6 +61,7 @@ if __name__ == '__main__':
     # load beam stats
     log("Loading stats and triggers")
     triggers = {}
+    attachments = []
     beamstats = ""
     for i, beam in enumerate(expected_beams):
         summary_file = os.path.join(master_dir, "CB{:02d}_summary.yaml".format(beam))
@@ -70,6 +71,7 @@ if __name__ == '__main__':
         if summary['success']:
             trigger_file = os.path.join(master_dir, "CB{:02d}_triggers.txt".format(beam))
             triggers[beam] = np.loadtxt(trigger_file, dtype=str)
+            attachments += os.path.join(master_dir, "CB{:02d}_candidates.pdf")
 
     # convert triggers to html
     # cols of trigger file:  SNR DM Width T0 p
@@ -86,7 +88,6 @@ if __name__ == '__main__':
     kwargs.update(obsinfo)
     frm = "ARTS FRB Detection System <arts@arts041.apertif>"
     to = "oostrum@astron.nl"
-    files = []
 
     msg = MIMEMultipart('alternative')
     msg['Subject'] = "ARTS FRB Detection System @ {}".format(datetime.utcnow())
@@ -165,10 +166,10 @@ if __name__ == '__main__':
 
     msg.attach(MIMEText(txt, 'html'))
 
-    for fname in files or ():
+    for fname in attachments or ():
         with open(fname, 'rb') as f:
             part = MIMEApplication(f.read(), 'pdf', Name=os.path.basename(fname))
-        part['Content-Disposition'] = 'attachment; filename="{}"'.format(os.path.basename(fname))
+        part['Content-Disposition'] = 'attachment; filename="{}"'.format(os.path.basename(fname).replace('_candidates', ''))
         msg.attach(part)
 
     log("Sending email to: {}".format(to))
