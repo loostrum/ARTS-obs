@@ -388,11 +388,12 @@ def start_survey(args):
         run_on_node(node, cmd, background=True)
 
     # start the trigger listener + emailer NOTE: this is the only command that keeps running in the foreground during the obs
-    email_script = os.path.join(script_path, "emailer.py")
-    #cmd = "sleep {tobs}; python {email_script} {master_dir} '{beams}'".format(email_script=email_script, **pars)
-    cmd = "python {email_script} {master_dir} '{beams}'".format(email_script=email_script, **pars)
-    log(cmd)
-    os.system(cmd)
+    if pars['proctrigger']:
+        email_script = os.path.join(script_path, "emailer.py")
+        #cmd = "sleep {tobs}; python {email_script} {master_dir} '{beams}'".format(email_script=email_script, **pars)
+        cmd = "python {email_script} {master_dir} '{beams}'".format(email_script=email_script, **pars)
+        log(cmd)
+        os.system(cmd)
 
     sleep(1)
     # done
@@ -441,6 +442,19 @@ if __name__ == '__main__':
                             "(Default: 10)", default=10)
     parser.add_argument("--proctrigger", help="Process and email triggers. "\
                             "(Default: False)", action="store_true")
+
     args = parser.parse_args()
+
+    # even if using only defaults, user should supply at least one argument
+    # to prevent accidental observations
+    if len(sys.argv) == 1:
+        print "Please provide at least one argument"
+        parser.print_help()
+        exit()
+
+    # proctrigger is only valid in survey mode
+    if args.proctrigger and not args.obs_mode == 'survey':
+        print "ERROR: proctrigger can only be used in survey mode"
+        exit()
 
     start_survey(args)
