@@ -6,15 +6,16 @@
 import os
 import sys
 import ast
+import socket
+import smtplib
 from time import sleep
 from datetime import datetime
-
-import numpy as np
-import yaml
-import smtplib
 from email.mime.application import MIMEApplication
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
+
+import numpy as np
+import yaml
 
 
 def log(message):
@@ -87,7 +88,7 @@ if __name__ == '__main__':
     kwargs=dict(beamstats=beamstats, coordinfo=coordinfo, triggerinfo=triggerinfo)
     # add obs info
     kwargs.update(obsinfo)
-    frm = "ARTS FRB Detection System <arts@arts041.apertif>"
+    frm = "ARTS FRB Detection System <oostrum@{}.apertif>".format(socket.gethostname())
     to = "oostrum@astron.nl"
 
     msg = MIMEMultipart('alternative')
@@ -103,11 +104,11 @@ if __name__ == '__main__':
     <p>
     <table style="width:20%">
     <tr>
-        <th style="text-align:left">UTC start</th><td colspan="2">{utcstart}</td>
+        <th style="text-align:left">UTC start</th><td colspan="4">{utcstart}</td>
     </tr><tr>
-        <th style="text-align:left">Source</th><td colspan="2">{source}</td>
+        <th style="text-align:left">Source</th><td colspan="4">{source}</td>
     </tr><tr>
-        <th style="text-align:left">Observation duration</th><td colspan="2">{tobs}</td>
+        <th style="text-align:left">Observation duration</th><td colspan="4">{tobs}</td>
     </tr><tr>
         <th style="text-align:left">NE2001 DM (central beam)</th><td colspan="2">TBD</td>
     </tr><tr>
