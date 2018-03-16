@@ -64,6 +64,6 @@ if __name__ == '__main__':
     with open(fname, 'w') as f:
         yaml.dump(summary, f, default_flow_style=False)
     # copy to master node
-    cmd = "scp {fname} arts041:{master_dir}/CB{beam:02d} &".format(fname=fname, master_dir=master_dir, beam=beam)
+    cmd = "scp {fname} arts041:{master_dir}/ &".format(fname=fname, master_dir=master_dir, beam=beam)
     os.system(cmd)
     
