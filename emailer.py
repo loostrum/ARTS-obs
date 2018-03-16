@@ -102,15 +102,15 @@ if __name__ == '__main__':
     <p>
     <table style="width:20%">
     <tr>
-        <th style="text-align:left">UTC start</th><td>{utcstart}</td>
+        <th style="text-align:left">UTC start</th><td colspan="2">{utcstart}</td>
     </tr><tr>
-        <th style="text-align:left">Source</th><td>{source}</td>
+        <th style="text-align:left">Source</th><td colspan="2">{source}</td>
     </tr><tr>
-        <th style="text-align:left">Observation duration</th><td>{tobs}</td>
+        <th style="text-align:left">Observation duration</th><td colspan="2">{tobs}</td>
     </tr><tr>
-        <th style="text-align:left">NE2001 DM (central beam)</th><td>TBD</td>
+        <th style="text-align:left">NE2001 DM (central beam)</th><td colspan="2">TBD</td>
     </tr><tr>
-        <th style="text-align:left">YMW16 DM (central beam)</th><td>{ymw16}</td>
+        <th style="text-align:left">YMW16 DM (central beam)</th><td colspan="2">{ymw16}</td>
     </tr>
     </table>
     </p>

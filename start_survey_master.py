@@ -387,6 +387,10 @@ def start_survey(args):
         cmd = "{} nodes/CB{:02d}.yaml".format(node_script, beam)
         run_on_node(node, cmd, background=True)
 
+    sleep(1)
+    # done
+    log("All nodes started for observation")
+
     # start the trigger listener + emailer NOTE: this is the only command that keeps running in the foreground during the obs
     if pars['proctrigger']:
         email_script = os.path.join(script_path, "emailer.py")
@@ -395,9 +399,6 @@ def start_survey(args):
         log(cmd)
         os.system(cmd)
 
-    sleep(1)
-    # done
-    log("All nodes started for observation")
 
         
 
