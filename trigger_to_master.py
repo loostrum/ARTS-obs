@@ -43,10 +43,11 @@ if __name__ == '__main__':
         fname = "CB{:02d}_triggers.txt".format(beam)
         np.savetxt(fname, data, header=header, fmt="%.2f %.2f %.4f %.4f %.2f")
         # copy to master node
-        cmd = "scp {fname} arts041:{master_dir}/CB{beam:02d} &".format(fname=fname, master_dir=master_dir, beam=beam)
+        cmd = "scp {fname} arts041:{master_dir}/ &".format(fname=fname, master_dir=master_dir, beam=beam)
         os.system(cmd)
 
     # copy candidates file if it exists
+    fname = "candidates.pdf"
     if os.path.isfile(fname):
         cmd = "scp {fname} arts041:{master_dir}/CB{beam:02d}_candidates.pdf &".format(beam=beam, master_dir=master_dir)
         os.system(cmd)
