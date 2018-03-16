@@ -41,7 +41,7 @@ if __name__ == '__main__':
         # make one big matrix with candidates
         data = np.column_stack([params, probability])
         # sort by probability
-        data = data[data[:, -1].argsort()]
+        data = data[data[:, -1].argsort()[::-1]]
         # save to file
         header = "SNR DM Width T0 p"
         fname = "CB{:02d}_triggers.txt".format(beam)
