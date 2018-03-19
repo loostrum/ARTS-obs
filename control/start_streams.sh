@@ -6,7 +6,7 @@ if [ "$#" -ne 2 ] && [ "$#" -ne 3 ] && [ "$#" -ne 4 ]; then
     echo "E.g. for starting 14 bands on RT4 and RT7:"
     echo "$0 2:15 4,7"
     echo "Or"
-    echo "$0 2:15 4,7 0 centraldipole"
+    echo "$0 2:15 4,7 centraldipole 0"
     echo "Note: bands are specified as a range, telescopes should be a comma-separated list. pol 0 = X, pol 1 = Y. Anything else for dual pol. Opts can be 'centraldipole' to use only central dipole. Also specify opts when using pol"
     exit
 fi
