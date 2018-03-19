@@ -213,7 +213,7 @@ def start_survey(args):
     pars['snrmin'] = args.snrmin
     pars['source'] = args.source
     pars['ra'] = args.ra
-    pars['dec'] = args.dec
+    pars['dec'] = args.dec.replace('m', '-')
     # Observing time, has to be multiple of 1.024 seconds
     pars['nbatch'] = int(np.ceil(args.duration / 1.024))
     pars['tobs'] = pars['nbatch'] * 1.024
@@ -444,6 +444,15 @@ if __name__ == '__main__':
                             "(Default: 10)", default=10)
     parser.add_argument("--proctrigger", help="Process and email triggers. "\
                             "(Default: False)", action="store_true")
+
+    # make sure dec does not start with -
+    try:
+        decind = sys.argv.index('--dec')
+    except ValueError:
+        # dec not in args
+        pass
+    else:
+        sys.argv[decind+1] = sys.argv[decind+1].replace('-', 'm')
 
     args = parser.parse_args()
 
