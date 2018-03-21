@@ -30,7 +30,7 @@ general: &general
     # log prefix
     log_dir: "/export/astron/oostrum/observations/log/{date}/{datetimesource}"
     # master output dir
-    master_dir: "/export/astron/oostrum/observations/{date}/{datetimesource}"
+    master_dir: "/export/astron/oostrum/observations/results/{date}/{datetimesource}"
 
 # Science case 3
 sc3:
