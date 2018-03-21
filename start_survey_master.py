@@ -344,7 +344,7 @@ def start_survey(args):
 
         header = header_template.format(**temppars)
 
-        with open(NODEHEADER.format(beam), 'w') as f:
+        with open(os.path.join(os.path.dirname(os.path.realpath(__file__)), NODEHEADER.format(beam)), 'w') as f:
             f.write(header)
 
     # save coordinate overview to disk
