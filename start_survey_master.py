@@ -373,13 +373,13 @@ def start_survey(args):
         yaml.dump(info, f, default_flow_style=False)
 
     # TEMP copy the nodes config
-    log("Copying files to nodes")
-    for beam in pars['beams']:
-        node = beam + 1
-        cmd = "scp -r nodes/ arts0{:02d}.apertif:ARTS-obs/ >/dev/null &".format(node)
-        os.system(cmd)
-    sleep(2)
-    log("Done")
+    #log("Copying files to nodes")
+    #for beam in pars['beams']:
+    #    node = beam + 1
+    #    cmd = "scp -r nodes/ arts0{:02d}.apertif:ARTS-obs/ >/dev/null &".format(node)
+    #    os.system(cmd)
+    #sleep(2)
+    #log("Done")
 
     # Start the node scripts
     for beam in pars['beams']:
