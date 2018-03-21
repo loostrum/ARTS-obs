@@ -18,7 +18,7 @@ subband:
     # platform (usually only one installed)
     opencl_platform: 0
     # number of GPU to use
-    opencl_device: [0, 1, 2, 3]
+    opencl_device: [0, 1, 2] #, 3]
     # name of device in config files
     device_name: [ARTS_step1, ARTS_step2, ARTS_step3, ARTS_step4]
     # nr of subands (approx sqrt(nchan))
