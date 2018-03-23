@@ -46,11 +46,11 @@ def run_on_node(node, command, background=False):
         hostname = "arts0{:02d}".format(node)
 
     if background:
-        #ssh_cmd = "ssh {} {} &".format(hostname, command)
-        ssh_cmd = "ssh {} 'source $HOME/venv/bin/activate; {}' &".format(hostname, command)
+        ssh_cmd = "ssh {} {} &".format(hostname, command)
+        #ssh_cmd = "ssh {} 'source $HOME/python/bin/activate; {}' &".format(hostname, command)
     else:
-        #ssh_cmd = "ssh {} {}".format(hostname, command)
-        ssh_cmd = "ssh {} 'source $HOME/venv/bin/activate; {}' &".format(hostname, command)
+        ssh_cmd = "ssh {} {}".format(hostname, command)
+        #ssh_cmd = "ssh {} 'source $HOME/python/bin/activate; {}' &".format(hostname, command)
     log("Executing '{}'".format(ssh_cmd))
     os.system(ssh_cmd)
 

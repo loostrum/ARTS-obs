@@ -35,7 +35,7 @@ rm -f $outputdir/*hdf5
 rm -f $outputdir/plots/*pdf
 mkdir -p $outputdir/plots
 cd $outputdir
-source $HOME/venv/bin/activate
+#source $HOME/python/bin/activate
 # process the triggers without making plots
 python $triggerscript --dm_thresh $dmmin --dm_max $dmmax --sig_thresh $snrmin --ndm $ndm --save_data $fmt --ntrig $ntrig --nfreq_plot $nfreq_plot --ntime_plot $ntime_plot --cmap $cmap $filfile ${prefix}.trigger
 # get number of triggers after grouping
@@ -45,15 +45,16 @@ else
     ncand_grouped=$(wc -l grouped_pulses.singlepulse | awk '{print $1}')
     # concatenate hdf5 files
     python $preproc --fnout combined.hdf5 --nfreq_f $nfreq_plot --ntime_f $ntime_plot $(pwd)
-    deactivate
+#    deactivate
     # run the classifier
-    spack unload cuda
-    spack load cuda@9.0
-    source /export/astron/oostrum/tensorflow/bin/activate
+#    spack unload cuda
+#    spack load cuda@9.0
+#    source /export/astron/oostrum/tensorflow/bin/activate
+    source $HOME/python/bin/activate
     python $classifier combined.hdf5
     deactivate
     # make plots
-    source $HOME/venv/bin/activate
+#    source $HOME/python/bin/activate
     python $plotter combinefreq_time_candidates.hdf5
     # merge and copy to master node
     ncands=$(ls $outputdir/plots | wc -l)
@@ -65,7 +66,7 @@ else
 fi
 # copy results to masternode
 python $trigger_to_master combinefreq_time_candidates.hdf5 $ncand_raw $ncand_grouped $master_dir
-deactivate
+#deactivate
 
 #mailto="oostrum@astron.nl"
 #subject="$(date): FRB triggers from $(hostname --fqdn)"
