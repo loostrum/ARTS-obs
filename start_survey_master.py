@@ -382,9 +382,9 @@ def start_survey(args):
     #log("Done")
 
     # Start the node scripts
+    script_path = os.path.realpath(os.path.dirname(__file__))
     for beam in pars['beams']:
         node = beam + 1
-        script_path = os.path.realpath(os.path.dirname(__file__))
         node_script = os.path.join(script_path, "start_survey_node.py")
         cmd = "{} nodes/CB{:02d}.yaml".format(node_script, beam)
         run_on_node(node, cmd, background=True)
