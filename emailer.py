@@ -89,12 +89,13 @@ if __name__ == '__main__':
     # add obs info
     kwargs.update(obsinfo)
     frm = "ARTS FRB Detection System <oostrum@{}.apertif>".format(socket.gethostname())
-    to = "oostrum@astron.nl"
+    #to = ["oostrum@astron.nl", "connor@astron.nl"]
+    to = ["oostrum@astron.nl"]
 
     msg = MIMEMultipart('alternative')
     msg['Subject'] = "ARTS FRB Detection System @ {}".format(datetime.utcnow())
     msg['From'] = frm
-    msg['To'] = to
+    msg['To'] = ", ".join(to)
 
     txt="""<html>
     <head><title>FRB Alert System</title></head>
@@ -174,8 +175,16 @@ if __name__ == '__main__':
         part['Content-Disposition'] = 'attachment; filename="{}"'.format(os.path.basename(fname).replace('_candidates', ''))
         msg.attach(part)
 
-    log("Sending email to: {}".format(to))
+    log("Sending email to: {}".format(", ".join(to)))
     smtp = smtplib.SMTP()
     smtp.connect()
-    smtp.sendmail(frm, to, msg.as_string())
+    try:
+        smtp.sendmail(frm, to, msg.as_string())
+    except smtplib.SMTPSenderRefused:
+        # assume attachments are too large
+        # resend without attachments
+        # first element of payload is main text, rest are attachments
+        msg.set_payload(msg.get_payload()[0])
+        smtp.sendmail(frm, to, msg.as_string())
+        
     smtp.close()

@@ -26,11 +26,11 @@ general: &general
     # output directory of stokes I data
     output_dir: "/data2/output/{date}/{datetimesource}"
     # output directory of amber triggers
-    amber_dir: "/export/astron/oostrum/observations/amber/{date}/{datetimesource}"
+    amber_dir: "/home/oostrum/observations/amber/{date}/{datetimesource}"
     # log prefix
-    log_dir: "/export/astron/oostrum/observations/log/{date}/{datetimesource}"
+    log_dir: "/home/oostrum/observations/log/{date}/{datetimesource}"
     # master output dir
-    master_dir: "/export/astron/oostrum/observations/results/{date}/{datetimesource}"
+    master_dir: "/home/oostrum/observations/results/{date}/{datetimesource}"
 
 # Science case 3
 sc3:
