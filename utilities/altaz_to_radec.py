@@ -21,7 +21,7 @@ if __name__ == '__main__':
     wsrt = EarthLocation(lat=52.915184*u.deg, lon=6.60387*u.deg, height=0*u.m)
     now = Time(datetime.utcnow(), scale='utc')
     altaz = AltAz(alt=alt*u.deg,az=az*u.deg,obstime=now,location=wsrt)
-    radec= altaz.transform_to(SkyCoord(0,0,unit=(u.hourangle,u.degree)))
+    radec = altaz.transform_to(SkyCoord(0,0,unit=(u.hourangle,u.degree)))
     ra = radec.ra.to_string(unit=u.hourangle, sep=':', pad=True, precision=1)
     dec = radec.dec.to_string(unit=u.degree, sep=':', pad=True, precision=1)
     print ra, dec

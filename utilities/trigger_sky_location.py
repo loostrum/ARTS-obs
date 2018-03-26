@@ -42,8 +42,8 @@ if __name__ == '__main__':
     altazstart = radec.transform_to(AltAz(obstime=starttime, location=wsrt))
 
     # check alt az start
-    assert np.abs(hdr.az_start - altazstart.az.deg) < 1E-4 and \
-           np.abs(hdr.za_start - (90 - altazstart.alt.deg)) < 1E-4
+    #assert np.abs(hdr.az_start - altazstart.az.deg) < 1E-4 and \
+    #       np.abs(hdr.za_start - (90 - altazstart.alt.deg)) < 1E-4
 
     # load triggers
     triggers = np.loadtxt(args.triggers, unpack=True)
