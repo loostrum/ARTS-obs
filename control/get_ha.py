@@ -80,6 +80,7 @@ if __name__ == '__main__':
     dt_set = dt_set.to(u.hourangle) * u.hour/u.hourangle
     t_rise = UT + dt_rise
     t_set = UT + dt_set
+    time_to_set = t_set - UT
 
     # Current altitude (Note: reordering gives the formula to calculate HA at altitude=0)
     h_now = np.arcsin(np.sin(lat)*np.sin(DEC) + np.cos(lat)*np.cos(DEC)*np.cos(HA))
@@ -95,5 +96,6 @@ if __name__ == '__main__':
     print 'Altitude:', h_now.to(u.degree)
     print 'T rise:', t_rise
     print 'T set:', t_set
+    print 'Time to set:', time_to_set.to(u.hour), '=', time_to_set.to(u.second)
     print 'HA at rise:', ha_min.to(u.degree)
     print 'HA at set:', ha_max.to(u.degree)
