@@ -14,7 +14,7 @@ from time import sleep
 
 import yaml
 import numpy as np
-from astropy.time import Time
+from astropy.time import Time, TimeDelta
 from astropy import units as u
 from astropy.coordinates import SkyCoord, EarthLocation, AltAz
 
@@ -219,16 +219,20 @@ def start_survey(args):
     pars['tobs'] = pars['nbatch'] * 1.024
     # start time
     if args.tstart == 'default':
-        tstart = datetime.datetime.utcnow() + datetime.timedelta(seconds=15)
-        pars['utcstart'] = tstart.strftime('%Y-%m-%d %H:%M:%S')
+        # start in 15 s
+        starttime = Time.now() + TimeDelta(15, format='sec')
     else:
-        #tstart = datetime.datetime(args.tstart)
-        #pars['utcstart'] = args.tstart
+        #starttime = Time(args.tstart, format='iso', scale='utc')
         log("Specific start time not yet supported")
         exit()  
-    starttime = Time(pars['utcstart'], format='iso', scale='utc')
 
-    pars['date'] = tstart.strftime("%Y%m%d")
+    #Time(pars['utcstart'], format='iso', scale='utc')
+    # round to multiple of 1.024 s since epoch
+    unixstart = round(starttime.unix / 1.024) * 1.024
+    starttime = Time(unixstart, format='unix')
+
+    pars['utcstart'] = starttime.datetime.strftime('%Y-%m-%d %H:%M:%S')
+    pars['date'] = starttime.datetime.strftime("%Y%m%d")
     pars['datetimesource'] = "{}.{}".format(pars['utcstart'].replace(' ','-'), pars['source'])
     pars['mjdstart'] = starttime.mjd
     # startpacket has to be along
