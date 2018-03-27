@@ -201,7 +201,7 @@ def start_survey(args):
     pars['chan_width'] = float(pars['bw']) / pars['nchan']
     pars['min_freq'] = pars['freq'] - pars['bw'] / 2 + pars['chan_width'] / 2
     if args.obs_mode == 'survey':
-        pars['nreader'] = 4
+        pars['nreader'] = 5
     elif args.obs_mode == 'amber':
         pars['nreader'] = 3
     else:
@@ -227,6 +227,7 @@ def start_survey(args):
         log("Specific start time not yet supported")
         exit()  
     starttime = Time(pars['utcstart'], format='iso', scale='utc')
+
     pars['date'] = tstart.strftime("%Y%m%d")
     pars['datetimesource'] = "{}.{}".format(pars['utcstart'].replace(' ','-'), pars['source'])
     pars['mjdstart'] = starttime.mjd

@@ -132,8 +132,12 @@ class Survey(object):
 
     def dadafits(self):
         self.log("Starting dadafits")
-        self.log("ERROR: dadafits not yet supported")
-        exit()
+        output_dir = os.path.join(self.config['output_dir'], 'fits', 'CB{:02d}'.format(self.config['beam']))
+        os.system("mkdir -p {}".format(output_dir))
+        #dadafits -k <hexadecimal key> -l <logfile> -t <template> -d <output_directory>
+        cmd = "dadafits -k {dadakey} -l {log_dir}/dadafits.{beam} -t /home/oostrum/software/dadafits/templates/ -d {output_fits} &".format(output_fits=output_dir, **self.config)
+        self.log(cmd)
+        os.system(cmd)
 
 
     def amber(self):
@@ -190,6 +194,7 @@ class Survey(object):
     def survey(self):
         self.amber()
         self.dadafilterbank()
+        self.dadafits()
 
 
 if __name__ == '__main__':
