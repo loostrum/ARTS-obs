@@ -236,7 +236,8 @@ def start_survey(args):
     pars['datetimesource'] = "{}.{}".format(pars['utcstart'].replace(' ','-'), pars['source'])
     pars['mjdstart'] = starttime.mjd
     # startpacket has to be along
-    pars['startpacket'] = long(starttime.unix) * pars['time_unit']
+    #pars['startpacket'] = long(starttime.unix) * pars['time_unit']
+    pars['startpacket'] = "{:.0f}".format(starttime.unix * pars['time_unit'])
     # output directories
     pars['master_dir'] = config[conf_sc]['master_dir'].format(**pars)
     pars['output_dir'] = config[conf_sc]['output_dir'].format(**pars)
