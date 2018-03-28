@@ -230,6 +230,8 @@ def start_survey(args):
     # round to multiple of 1.024 s since epoch
     unixstart = round(starttime.unix / 1.024) * 1.024
     starttime = Time(unixstart, format='unix')
+    # delta=0 means slightly less accurate (~10arcsec), but no need for internet
+    starttime.delta_ut1_utc = 0
 
     pars['utcstart'] = starttime.datetime.strftime('%Y-%m-%d %H:%M:%S')
     pars['date'] = starttime.datetime.strftime("%Y%m%d")
