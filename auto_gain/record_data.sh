@@ -54,9 +54,11 @@ dada_db -d -k $key 2>/dev/null
 echo "Starting buffer"
 dada_db -k $key -b $(($nchan * $pagesize * $ntab)) -n $nbuf -r $nread -p
 echo "starting reader"
-dadafilterbank -k $key -l dadafilterbank.log -n CB$cb &
+dadafilterbank -k $key -l dadafilterbank.log -n gain &
 
 
 sleep 2
 echo "filling buffer"
 fill_ringbuffer -h header.txt -k $key -s $startpacket -d $dur -p $port -l fill_ringbuffer.log
+
+dada_db -d -k $key

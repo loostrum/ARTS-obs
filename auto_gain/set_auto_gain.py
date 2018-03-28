@@ -4,18 +4,14 @@
 
 import os
 import sys
+import socket
 
 import numpy as np
 from sigpyproc.Readers import FilReader
 
 
-def get_scaling(filfile, dest_value):
-    if not os.path.isfile(filfile):
-        print "No such file: {}".format(filfile)
-        sys.exit(1)
-
-    f = FilReader(filfile)
-
+def get_scaling(dest_value):
+    f = FilReader('gain.fil')
     bandpass = f.bandpass() / f.header.nsamples
     avgsample = np.average(bandpass)
     scale = float(dest_value) / avgsample
@@ -34,7 +30,19 @@ if __name__ == '__main__':
     except IndexError:
         uniboards = '0:15'
 
+    hostname = socket.gethostname()
+
+    if not hostname == 'arts022':
+        # ssh to arts022 and run it there
+        print "I am not arts022. trying to ssh to arts022"
+        cmd = "ssh arts022 {} {}".format(os.path.realpath(__file__), uniboards)
+        os.system(cmd)
+        sys.exit()
+
+    # Everything below here only runs on arts022
+
     script_path = os.path.dirname(os.path.realpath(__file__))
+    os.chdir(script_path)
 
     start_gain = 20  # should not overflow IAB-12
     max_offset = 0.05  # 5<% difference between new and old gain means we're done
@@ -48,17 +56,15 @@ if __name__ == '__main__':
         # set gain
         set_gain(gain, uniboards)
         # record data
-        recorder = os.path.join(script_path, 'record_data.sh')
-        os.system(recorder)
+        os.system('./record_data.sh')
         # read scaling
-        scale = get_scaling(os.path.join(script_path, 'gain.fil'), dest_value)
+        scale = get_scaling(dest_value)
         # calc new gain
         old_gain = gain
         gain = int(scale * old_gain)
 
+    # remove the filterbank
+    os.system("rm -f gain.fil")
     # set the final gain
     set_gain(gain, uniboards)
-    # remove the filterbank
-    cmd = "rm -f {}".format(os.path.join(script_path, 'gain.fil'))
-    os.system(cmd)
-    print "Done, final gain set to {}".format(gain)
+    print "Done, gain set to {}".format(gain)
