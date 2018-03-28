@@ -51,11 +51,14 @@ if __name__ == '__main__':
         recorder = os.path.join(script_path, 'record_data.sh')
         os.system(recorder)
         # read scaling
-        scale = get_scaling(os.path.join(script_path, 'CB21.fil'), dest_value)
+        scale = get_scaling(os.path.join(script_path, 'gain.fil'), dest_value)
         # calc new gain
         old_gain = gain
         gain = int(scale * old_gain)
 
     # set the final gain
     set_gain(gain, uniboards)
+    # remove the filterbank
+    cmd = "rm -f {}".format(os.path.join(script_path, 'gain.fil'))
+    os.system(cmd)
     print "Done, final gain set to {}".format(gain)
