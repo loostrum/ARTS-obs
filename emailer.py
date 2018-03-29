@@ -74,13 +74,25 @@ if __name__ == '__main__':
             triggers[beam] = np.loadtxt(trigger_file, dtype=str, ndmin=2)
             attachments.append(os.path.join(master_dir, "CB{:02d}_candidates.pdf".format(beam)))
 
-    # convert triggers to html
-    # cols of trigger file:  SNR DM Width T0 p
-    # order in email: p SNR DM T0 Width beam
-    triggerinfo = ""
+    # convert triggers to one big numpy array we can sort
+    alltriggers = []
     for beam in triggers.keys():
-        for line in triggers[beam]:
-            triggerinfo += "<tr><td>{5}</td><td>{1}</td><td>{2}</td><td>{4}</td><td>{3}</td><td>{0:02d}</td></tr>".format(beam, *line)
+        for trigger in triggers[beam]:
+            trigger = np.concatenate([trigger, np.array(["{:02d}".format(beam)])])
+            alltriggers.append(tuple(trigger))
+    dtypes = [('SNR', 'S10'), ('DM', 'S10'), ('Width', 'S10'), ('T0', 'S10'), ('p', 'S10'), ('beam', 'S10')]
+    alltriggers = np.array(alltriggers, dtype=dtypes)
+    # sort by p, then SNR if equal
+    alltriggers = np.sort(alltriggers, order=('p', 'SNR'))[::-1]
+    
+
+    # convert triggers to html
+    # cols of trigger:  SNR DM Width T0 p beam
+    # order in email: p SNR DM T0 Width beam
+    # nrs: 4 0 1 3 2 5
+    triggerinfo = ""
+    for line in alltriggers:
+        triggerinfo += "<tr><td>{4}</td><td>{0}</td><td>{1}</td><td>{3}</td><td>{2}</td><td>{5}</td></tr>".format(*line)
     
         
     # create email
