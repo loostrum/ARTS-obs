@@ -13,7 +13,7 @@ from sigpyproc.Readers import FilReader
 def get_scaling(dest_value):
     f = FilReader('gain.fil')
     bandpass = f.bandpass() / f.header.nsamples
-    avgsample = np.average(bandpass)
+    avgsample = np.average(np.nonzero(bandpass))
     scale = float(dest_value) / avgsample
 
     return scale
