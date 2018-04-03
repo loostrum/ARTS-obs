@@ -100,7 +100,7 @@ if __name__ == '__main__':
     kwargs = dict(beamstats=beamstats, coordinfo=coordinfo, triggerinfo=triggerinfo)
     # add obs info
     kwargs.update(obsinfo)
-    frm = "ARTS FRB Alert System <oostrum@{}.apertif>".format(socket.gethostname())
+    frm = "ARTS FRB Alert System <arts@{}.apertif>".format(socket.gethostname())
     #to = ["oostrum@astron.nl", "connor@astron.nl"]
     to = ["oostrum@astron.nl"]
 
