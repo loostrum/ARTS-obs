@@ -97,15 +97,15 @@ if __name__ == '__main__':
         
     # create email
     # kwarg for tables
-    kwargs=dict(beamstats=beamstats, coordinfo=coordinfo, triggerinfo=triggerinfo)
+    kwargs = dict(beamstats=beamstats, coordinfo=coordinfo, triggerinfo=triggerinfo)
     # add obs info
     kwargs.update(obsinfo)
-    frm = "ARTS FRB Detection System <oostrum@{}.apertif>".format(socket.gethostname())
+    frm = "ARTS FRB Alert System <oostrum@{}.apertif>".format(socket.gethostname())
     #to = ["oostrum@astron.nl", "connor@astron.nl"]
     to = ["oostrum@astron.nl"]
 
     msg = MIMEMultipart('alternative')
-    msg['Subject'] = "ARTS FRB Detection System @ {}".format(datetime.utcnow())
+    msg['Subject'] = "ARTS FRB Alert System @ {}".format(datetime.utcnow())
     msg['From'] = frm
     msg['To'] = ", ".join(to)
 
