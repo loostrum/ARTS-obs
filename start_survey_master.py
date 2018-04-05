@@ -245,6 +245,7 @@ def start_survey(args):
     pars['output_dir'] = config[conf_sc]['output_dir'].format(**pars)
     pars['log_dir'] = config[conf_sc]['log_dir'].format(**pars)
     pars['amber_dir'] = config[conf_sc]['amber_dir'].format(**pars)
+    pars['fits_templates'] = config[conf_sc]['fits_templates']
     # observing mode
     if args.obs_mode not in pars['valid_modes']:
         log("ERROR: observation mode not valid: {}".format(args.obs_mode))
@@ -308,6 +309,7 @@ def start_survey(args):
     cfg['snrmin'] = pars['snrmin']
     cfg['proctrigger'] = pars['proctrigger']
     cfg['amber_mode'] = pars['amber_mode']
+    cfg['fits_templates'] = pars['fits_templates']
 
     # load PSRDADA header template
     with open(os.path.join(os.path.dirname(os.path.realpath(__file__)), TEMPLATE), 'r') as f:
