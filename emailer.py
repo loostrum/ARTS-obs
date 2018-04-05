@@ -102,7 +102,8 @@ if __name__ == '__main__':
     kwargs.update(obsinfo)
     frm = "ARTS FRB Alert System <oostrum@{}.apertif>".format(socket.gethostname())
     #to = ["oostrum@astron.nl", "connor@astron.nl"]
-    to = ["oostrum@astron.nl"]
+    #to = ["oostrum@astron.nl"]
+    to = ["arts-alerts@astron.nl"]
 
     msg = MIMEMultipart('alternative')
     msg['Subject'] = "ARTS FRB Alert System @ {}".format(datetime.utcnow())
@@ -138,9 +139,9 @@ if __name__ == '__main__':
     <tr style="text-align:left">
         <th>Probability</th>
         <th>SNR</th>
-        <th>DM</th>
-        <th>Arrival time</th>
-        <th>Width</th>
+        <th>DM (pc/cc)</th>
+        <th>Arrival time (s)</th>
+        <th>Width (ms)</th>
         <th>CB</th>
     </tr>
     {triggerinfo}
