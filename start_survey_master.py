@@ -219,8 +219,8 @@ def start_survey(args):
     pars['tobs'] = pars['nbatch'] * 1.024
     # start time
     if args.tstart == 'default':
-        # start in 15 s
-        starttime = Time.now() + TimeDelta(15, format='sec')
+        # start in 60 s
+        starttime = Time.now() + TimeDelta(60, format='sec')
     else:
         #starttime = Time(args.tstart, format='iso', scale='utc')
         log("Specific start time not yet supported")
@@ -432,7 +432,7 @@ if __name__ == '__main__':
     parser.add_argument("--duration", type=float, help="Observation duration in seconds " \
                             "(Default: 10.24)", default=10.24)
     parser.add_argument("--tstart", type=str, help="Start time (UTC), e.g. 2017-01-01 00:00:00 " \
-                            "(Default: now + 15 seconds)", default="default")
+                            "(Default: now + 60 seconds)", default="default")
     # either start and end beam or list of beams: make beams and sbeam mutually exclusive
     beamgroup = parser.add_mutually_exclusive_group()
     beamgroup.add_argument("--sbeam", type=int, help="No of first CB to record " \
