@@ -153,7 +153,7 @@ class Survey(object):
 
         if self.config['amber_mode'] == 'bruteforce':
             self.log("Starting amber in bruteforce mode")
-            # loop over the amber configs for all four GPUs
+            # loop over the amber configs for the GPUs
             for ind in range(len(ambercfg['opencl_device'])):
                 # make dict with fullconfig, because AMBER settings are spread over the general and node-specific config files
                 fullconfig = ambercfg.copy()
@@ -171,7 +171,7 @@ class Survey(object):
                 os.system(cmd)
         elif self.config['amber_mode'] == 'subband':
             self.log("Starting amber in subband mode")
-            # loop over the amber configs for all GPUs
+            # loop over the amber configs for the GPUs
             for ind in range(len(ambercfg['opencl_device'])):
                 # make dict with fullconfig, because AMBER settings are spread over the general and node-specific config files
                 fullconfig = ambercfg.copy()
@@ -182,7 +182,7 @@ class Survey(object):
 
                 cmd = ("amber -opencl_platform {opencl_platform} -opencl_device {opencl_device} -device_name {device_name} -padding_file {amber_conf_dir}/padding.conf"
                        " -zapped_channels {amber_conf_dir}/zapped_channels.conf -integration_steps {amber_conf_dir}/integration_steps.conf -subband_dedispersion"
-                       " -dedispersion_step_one_file {amber_conf_dir}/dedispersion_stepone.conf -dedispersion_step_two_file {amber_conf_dir}/dedispersion_steptwo.conf"
+                       " -dedispersion_stepone_file {amber_conf_dir}/dedispersion_stepone.conf -dedispersion_steptwo_file {amber_conf_dir}/dedispersion_steptwo.conf"
                        " -integration_file {amber_conf_dir}/integration.conf -snr_file {amber_conf_dir}/snr.conf -dms {num_dm} -dm_first {dm_first} -dm_step {dm_step}"
                        " -subbands {subbands} -subbanding_dms {subbanding_dms} -subbanding_dm_first {subbanding_dm_first} -subbanding_dm_step {subbanding_dm_step}"
                        " -threshold {snrmin} -output {output_prefix}_step{ind} -beams 1 -synthesized_beams 1"
