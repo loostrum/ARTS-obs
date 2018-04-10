@@ -3,12 +3,16 @@
 # Script to set process AMBER triggers on each worker node
 # Author: L.C. Oostrum
 
+# directory of this script
+SOURCE_DIR=$(cd $(dirname ${BASH_SOURCE[0]}) && pwd)
 
 triggerscript=$HOME/software/arts-analysis/triggers.py
 preproc=$HOME/software/arts-analysis/preprocess.py
 classifier=$HOME/software/single_pulse_ml/single_pulse_ml/run_single_pulse_DL.py
-trigger_to_master=$HOME/ARTS-obs/trigger_to_master.py
-plotter=$HOME/ARTS-obs/plotter.py
+trigger_to_master=$SOURCE_DIR/trigger_to_master.py
+plotter=$SOURCE_DIR/plotter.py
+# python venv location
+venv_dir=$HOME/python
 
 ntrig=1000000
 cmap=viridis
@@ -44,9 +48,8 @@ else
     ncand_grouped=$(wc -l grouped_pulses.singlepulse | awk '{print $1}')
     # concatenate hdf5 files
     python $preproc --fnout combined.hdf5 --nfreq_f $nfreq_plot --ntime_f $ntime_plot $(pwd)
-#    deactivate
     # run the classifier
-    source $HOME/python/bin/activate
+    source $venv_dir/bin/activate
     python $classifier combined.hdf5
     deactivate
     # make plots
