@@ -91,7 +91,7 @@ class Survey(object):
 
     def ringbuffer(self):
         self.log("Starting ringbuffers")
-        cmd = "dada_db -k {dadakey} -b {buffersize} -n {nbuffer} -p -r {nreader} 2>&1 > {log_dir}/dada_db.{beam} &".format(**self.config)
+        cmd = "dada_db -k {dadakey} -b {buffersize} -n {nbuffer} -p -r {nreader} &".format(**self.config)
         self.log(cmd)
         os.system(cmd)
 
@@ -99,14 +99,14 @@ class Survey(object):
     def fill_ringbuffer(self):
         self.log("Starting fill_ringbuffer")
         cmd = ("fill_ringbuffer -k {dadakey} -s {startpacket} -d {duration}"
-               " -p {network_port} -h {header} -l {log_dir}/fill_ringbuffer.{beam} &").format(**self.config)
+               " -p {network_port} -h {header} -l {log_dir}/fill_ringbuffer.{beam:02d} &").format(**self.config)
         self.log(cmd)
         os.system(cmd)
 
 
     def scrub(self):
         self.log("Starting dada_dbscrubber")
-        cmd = "dada_dbscrubber -k {dadakey} > {log_dir}/dada_dbscrubber.{beam} &".format(**self.config)
+        cmd = "dada_dbscrubber -k {dadakey} > {log_dir}/dada_dbscrubber.{beam:02d} &".format(**self.config)
         self.log(cmd)
         os.system(cmd)
 
@@ -115,7 +115,7 @@ class Survey(object):
         self.log("Starting dada_dbdisk")
         output_dir = os.path.join(self.config['output_dir'], 'dada')
         os.system("mkdir -p {}".format(output_dir))
-        cmd = "dada_dbdisk -k {dadakey} -D {output_prefix} > {log_dir}/dada_dbdisk.{beam} &".format(output_prefix=output_dir, **self.config)
+        cmd = "dada_dbdisk -k {dadakey} -D {output_prefix} > {log_dir}/dada_dbdisk.{beam:02d} &".format(output_prefix=output_dir, **self.config)
         self.log(cmd)
         os.system(cmd)
 
@@ -125,7 +125,7 @@ class Survey(object):
         output_dir = os.path.join(self.config['output_dir'], 'filterbank')
         os.system("mkdir -p {}".format(output_dir))
         output_prefix = os.path.join(output_dir, 'CB{:02d}'.format(self.config['beam']))
-        cmd = "dadafilterbank -k {dadakey} -n {output_prefix} -l {log_dir}/dadafilterbank.{beam} &".format(output_prefix=output_prefix, **self.config)
+        cmd = "dadafilterbank -k {dadakey} -n {output_prefix} -l {log_dir}/dadafilterbank.{beam:02d} &".format(output_prefix=output_prefix, **self.config)
         self.log(cmd)
         os.system(cmd)
 
@@ -135,7 +135,7 @@ class Survey(object):
         output_dir = os.path.join(self.config['output_dir'], 'fits', 'CB{:02d}'.format(self.config['beam']))
         os.system("mkdir -p {}".format(output_dir))
         #dadafits -k <hexadecimal key> -l <logfile> -t <template> -d <output_directory>
-        cmd = "dadafits -k {dadakey} -l {log_dir}/dadafits.{beam} -t {fits_templates} -d {output_fits} &".format(output_fits=output_dir, **self.config)
+        cmd = "dadafits -k {dadakey} -l {log_dir}/dadafits.{beam:02d} -t {fits_templates} -d {output_fits} &".format(output_fits=output_dir, **self.config)
         self.log(cmd)
         os.system(cmd)
 
@@ -166,7 +166,7 @@ class Survey(object):
                        " -zapped_channels {amber_conf_dir}/zapped_channels.conf -integration_steps {amber_conf_dir}/integration_steps.conf -dedispersion_file"
                        " {amber_conf_dir}/dedispersion.conf -integration_file {amber_conf_dir}/integration.conf -snr_file {amber_conf_dir}/snr.conf -dms {num_dm}"
                        " -dm_first {dm_first} -dm_step {dm_step} -threshold {snrmin} -output {output_prefix}_step{ind} -beams 1 -synthesized_beams 1"
-                       " -dada -dada_key {dadakey} -batches {nbatch} 2>&1 > {log_dir}/amber_{ind}.{beam} &").format(ind=ind+1, **fullconfig)
+                       " -dada -dada_key {dadakey} -batches {nbatch} 2>&1 > {log_dir}/amber_{ind}.{beam:02d} &").format(ind=ind+1, **fullconfig)
                 self.log(cmd)
                 os.system(cmd)
         elif self.config['amber_mode'] == 'subband':
@@ -186,7 +186,7 @@ class Survey(object):
                        " -integration_file {amber_conf_dir}/integration.conf -snr_file {amber_conf_dir}/snr.conf -dms {num_dm} -dm_first {dm_first} -dm_step {dm_step}"
                        " -subbands {subbands} -subbanding_dms {subbanding_dms} -subbanding_dm_first {subbanding_dm_first} -subbanding_dm_step {subbanding_dm_step}"
                        " -threshold {snrmin} -output {output_prefix}_step{ind} -beams 1 -synthesized_beams 1"
-                       " -dada -dada_key {dadakey} -batches {nbatch} 2>&1 > {log_dir}/amber_{ind}.{beam} &").format(ind=ind+1, **fullconfig)
+                       " -dada -dada_key {dadakey} -batches {nbatch} 2>&1 > {log_dir}/amber_{ind}.{beam:02d} &").format(ind=ind+1, **fullconfig)
                 self.log(cmd)
                 os.system(cmd)
 
