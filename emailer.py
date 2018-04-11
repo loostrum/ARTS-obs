@@ -102,8 +102,8 @@ if __name__ == '__main__':
     kwargs.update(obsinfo)
     frm = "ARTS FRB Alert System <arts@{}.apertif>".format(socket.gethostname())
     #to = ["oostrum@astron.nl", "connor@astron.nl"]
-    #to = ["oostrum@astron.nl"]
-    to = ["arts-alerts@astron.nl"]
+    to = ["oostrum@astron.nl"]
+    #to = ["arts-alerts@astron.nl"]
 
     msg = MIMEMultipart('alternative')
     msg['Subject'] = "ARTS FRB Alert System @ {}".format(datetime.utcnow())
