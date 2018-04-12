@@ -28,6 +28,7 @@ filfile=$2
 prefix=$3
 master_dir=$4
 snrmin=$5
+CB=$6
 
 # create master trigger files
 cat ${prefix}_step*trigger > ${prefix}.trigger
@@ -53,7 +54,7 @@ else
     python $classifier combined.hdf5
     deactivate
     # make plots
-    python $plotter combinefreq_time_candidates.hdf5
+    python $plotter combinefreq_time_candidates.hdf5 $CB
     # merge and copy to master dir
     ncands=$(ls $outputdir/plots | wc -l)
     merged=candidates.pdf
