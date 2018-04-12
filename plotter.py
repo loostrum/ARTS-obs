@@ -14,7 +14,7 @@ import matplotlib.pyplot as plt
 if __name__ == '__main__':
     # input hdf5 file
     fname = sys.argv[1]
-    cb = float(sys.argv[2])
+    cb = int(sys.argv[2])
 
     # read dataset 
     with h5py.File(fname, 'r') as f:
@@ -46,6 +46,6 @@ if __name__ == '__main__':
         ax2.imshow(data_freq_time, cmap='viridis', vmin=-3, vmax=3, interpolation='nearest', aspect='auto', origin='upper', extent=extent)
         ax2.set_xlabel('Time (ms)')
         ax2.set_ylabel('Freq (Mhz)')
-        fig.suptitle("p: {:.2f}, S/N: {:.0f}, DM: {:.2f}, T0: {:.2f}, B: {:02d}".format(prob, snr, dm, t0, cb))
+        fig.suptitle("p: {:.2f}, S/N: {:.0f}, DM: {:.2f}, T0: {:.2f}, CB: {:02d}".format(prob, snr, dm, t0, cb))
         plt.savefig("plots/cand_{:04d}_snr{:.0f}_dm{:.0f}.pdf".format(i, snr, dm))
         plt.close(fig)
