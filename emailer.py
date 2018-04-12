@@ -138,7 +138,7 @@ if __name__ == '__main__':
     <table style="width:50%">
     <tr style="text-align:left">
         <th>Probability</th>
-        <th>SNR</th>
+        <th>S/N</th>
         <th>DM (pc/cc)</th>
         <th>Arrival time (s)</th>
         <th>Width (ms)</th>
