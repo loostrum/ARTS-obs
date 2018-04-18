@@ -245,7 +245,6 @@ def start_survey(args):
     pars['output_dir'] = config[conf_sc]['output_dir'].format(**pars)
     pars['log_dir'] = config[conf_sc]['log_dir'].format(**pars)
     pars['amber_dir'] = config[conf_sc]['amber_dir'].format(**pars)
-    pars['fits_templates'] = config[conf_sc]['fits_templates']
     # observing mode
     if args.obs_mode not in pars['valid_modes']:
         log("ERROR: observation mode not valid: {}".format(args.obs_mode))
@@ -309,7 +308,6 @@ def start_survey(args):
     cfg['snrmin'] = pars['snrmin']
     cfg['proctrigger'] = pars['proctrigger']
     cfg['amber_mode'] = pars['amber_mode']
-    cfg['fits_templates'] = pars['fits_templates']
 
     # load PSRDADA header template
     with open(os.path.join(os.path.dirname(os.path.realpath(__file__)), TEMPLATE), 'r') as f:
@@ -318,7 +316,9 @@ def start_survey(args):
     # define pointing coordinates
     coord = SkyCoord(pars['ra'], pars['dec'], unit=(u.hourangle, u.deg))
     # wsrt location required for alt/az calculation
-    wsrt_loc = EarthLocation(lat=52.915184*u.deg, lon=6.60387*u.deg, height=0*u.m)
+    wsrt_lat = 52.915184*u.deg
+    wsrt_lon = 6.60387*u.deg
+    wsrt_loc = EarthLocation(lat=wsrt_lat, lon=wsrt_lon, height=0*u.m)
 
     for beam in pars['beams']:
         # add CB-dependent parameters
@@ -341,11 +341,17 @@ def start_survey(args):
         ra = this_cb_coord.ra.to_string(unit=u.hourangle, sep=':', pad=True, precision=1)
         dec = this_cb_coord.dec.to_string(unit=u.degree, sep=':', pad=True, precision=1)
         coordinates.append(["{:02d}".format(beam), ra, dec, gl, gb])
+        # get LST start in degrees
+        lststart = starttime.sidereal_time('mean', wsrt_lon)
+        print lststart
+        exit()
 
         # fill in the psrdada header keys 
         temppars = pars.copy()
         temppars['ra'] = ra.replace(':', '')
+        temppars['ra_hms'] = ra
         temppars['dec'] = dec.replace(':', '')
+        temppars['dec_hms'] = dec
         temppars['az_start'] = az
         temppars['za_start'] = za
         temppars['resolution'] = pars['pagesize'] * pars['nchan']

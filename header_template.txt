@@ -3,11 +3,14 @@ HDR_VERSION  1.0
 HDR_SIZE     4096
 SOURCE       {source}
 RA           {ra}
+RA_HMS       {ra_hms}
 DEC          {dec}
+DEC_HMS      {dec_hms}
 UTC_START    {utcstart}
 MJD_START    {mjdstart}
 AZ_START     {az_start}
 ZA_START     {za_start}
+LST_START    {lst_start}
 TELESCOPE    WSRT
 INSTRUMENT   ARTS
 BEAM         {beam}
