@@ -10,6 +10,7 @@ import argparse
 import datetime
 import socket
 import subprocess
+import warnings
 from time import sleep
 
 import yaml
@@ -194,6 +195,7 @@ def start_survey(args):
     pars['network_port_start'] = config[conf_sc]['network_port_start']
     pars['tsamp'] = config[conf_sc]['tsamp']
     pars['pagesize'] = config[conf_sc]['pagesize']
+    pars['fits_templates'] = config[conf_sc]['fits_templates']
     # pol and beam specific
     pars['ntabs'] = config[conf_mode]['ntabs']
     pars['science_mode']  = config[conf_mode]['science_mode']
@@ -308,6 +310,7 @@ def start_survey(args):
     cfg['snrmin'] = pars['snrmin']
     cfg['proctrigger'] = pars['proctrigger']
     cfg['amber_mode'] = pars['amber_mode']
+    cfg['fits_templates'] = pars['fits_templates']
 
     # load PSRDADA header template
     with open(os.path.join(os.path.dirname(os.path.realpath(__file__)), TEMPLATE), 'r') as f:
@@ -341,10 +344,8 @@ def start_survey(args):
         ra = this_cb_coord.ra.to_string(unit=u.hourangle, sep=':', pad=True, precision=1)
         dec = this_cb_coord.dec.to_string(unit=u.degree, sep=':', pad=True, precision=1)
         coordinates.append(["{:02d}".format(beam), ra, dec, gl, gb])
-        # get LST start in degrees
-        lststart = starttime.sidereal_time('mean', wsrt_lon)
-        print lststart
-        exit()
+        # get LST start in seconds
+        lststart = starttime.sidereal_time('mean', wsrt_lon).to(u.arcsecond).value / 15
 
         # fill in the psrdada header keys 
         temppars = pars.copy()
@@ -352,6 +353,7 @@ def start_survey(args):
         temppars['ra_hms'] = ra
         temppars['dec'] = dec.replace(':', '')
         temppars['dec_hms'] = dec
+        temppars['lst_start'] = lststart
         temppars['az_start'] = az
         temppars['za_start'] = za
         temppars['resolution'] = pars['pagesize'] * pars['nchan']
@@ -420,6 +422,7 @@ def start_survey(args):
         
 
 if __name__ == '__main__':
+    warnings.filterwarnings('ignore', category=UnicodeWarning)
     # check if this is the master node
     hostname = socket.gethostname()
     if not hostname == "arts041":
