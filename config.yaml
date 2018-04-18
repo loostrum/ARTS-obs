@@ -24,7 +24,7 @@ general: &general
     # network port of CB00
     network_port_start: 5000
     # output directory of stokes I data
-    output_dir: "/data2/output/{date}/{datetimesource}"
+    output_dir: "/data1/output/{date}/{datetimesource}"
     # output directory of amber triggers
     amber_dir: "/home/arts/observations/amber/{date}/{datetimesource}"
     # log prefix
