@@ -20,6 +20,18 @@ if [ "$(hostname)" == "$MASTER" ]; then
     alias auto_gain=$SOURCE_DIR/auto_gain/set_auto_gain.py
     alias point_array=$CONTROL/point_array.sh
     alias start_obs=$SOURCE_DIR/start_survey_master.py
+    function wait_for_pointing () {
+        dishes=${1:-2,3,4,5,6,7,8,9,a,b,c,d}  # default all dishes
+        on_pos=false
+        while ! $on_pos; do
+            output=$($CONTROL/point_array.sh check $dishes | grep RT)
+            echo "$output"
+            if echo $output | grep 'All RTs on position' > /dev/null; then
+                on_pos=true
+            fi
+        sleep 10
+        done
+    }
 fi
 
 # scripts for all nodes
