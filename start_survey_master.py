@@ -235,7 +235,7 @@ def start_survey(args):
     # delta=0 means slightly less accurate (~10arcsec), but no need for internet
     starttime.delta_ut1_utc = 0
 
-    pars['utcstart'] = starttime.datetime.strftime('%Y-%m-%d %H:%M:%S')
+    pars['utcstart'] = starttime.datetime.strftime('%Y-%m-%d-%H:%M:%S')
     pars['date'] = starttime.datetime.strftime("%Y%m%d")
     pars['datetimesource'] = "{}.{}".format(pars['utcstart'].replace(' ','-'), pars['source'])
     pars['mjdstart'] = starttime.mjd
