@@ -8,7 +8,7 @@ general: &general
     # total nr of channels
     nchan: 1536
     # central frequency
-    freq: 1400
+    freq: 1370
     # bandwidth
     bw: 300
     # seconds to timestamp conversion
