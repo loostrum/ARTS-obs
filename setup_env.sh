@@ -20,6 +20,7 @@ if [ "$(hostname)" == "$MASTER" ]; then
     alias auto_gain=$SOURCE_DIR/auto_gain/set_auto_gain.py
     alias point_array=$CONTROL/point_array.sh
     alias start_obs=$SOURCE_DIR/start_survey_master.py
+    alias offline_processing=$UTIL/offline_processing.py
     function wait_for_pointing () {
         dishes=${1:-2,3,4,5,6,7,8,9,a,b,c,d}  # default all dishes
         on_pos=false
