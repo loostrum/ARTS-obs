@@ -166,22 +166,22 @@ class OfflineProcessing(object):
 
 
 if __name__ == '__main__':
-    # check on which node we are running
-    hostname = socket.gethostname()
-    if not hostname == "arts041":
-        print "ERROR: This script should be run from the master node (arts041)"
-        exit()
-
     parser = argparse.ArgumentParser(description="Offline processing of ARTS data")
     # observation info
-    parser.add_argument("--date", type=str, help="Observation date, e.g. 20180101")
-    parser.add_argument("--obs", type=str, help="Observation name, e.g. 2018-01-01-00:00:00.B0000+00")
+    parser.add_argument("--date", type=str, help="Observation date, e.g. 20180101", required=True)
+    parser.add_argument("--obs", type=str, help="Observation name, e.g. 2018-01-01-00:00:00.B0000+00", required=True)
     # AMBER
     parser.add_argument("--snrmin", type=int, help="Minimum S/N, (default: 10)", default=10)
     # science case
     parser.add_argument("--sc", type=int, help="Science case, 3 or 4. (default: 4)", default=4)
     # email setting
     parser.add_argument("--email", action='store_true', help="Email triggers (Default: false)")
+
+    # check on which node we are running
+    hostname = socket.gethostname()
+    if not hostname == "arts041":
+        print "ERROR: This script should be run from the master node (arts041)"
+        exit()
 
     args = parser.parse_args()
     if not args.sc in [3, 4]:
