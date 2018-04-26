@@ -41,7 +41,7 @@ rm -f $outputdir/plots/*pdf
 mkdir -p $outputdir/plots
 cd $outputdir
 # process the triggers without making plots
-python $triggerscript --dm_thresh $dmmin --dm_max $dmmax --sig_thresh $snrmin --ndm $ndm --save_data $fmt --ntrig $ntrig --nfreq_plot $nfreq_plot --ntime_plot $ntime_plot --cmap $cmap $filfile ${prefix}.trigger
+python $triggerscript --dm_min $dmmin --dm_max $dmmax --sig_thresh $snrmin --ndm $ndm --save_data $fmt --ntrig $ntrig --nfreq_plot $nfreq_plot --ntime_plot $ntime_plot --cmap $cmap $filfile ${prefix}.trigger
 # get number of triggers after grouping
 if [ ! -f grouped_pulses.singlepulse ]; then
     ncand_grouped=0
