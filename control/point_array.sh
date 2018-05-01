@@ -52,5 +52,5 @@ else
     echo Now pointing dishes $2 to source $1
   fi
 fi
-ssh -t arts@192.168.3.74 python /home/arts/SVN/RadioHDL/trunk/applications/arts/commissioning/point_array.py $@
+ssh -t arts@ccu-corr.apertif python /home/arts/SVN/RadioHDL/trunk/applications/arts/commissioning/point_array.py $@
 
