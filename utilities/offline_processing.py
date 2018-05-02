@@ -47,7 +47,7 @@ class OfflineProcessing(object):
             exit()
 
         # get used beams from dadafilterbank logs
-        CBs = sorted([x[-2:] for x in dadafilterbank_logs])
+        CBs = sorted([x.split('.')[-1] for x in dadafilterbank_logs])
         print "Found {} CBs:".format(len(CBs))
         for CB in CBs:
             sys.stdout.write(CB+' ')
