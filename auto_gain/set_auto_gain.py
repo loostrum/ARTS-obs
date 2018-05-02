@@ -20,7 +20,7 @@ def get_scaling(dest_value):
 
 
 def set_gain(gain, uniboards):
-    cmd = "ssh -t arts@ccu-corr python /home/arts/SVN/UniBoard/trunk/Software/python/peripherals/util_dp_gain.py --unb {unb} --fn 0:3 --bn 0:3 -n 1 -r {I},{Q},{U},{V}".format(unb=uniboards, I=gain, Q=1, U=1, V=1)
+    cmd = "ssh -t arts@ccu-corr python /home/arts/SVN/UniBoard/trunk/Software/python/peripherals/util_dp_gain.py --unb {unb} --fn 0:3 --bn 0:3 -n 1 -r {I},{Q},{U},{V}".format(unb=uniboards, I=gain, Q=gain, U=gain, V=gain)
     os.system(cmd)
 
 
