@@ -32,19 +32,12 @@ fi
 
 ssh -t arts@ccu-corr.apertif python /home/arts/SVN/RadioHDL/trunk/applications/apertif/commissioning/main.py --app arts_sc4 --tel $tels --unb $unbs $opts $pol
 
-# Gain, correcting for nr of pols
-if [ "$pol" == "" ]; then
-    # dual pol
-    single_dish_gain=1000
-else
-    # single pol
-    single_dish_gain=1000
-fi
+single_dish_gain=1000
 
 ndish_min1=$(grep -o "," <<< $tels | wc -l)
 ndish=$(echo "$ndish_min1 + 1" | bc)
 gain=$(echo "$single_dish_gain / $ndish" | bc)
 echo "Found $ndish dishes, setting gain to $gain"
 # setting gain sometimes fails: always try twice
-ssh -t arts@ccu-corr.apertif  python /home/arts/SVN/UniBoard/trunk/Software/python/peripherals/util_dp_gain.py --unb $unbs --fn 0:3 --bn 0:3 -n 1 -r $gain,1,1,1
-ssh -t arts@ccu-corr.apertif  python /home/arts/SVN/UniBoard/trunk/Software/python/peripherals/util_dp_gain.py --unb $unbs --fn 0:3 --bn 0:3 -n 1 -r $gain,1,1,1
+ssh -t arts@ccu-corr.apertif  python /home/arts/SVN/UniBoard/trunk/Software/python/peripherals/util_dp_gain.py --unb $unbs --fn 0:3 --bn 0:3 -n 1 -r $gain,$gain,$gain,$gain
+ssh -t arts@ccu-corr.apertif  python /home/arts/SVN/UniBoard/trunk/Software/python/peripherals/util_dp_gain.py --unb $unbs --fn 0:3 --bn 0:3 -n 1 -r $gain,$gain,$gain,$gain
