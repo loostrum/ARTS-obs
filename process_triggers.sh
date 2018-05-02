@@ -10,7 +10,7 @@ triggerscript=$HOME/software/arts-analysis/triggers.py
 preproc=$HOME/software/arts-analysis/preprocess.py
 classifier=$HOME/software/single_pulse_ml/single_pulse_ml/run_single_pulse_DL.py
 trigger_to_master=$SOURCE_DIR/trigger_to_master.py
-plotter=$SOURCE_DIR/plotter.py
+plotter=$HOME/software/arts-analysis/plotter.py
 # python venv location
 venv_dir=$HOME/python
 
