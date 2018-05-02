@@ -15,6 +15,8 @@ UTIL=$SOURCE_DIR/utilities
 # scripts only for master node
 if [ "$(hostname)" == "$MASTER" ]; then
     alias start_streams=$CONTROL/start_streams.sh
+    alias set_lo1freq=$CONTROL/set_lo1freq.sh
+    alias read_lo1freq=$CONTROL/read_lo1freq.sh
     alias set_gain=$CONTROL/set_gain.sh
     alias read_gain=$CONTROL/read_gain.sh
     alias auto_gain=$SOURCE_DIR/auto_gain/set_auto_gain.py
