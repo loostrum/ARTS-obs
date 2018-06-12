@@ -14,6 +14,7 @@ def get_scaling(dest_value):
     f = FilReader('gain.fil')
     bandpass = f.bandpass() / f.header.nsamples
     avgsample = np.average(bandpass[np.nonzero(bandpass)])
+    print "Average sample value: {:.2f}".format(avgsample)
     scale = float(dest_value) / avgsample
 
     return scale

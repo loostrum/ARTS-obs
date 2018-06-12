@@ -40,6 +40,9 @@ utc_start=$(date -u +%Y-%m-%d-%H:%M:%S --date "@$tstart")
 host=$(hostname | tail -c 3)
 hostnum=$(printf "%02d" $host)
 cb=$(($hostnum-1))
+if [ $cb -lt 10 ]; then
+    cb=0$cb
+fi
 port=50$cb
 
 cp header_template.txt header.txt
