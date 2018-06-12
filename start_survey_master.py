@@ -192,6 +192,11 @@ def start_survey(args):
     filename = os.path.join(os.path.dirname(os.path.realpath(__file__)), CONFIG)
     with open(filename, 'r') as f:
         config = yaml.load(f)
+    # replace @HOME@ by current users' home dir
+    home_dir = os.path.expanduser('~')
+    for key, value in config['general'].items():
+        if isinstance(value, str):
+            config['general'][key] = value.replace('@HOME@', home_dir)
     conf_sc = 'sc{:.0f}'.format(args.science_case)  # sc3 or sc4
     conf_mode = args.science_mode.lower()  # i+tab, iquv+tab, i+iab, iquv+iab
     # IQUV not yet supported
