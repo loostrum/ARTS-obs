@@ -91,8 +91,9 @@ def pointing_to_CB_pos(CB, coords, pol='X'):
     ncols = 11
     # gel offsets
     offset_to_RADEC = 0.375  # degrees
-    shift = 0.075  # degrees, extra shift needed for some rows/cols to match Apertif layout
 
+    ### 32-beam IAB layout
+    shift = 0.075  # degrees, extra shift needed for some rows/cols to match Apertif layout
     # gel for each CB, -1 means gel is not used
     # because gels use fortran ordering, this looks like the transpose of the beam layout on-sky
     gel_to_CB = [ -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1, \
@@ -106,6 +107,22 @@ def pointing_to_CB_pos(CB, coords, pol='X'):
                   -1,  18,   5,  11,  17,  25,  31,  37,  38,  -1,  -1, \
                   -1,  18,  -1,  11,  -1,  25,  -1,  37,  -1,  -1,  -1, \
                   -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1]
+
+    ### 37-beam apertif hex (so no CB37,CB38)
+    #shift = 0 
+    #gel_to_CB = [ -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1, \
+    #              -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1, \
+    #              -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1, \
+    #              -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1, \
+    #              -1,  -1,  -1,  -1,  -1,   0,  -1,  -1,  -1,  -1,  -1, \
+    #              -1,  -1,  -1,  -1,  -1,   0,  -1,  -1,  -1,  -1,  -1, \
+    #              -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1, \
+    #              -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1, \
+    #              -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1, \
+    #              -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1, \
+    #              -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1]
+
+
     # create CB -> gel mapping
     CB_to_gel_X = {}
     CB_to_gel_Y = {}
