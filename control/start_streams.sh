@@ -2,13 +2,20 @@
 # Adapted for any science case + bands + telescopes by Leon Oostrum
 
 if [ "$#" -ne 2 ] && [ "$#" -ne 3 ] && [ "$#" -ne 4 ]; then
-    echo "Usage: $0 bands, telescopes, opts (optional), pol (optional)"
+    echo "Usage: $0 [dev] bands, telescopes, opts (optional), pol (optional)"
     echo "E.g. for starting 14 bands on RT4 and RT7:"
     echo "$0 2:15 4,7"
     echo "Or"
     echo "$0 2:15 4,7 centraldipole 0"
     echo "Note: bands are specified as a range, telescopes should be a comma-separated list. pol 0 = X, pol 1 = Y. Anything else for dual pol. Opts can be 'centraldipole' to use only central dipole. Also specify opts when using pol"
     exit
+fi
+
+if [ "$1" == "dev" ]; then
+    app=arts_sc4-dev
+    shift
+else
+    app=arts_sc4
 fi
 
 unbs="$1"
@@ -30,14 +37,17 @@ else
     pol=""
 fi
 
-ssh -t arts@ccu-corr.apertif python /home/arts/SVN/RadioHDL/trunk/applications/apertif/commissioning/main.py --app arts_sc4 --tel $tels --unb $unbs $opts $pol
+ssh -t arts@ccu-corr.apertif python /home/arts/SVN/RadioHDL/trunk/applications/apertif/commissioning/main.py --app $app --tel $tels --unb $unbs $opts $pol
 
-single_dish_gain=1000
+# only set gain for science mode (i.e. IAB)
+if [ "$app" == "arts_sc4" ]; then
+    single_dish_gain=1000
 
-ndish_min1=$(grep -o "," <<< $tels | wc -l)
-ndish=$(echo "$ndish_min1 + 1" | bc)
-gain=$(echo "$single_dish_gain / $ndish" | bc)
-echo "Found $ndish dishes, setting gain to $gain"
-# setting gain sometimes fails: always try twice
-ssh -t arts@ccu-corr.apertif  python /home/arts/SVN/UniBoard/trunk/Software/python/peripherals/util_dp_gain.py --unb $unbs --fn 0:3 --bn 0:3 -n 1 -r $gain,$gain,$gain,$gain
-ssh -t arts@ccu-corr.apertif  python /home/arts/SVN/UniBoard/trunk/Software/python/peripherals/util_dp_gain.py --unb $unbs --fn 0:3 --bn 0:3 -n 1 -r $gain,$gain,$gain,$gain
+    ndish_min1=$(grep -o "," <<< $tels | wc -l)
+    ndish=$(echo "$ndish_min1 + 1" | bc)
+    gain=$(echo "$single_dish_gain / $ndish" | bc)
+    echo "Found $ndish dishes, setting gain to $gain"
+    # setting gain sometimes fails: always try twice
+    ssh -t arts@ccu-corr.apertif  python /home/arts/SVN/UniBoard/trunk/Software/python/peripherals/util_dp_gain.py --unb $unbs --fn 0:3 --bn 0:3 -n 1 -r $gain,$gain,$gain,$gain
+    ssh -t arts@ccu-corr.apertif  python /home/arts/SVN/UniBoard/trunk/Software/python/peripherals/util_dp_gain.py --unb $unbs --fn 0:3 --bn 0:3 -n 1 -r $gain,$gain,$gain,$gain
+fi
