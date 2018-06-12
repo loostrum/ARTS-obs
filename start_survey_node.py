@@ -12,6 +12,8 @@ from time import sleep
 import yaml
 import numpy as np
 
+NUMTHREADS = 24
+
 
 class Survey(object):
     """Start a survey mode observation on ARTS. This class runs the relevant commands on the current node
@@ -125,7 +127,7 @@ class Survey(object):
         output_dir = os.path.join(self.config['output_dir'], 'filterbank')
         os.system("mkdir -p {}".format(output_dir))
         output_prefix = os.path.join(output_dir, 'CB{:02d}'.format(self.config['beam']))
-        cmd = "dadafilterbank -k {dadakey} -n {output_prefix} -l {log_dir}/dadafilterbank.{beam:02d} &".format(output_prefix=output_prefix, **self.config)
+        cmd = "export OMP_NUM_THREADS={threads}; dadafilterbank -k {dadakey} -n {output_prefix} -l {log_dir}/dadafilterbank.{beam:02d} &".format(output_prefix=output_prefix, threads=NUMTHREADS, **self.config)
         self.log(cmd)
         os.system(cmd)
 
