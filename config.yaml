@@ -16,7 +16,7 @@ general: &general
     # total nr of beams
     nbeams: 40
     # beams that are not present
-    missing_beams: [4, 9, 14, 19, 24, 29, 34, 39]
+    missing_beams: [4, 9, 14, 19, 24, 29, 34, 39, 1]
     # nr of buffers for readers
     nbuffer: 5
     # observation modes
