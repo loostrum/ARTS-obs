@@ -9,6 +9,8 @@ general: &general
     nchan: 1536
     # central frequency
     freq: 1370
+    # first subband (usually 0, or 137 when using MAC)
+    first_subband: 137
     # bandwidth
     bw: 300
     # seconds to timestamp conversion

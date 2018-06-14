@@ -207,11 +207,11 @@ def start_survey(args):
         exit()
     # science case specific
     pars['science_case'] = args.science_case
+    pars['time_unit'] = config[conf_sc]['time_unit']
     pars['nbit'] = config[conf_sc]['nbit']
     pars['nchan'] = config[conf_sc]['nchan']
-    pars['freq'] = config[conf_sc]['freq']
+    pars['freq'] = config[conf_sc]['freq'] + config[conf_sc]['first_subband'] * pars['time_unit'] * 1E-6
     pars['bw'] = config[conf_sc]['bw']
-    pars['time_unit'] = config[conf_sc]['time_unit']
     pars['nbeams'] = config[conf_sc]['nbeams']
     pars['missing_beams'] = config[conf_sc]['missing_beams']
     pars['nbuffer'] = config[conf_sc]['nbuffer']
