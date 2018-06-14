@@ -71,7 +71,7 @@ class Survey(object):
             cmd = "mkdir -p {output_dir}/triggers".format(**self.config)
             os.system(cmd)
             self.log("Waiting for finish, then processing triggers")
-            cmd = "sleep 1; pid=$(pgrep fill_ringbuffer); tail --pid=$pid -f /dev/null; sleep 5; {script_dir}/process_triggers.sh {output_dir}/triggers {output_dir}/filterbank/CB{beam:02d}.fil {amber_dir}/CB{beam:02d} {master_dir} {snrmin} {beam:02d}".format(script_dir=os.path.dirname(os.path.realpath(__file__)), **self.config)
+            cmd = "sleep 1; pid=$(pgrep fill_ringbuffer); tail --pid=$pid -f /dev/null; sleep 5; {script_dir}/process_triggers.sh {output_dir}/triggers {output_dir}/filterbank/CB{beam:02d}.fil {amber_dir}/CB{beam:02d} {master_dir} {snrmin} {beam:02d} {min_freq} {max_freq}".format(script_dir=os.path.dirname(os.path.realpath(__file__)), **self.config)
             self.log(cmd)
             sys.stdout.flush()
             os.system(cmd)

@@ -335,6 +335,8 @@ def start_survey(args):
     cfg['proctrigger'] = pars['proctrigger']
     cfg['amber_mode'] = pars['amber_mode']
     cfg['fits_templates'] = pars['fits_templates']
+    cfg['min_freq'] = pars['min_freq']
+    cfg['max_freq'] = pars['min_freq'] + pars['bw'] - pars['chan_width']
 
     # load PSRDADA header template
     with open(os.path.join(os.path.dirname(os.path.realpath(__file__)), TEMPLATE), 'r') as f:
