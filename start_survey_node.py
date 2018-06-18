@@ -60,7 +60,10 @@ class Survey(object):
             self.survey()
         sleep(waittime)
         # start fill ringbuffer
-        self.fill_ringbuffer()
+        if self.config['usemac']:
+            self.fill_ringbuffer(reorder=True)
+        else:
+            self.fill_ringbuffer()
         sleep(waittime)
         # Everything has been started
         self.log("Everything started")
@@ -98,9 +101,13 @@ class Survey(object):
         os.system(cmd)
 
 
-    def fill_ringbuffer(self):
+    def fill_ringbuffer(self, reorder=False):
         self.log("Starting fill_ringbuffer")
-        cmd = ("fill_ringbuffer -k {dadakey} -s {startpacket} -d {duration}"
+        if reorder:
+            cmd = ("fill_ringbuffer -f -k {dadakey} -s {startpacket} -d {duration}"
+               " -p {network_port} -h {header} -l {log_dir}/fill_ringbuffer.{beam:02d} &").format(**self.config)
+        else:
+            cmd = ("fill_ringbuffer -k {dadakey} -s {startpacket} -d {duration}"
                " -p {network_port} -h {header} -l {log_dir}/fill_ringbuffer.{beam:02d} &").format(**self.config)
         self.log(cmd)
         os.system(cmd)

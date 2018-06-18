@@ -206,11 +206,16 @@ def start_survey(args):
         log("ERROR: IQUV modes not yet supported")
         exit()
     # science case specific
+    pars['usemac'] = args.mac
     pars['science_case'] = args.science_case
     pars['time_unit'] = config[conf_sc]['time_unit']
     pars['nbit'] = config[conf_sc]['nbit']
     pars['nchan'] = config[conf_sc]['nchan']
-    pars['freq'] = config[conf_sc]['freq'] + config[conf_sc]['first_subband'] * pars['time_unit'] * 1E-6
+    if args.mac:
+        # could have non-zero starting subband
+        pars['freq'] = config[conf_sc]['freq'] + config[conf_sc]['first_subband'] * pars['time_unit'] * 1E-6
+    else:
+        pars['freq'] = config[conf_sc]['freq']
     pars['bw'] = config[conf_sc]['bw']
     pars['nbeams'] = config[conf_sc]['nbeams']
     pars['missing_beams'] = config[conf_sc]['missing_beams']
@@ -337,6 +342,7 @@ def start_survey(args):
     cfg['fits_templates'] = pars['fits_templates']
     cfg['min_freq'] = pars['min_freq']
     cfg['max_freq'] = pars['min_freq'] + pars['bw'] - pars['chan_width']
+    cfg['usemac'] = pars['usemac']
 
     # load PSRDADA header template
     with open(os.path.join(os.path.dirname(os.path.realpath(__file__)), TEMPLATE), 'r') as f:
@@ -488,6 +494,9 @@ if __name__ == '__main__':
     parser.add_argument("--snrmin", type=float, help="AMBER minimum S/N " \
                             "(Default: 10)", default=10)
     parser.add_argument("--proctrigger", help="Process and email triggers. "\
+                            "(Default: False)", action="store_true")
+    # MAC
+    parser.add_argument("--mac", help="Using MAC. Enables beamlet reordering and non-zero starting subband. " \
                             "(Default: False)", action="store_true")
 
     # make sure dec does not start with -
