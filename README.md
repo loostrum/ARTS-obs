@@ -16,7 +16,7 @@ There is one master node: arts041. All observation scripts, logs and plots are s
 
 - [PSRDADA](http://psrdada.sourceforge.net/current)
 - [AMBER](https://github.com/AA-ALERT/AMBER_setup)
-- [fill_ringbuffer](https://github.com/AA-ALERT/ringbuffer/tree/sc4)
+- [fill_ringbuffer](https://github.com/AA-ALERT/ringbuffer-sc4)
 - [dadafilterbank](https://github.com/AA-ALERT/dadafilterbank)
 - [dadafits](https://github.com/AA-ALERT/dadafits)
 
