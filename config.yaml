@@ -79,3 +79,16 @@ iquv+iab:
     ntabs: 1
     # dadafilterbank mode
     science_mode: 3
+
+# core affinities
+# the HDDs and GPU 0,1 are on NUMA node 0 = cpu 0-9,20-29
+# the 40Gbit link and GPU 2,3 are on NUMA node 1 = cpu 10-19,30-39
+affinity:
+    fill_ringbuffer_i: 11
+    fill_ringbuffer_iquv: 12
+    dada_db_i: 13
+    dada_db_iquv: 14
+    dadafilterbank: 1
+    dadafits: 2
+    # note: one cpu for each AMBER instance, corresponding to GPU 1,2,3
+    amber: [3, 15, 16]
