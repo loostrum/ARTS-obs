@@ -206,6 +206,7 @@ def start_survey(args):
         log("ERROR: IQUV modes not yet supported")
         exit()
     # science case specific
+    pars['affinity'] = config['affinity']
     pars['usemac'] = args.mac
     pars['science_case'] = args.science_case
     pars['time_unit'] = config[conf_sc]['time_unit']
@@ -343,6 +344,7 @@ def start_survey(args):
     cfg['min_freq'] = pars['min_freq']
     cfg['max_freq'] = pars['min_freq'] + pars['bw'] - pars['chan_width']
     cfg['usemac'] = pars['usemac']
+    cfg['affinity'] = pars['affinity']
 
     # load PSRDADA header template
     with open(os.path.join(os.path.dirname(os.path.realpath(__file__)), TEMPLATE), 'r') as f:
