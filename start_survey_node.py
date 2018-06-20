@@ -60,7 +60,10 @@ class Survey(object):
             self.survey()
         sleep(waittime)
         # start fill ringbuffer
-        self.fill_ringbuffer()
+        if self.config['usemac']:
+            self.fill_ringbuffer(reorder=True)
+        else:
+            self.fill_ringbuffer()
         sleep(waittime)
         # Everything has been started
         self.log("Everything started")
@@ -71,7 +74,7 @@ class Survey(object):
             cmd = "mkdir -p {output_dir}/triggers".format(**self.config)
             os.system(cmd)
             self.log("Waiting for finish, then processing triggers")
-            cmd = "sleep 1; pid=$(pgrep fill_ringbuffer); tail --pid=$pid -f /dev/null; sleep 5; {script_dir}/process_triggers.sh {output_dir}/triggers {output_dir}/filterbank/CB{beam:02d}.fil {amber_dir}/CB{beam:02d} {master_dir} {snrmin} {beam:02d}".format(script_dir=os.path.dirname(os.path.realpath(__file__)), **self.config)
+            cmd = "sleep 1; pid=$(pgrep fill_ringbuffer); tail --pid=$pid -f /dev/null; sleep 5; {script_dir}/process_triggers.sh {output_dir}/triggers {output_dir}/filterbank/CB{beam:02d}.fil {amber_dir}/CB{beam:02d} {master_dir} {snrmin} {beam:02d} {min_freq} {max_freq}".format(script_dir=os.path.dirname(os.path.realpath(__file__)), **self.config)
             self.log(cmd)
             sys.stdout.flush()
             os.system(cmd)
@@ -98,9 +101,13 @@ class Survey(object):
         os.system(cmd)
 
 
-    def fill_ringbuffer(self):
+    def fill_ringbuffer(self, reorder=False):
         self.log("Starting fill_ringbuffer")
-        cmd = ("fill_ringbuffer -k {dadakey} -s {startpacket} -d {duration}"
+        if reorder:
+            cmd = ("fill_ringbuffer -f -k {dadakey} -s {startpacket} -d {duration}"
+               " -p {network_port} -h {header} -l {log_dir}/fill_ringbuffer.{beam:02d} &").format(**self.config)
+        else:
+            cmd = ("fill_ringbuffer -k {dadakey} -s {startpacket} -d {duration}"
                " -p {network_port} -h {header} -l {log_dir}/fill_ringbuffer.{beam:02d} &").format(**self.config)
         self.log(cmd)
         os.system(cmd)
