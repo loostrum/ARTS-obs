@@ -90,5 +90,7 @@ affinity:
     dada_db_iquv: 14
     dadafilterbank: 1
     dadafits: 2
+    dada_dbdisk_i: 3
+    dada_dbdisk_iquv: 4
     # note: one cpu for each AMBER instance, corresponding to GPU 1,2,3
     amber: [3, 15, 16]
