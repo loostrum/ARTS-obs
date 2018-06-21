@@ -96,19 +96,21 @@ class Survey(object):
 
     def ringbuffer(self):
         self.log("Starting ringbuffers")
-        cmd = "dada_db -k {dadakey} -b {buffersize} -n {nbuffer} -p -r {nreader} &".format(**self.config)
+        cpu = self.config['affinity']['dada_db_i']
+        cmd = "taskset -c {cpu} dada_db -k {dadakey} -b {buffersize} -n {nbuffer} -p -r {nreader} &".format(cpu=cpu, **self.config)
         self.log(cmd)
         os.system(cmd)
 
 
     def fill_ringbuffer(self, reorder=False):
         self.log("Starting fill_ringbuffer")
+        cpu = self.config['affinity']['fill_ringbuffer_i']
         if reorder:
-            cmd = ("fill_ringbuffer -f -k {dadakey} -s {startpacket} -d {duration}"
-               " -p {network_port} -h {header} -l {log_dir}/fill_ringbuffer.{beam:02d} &").format(**self.config)
+            cmd = ("taskset -c {cpu} fill_ringbuffer -f -k {dadakey} -s {startpacket} -d {duration}"
+               " -p {network_port} -h {header} -l {log_dir}/fill_ringbuffer.{beam:02d} &").format(cpu=cpu, **self.config)
         else:
-            cmd = ("fill_ringbuffer -k {dadakey} -s {startpacket} -d {duration}"
-               " -p {network_port} -h {header} -l {log_dir}/fill_ringbuffer.{beam:02d} &").format(**self.config)
+            cmd = ("taskset -c {cpu} fill_ringbuffer -k {dadakey} -s {startpacket} -d {duration}"
+               " -p {network_port} -h {header} -l {log_dir}/fill_ringbuffer.{beam:02d} &").format(cpu=cpu, **self.config)
         self.log(cmd)
         os.system(cmd)
 
@@ -122,29 +124,31 @@ class Survey(object):
 
     def dump(self):
         self.log("Starting dada_dbdisk")
+        cpu = self.config['affinity']['dada_dbdisk_i']
         output_dir = os.path.join(self.config['output_dir'], 'dada')
         os.system("mkdir -p {}".format(output_dir))
-        cmd = "dada_dbdisk -k {dadakey} -D {output_prefix} > {log_dir}/dada_dbdisk.{beam:02d} &".format(output_prefix=output_dir, **self.config)
+        cmd = "taskset -c {cpu} dada_dbdisk -k {dadakey} -D {output_prefix} > {log_dir}/dada_dbdisk.{beam:02d} &".format(cpu=cpu, output_prefix=output_dir, **self.config)
         self.log(cmd)
         os.system(cmd)
 
 
     def dadafilterbank(self):
         self.log("Starting dadafilterbank")
+        cpu = self.config['affinity']['dadafilterbank']
         output_dir = os.path.join(self.config['output_dir'], 'filterbank')
         os.system("mkdir -p {}".format(output_dir))
         output_prefix = os.path.join(output_dir, 'CB{:02d}'.format(self.config['beam']))
-        cmd = "export OMP_NUM_THREADS={threads}; dadafilterbank -k {dadakey} -n {output_prefix} -l {log_dir}/dadafilterbank.{beam:02d} &".format(output_prefix=output_prefix, threads=NUMTHREADS, **self.config)
+        cmd = "export OMP_NUM_THREADS={threads}; taskset -c {cpu} dadafilterbank -k {dadakey} -n {output_prefix} -l {log_dir}/dadafilterbank.{beam:02d} &".format(cpu=cpu, output_prefix=output_prefix, threads=NUMTHREADS, **self.config)
         self.log(cmd)
         os.system(cmd)
 
 
     def dadafits(self):
         self.log("Starting dadafits")
+        cpu = self.config['affinity']['dadafits']
         output_dir = os.path.join(self.config['output_dir'], 'fits', 'CB{:02d}'.format(self.config['beam']))
         os.system("mkdir -p {}".format(output_dir))
-        #dadafits -k <hexadecimal key> -l <logfile> -t <template> -d <output_directory>
-        cmd = "dadafits -k {dadakey} -l {log_dir}/dadafits.{beam:02d} -t {fits_templates} -d {output_fits} &".format(output_fits=output_dir, **self.config)
+        cmd = "taskset -c {cpu} dadafits -k {dadakey} -l {log_dir}/dadafits.{beam:02d} -t {fits_templates} -d {output_fits} &".format(cpu=cpu, output_fits=output_dir, **self.config)
         self.log(cmd)
         os.system(cmd)
 
@@ -164,6 +168,7 @@ class Survey(object):
             self.log("Starting amber in bruteforce mode")
             # loop over the amber configs for the GPUs
             for ind in range(len(ambercfg['opencl_device'])):
+                cpu = self.config['affinity']['amber'][ind]
                 # make dict with fullconfig, because AMBER settings are spread over the general and node-specific config files
                 fullconfig = ambercfg.copy()
                 fullconfig.update(self.config)
@@ -171,17 +176,18 @@ class Survey(object):
                 for key in ['dm_first', 'dm_step', 'num_dm', 'opencl_device']:
                     fullconfig[key] = ambercfg[key][ind]
 
-                cmd = ("amber -opencl_platform {opencl_platform} -opencl_device {opencl_device} -device_name {device_name} -padding_file {amber_conf_dir}/padding.conf"
+                cmd = ("taskset -c {cpu} amber -opencl_platform {opencl_platform} -opencl_device {opencl_device} -device_name {device_name} -padding_file {amber_conf_dir}/padding.conf"
                        " -zapped_channels {amber_conf_dir}/zapped_channels.conf -integration_steps {amber_conf_dir}/integration_steps.conf -dedispersion_file"
                        " {amber_conf_dir}/dedispersion.conf -integration_file {amber_conf_dir}/integration.conf -snr_file {amber_conf_dir}/snr.conf -dms {num_dm}"
                        " -dm_first {dm_first} -dm_step {dm_step} -threshold {snrmin} -output {output_prefix}_step{ind} -beams 1 -synthesized_beams 1"
-                       " -dada -dada_key {dadakey} -batches {nbatch} 2>&1 > {log_dir}/amber_{ind}.{beam:02d} &").format(ind=ind+1, **fullconfig)
+                       " -dada -dada_key {dadakey} -batches {nbatch} 2>&1 > {log_dir}/amber_{ind}.{beam:02d} &").format(cpu=cpu, ind=ind+1, **fullconfig)
                 self.log(cmd)
                 os.system(cmd)
         elif self.config['amber_mode'] == 'subband':
             self.log("Starting amber in subband mode")
             # loop over the amber configs for the GPUs
             for ind in range(len(ambercfg['opencl_device'])):
+                cpu = self.config['affinity']['amber'][ind]
                 # make dict with fullconfig, because AMBER settings are spread over the general and node-specific config files
                 fullconfig = ambercfg.copy()
                 fullconfig.update(self.config)
@@ -189,13 +195,13 @@ class Survey(object):
                 for key in ['dm_first', 'dm_step', 'num_dm', 'opencl_device', 'device_name', 'subbands', 'subbanding_dm_first', 'subbanding_dm_step', 'subbanding_dms']:
                     fullconfig[key] = ambercfg[key][ind]
 
-                cmd = ("amber -opencl_platform {opencl_platform} -opencl_device {opencl_device} -device_name {device_name} -padding_file {amber_conf_dir}/padding.conf"
+                cmd = ("taskset -c {cpu} amber -opencl_platform {opencl_platform} -opencl_device {opencl_device} -device_name {device_name} -padding_file {amber_conf_dir}/padding.conf"
                        " -zapped_channels {amber_conf_dir}/zapped_channels.conf -integration_steps {amber_conf_dir}/integration_steps.conf -subband_dedispersion"
                        " -dedispersion_step_one_file {amber_conf_dir}/dedispersion_stepone.conf -dedispersion_step_two_file {amber_conf_dir}/dedispersion_steptwo.conf"
                        " -integration_file {amber_conf_dir}/integration.conf -snr_file {amber_conf_dir}/snr.conf -dms {num_dm} -dm_first {dm_first} -dm_step {dm_step}"
                        " -subbands {subbands} -subbanding_dms {subbanding_dms} -subbanding_dm_first {subbanding_dm_first} -subbanding_dm_step {subbanding_dm_step}"
                        " -threshold {snrmin} -output {output_prefix}_step{ind} -beams 1 -synthesized_beams 1"
-                       " -dada -dada_key {dadakey} -batches {nbatch} 2>&1 > {log_dir}/amber_{ind}.{beam:02d} &").format(ind=ind+1, **fullconfig)
+                       " -dada -dada_key {dadakey} -batches {nbatch} 2>&1 > {log_dir}/amber_{ind}.{beam:02d} &").format(cpu=cpu, ind=ind+1, **fullconfig)
                 self.log(cmd)
                 os.system(cmd)
 
