@@ -140,6 +140,14 @@ class Processing(object):
         sys.stdout.write(command+'\n')
         os.system(command)
 
+        # Done - let the users know through slack
+        command = ("curl -X POST --data-urlencode 'payload={{\"text\":\"Observation {date}_{datetimesource} "
+                   "is now available. {result_dir}/{date}_{datetimesource}.tar.gz\"}}' "
+                   " https://hooks.slack.com/services/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").format(**self.config)
+        sys.stdout.write(command+'\n')
+        os.system(command)
+        sys.stdout.flush()
+
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Offline processing of ARTS data with Heimdall")
