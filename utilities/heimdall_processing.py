@@ -112,10 +112,10 @@ class Processing(object):
         # Heimdall command line
         command = ("(rm -f {heimdall_dir}/*cand; heimdall -beam {CB} -v -f {filfile} -dm 0 {dmmax} -gpu_id 0 "
                    " -output_dir {heimdall_dir}; cd {heimdall_dir}; cat *cand > CB{CB:02d}.cand; mkdir plots; "
-                   " python $HOME/software/arts-analysis/triggers.py --dm_min 10 --dm_max 5000 --sig_thresh {snrmin} "
+                   " python $HOME/software/arts-analysis/triggers.py --dm_min 10 --dm_max {dmmax} --sig_thresh {snrmin} "
                    " --ndm 1 --save_data hdf5 --ntrig 1000000000 --nfreq_plot 32 --ntime_plot 250 --cmap viridis "
                    " --mk_plot {filfile} CB{CB:02d}.cand; gs -dBATCH -dNOPAUSE -q -sDEVICE=pdfwrite "
-                   " -dPDFSETTINGS=/prepress -sOutputFile CB{CB:02d}.pdf plots/*pdf) "
+                   " -dPDFSETTINGS=/prepress -sOutputFile=CB{CB:02d}.pdf plots/*pdf) "
                    " > {result_dir}/CB{CB:02d}.log").format(CB=CB, **localconfig)
 
         self.run_on_node(node, command, background=True)
@@ -136,9 +136,9 @@ class Processing(object):
             time.sleep(waittime)
 
         # Heimdall is done, combine lots per beam into archive
-        cmd = "cd {result_dir}; tar cvfz {date}_{datetimesource}.tar.gz */CB??.pdf"
-        sys.stdout.write(cmd+'\n')
-        os.system(cmd)
+        command = "cd {result_dir}; tar cvfz {date}_{datetimesource}.tar.gz CB??/CB??.pdf".format(**self.config)
+        sys.stdout.write(command+'\n')
+        os.system(command)
 
 
 if __name__ == '__main__':
