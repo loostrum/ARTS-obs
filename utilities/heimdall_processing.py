@@ -12,12 +12,15 @@ import sys
 import socket
 import argparse
 import glob
+import subprocess
+import time
 
 import yaml
 
 CONFIG = "config.yaml"
 SC = "sc4"
 RESULTDIR = "@HOME@/observations/heimdall/{date}/{datetimesource}"
+MAXTIME = 24*3600  # max runtime per observation
 
 
 class Processing(object):
@@ -107,19 +110,41 @@ class Processing(object):
             pass
 
         # Heimdall command line
-        command = ("(rm -f {heimdall_dir}/*cand; heimdall -beam {CB} -v -f {filfile} -dm 0 {dmmax} -gpu_id 0 -output_dir {heimdall_dir}; "
-                   " cd {heimdall_dir}; cat *cand > CB{CB:02d}.cand; mkdir plots; "
+        command = ("(rm -f {heimdall_dir}/*cand; heimdall -beam {CB} -v -f {filfile} -dm 0 {dmmax} -gpu_id 0 "
+                   " -output_dir {heimdall_dir}; cd {heimdall_dir}; cat *cand > CB{CB:02d}.cand; mkdir plots; "
                    " python $HOME/software/arts-analysis/triggers.py --dm_min 10 --dm_max 5000 --sig_thresh {snrmin} "
                    " --ndm 1 --save_data hdf5 --ntrig 1000000000 --nfreq_plot 32 --ntime_plot 250 --cmap viridis "
-                   " --mk_plot {filfile} CB{CB:02d}.cand) > {result_dir}/CB{CB:02d}.log").format(CB=CB, **localconfig)
+                   " --mk_plot {filfile} CB{CB:02d}.cand; gs -dBATCH -dNOPAUSE -q -sDEVICE=pdfwrite "
+                   " -dPDFSETTINGS=/prepress -sOutputFile CB{CB:02d}.pdf plots/*pdf) "
+                   " > {result_dir}/CB{CB:02d}.log").format(CB=CB, **localconfig)
 
         self.run_on_node(node, command, background=True)
+
+        # give all nodes as chance to start
+        time.sleep(10)
+
+        # sleep while ssh commands are running
+        waittime = 60
+        n_running = 1
+        t_running = 0
+        t_start = time.time()
+        while not n_running == 0 and t_running < MAXTIME:
+            n_running = int(subprocess.check_output("pgrep -a -u `whoami` ssh | grep heimdall | wc -l", shell=True))
+            t_running = time.time() - t_start
+            sys.stdout.write("{} processes still running. Sleeping for {} seconds\n".format(n_running, waittime))
+            sys.stdout.flush()
+            time.sleep(waittime)
+
+        # Heimdall is done, combine lots per beam into archive
+        cmd = "cd {result_dir}; tar cvfz {date}_{datetimesource}.tar.gz */CB??.pdf"
+        sys.stdout.write(cmd+'\n')
+        os.system(cmd)
 
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Offline processing of ARTS data with Heimdall")
     # observation info
-    parser.add_argument("--date", '-d', type=str, help="Observation date, e.g. 20180101", required=True)
+    parser.add_argument("--date", type=str, help="Observation date, e.g. 20180101", required=True)
     parser.add_argument("--obs", type=str, help="Observation name, e.g. 2018-01-01-00:00:00.B0000+00", required=True)
     # Heimdall settings
     parser.add_argument("--dmmax", type=float, help="Maximum DM, (default: 5000)", default=5000)
