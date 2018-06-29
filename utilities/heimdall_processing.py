@@ -14,6 +14,7 @@ import argparse
 import glob
 import subprocess
 import time
+import getpass
 
 import yaml
 
@@ -136,9 +137,16 @@ class Processing(object):
             time.sleep(waittime)
 
         # Heimdall is done, combine lots per beam into archive
-        command = "cd {result_dir}; tar cvfz {date}_{datetimesource}.tar.gz CB??/CB??.pdf".format(**self.config)
+        command = "cd {result_dir}; tar --force-local cvfz {date}_{datetimesource}.tar.gz CB??/CB??.pdf".format(**self.config)
         sys.stdout.write(command+'\n')
         os.system(command)
+
+        # copy to arts account
+        current_user = getpass.getuser()
+        if not current_user == 'arts':
+            command = "scp ./{date}_{datetimesource}.tar.gz arts@localhost:heimdall_results/"
+            sys.stdout.write(command+'\n')
+            os.system(command)
 
         # Done - let the users know through slack
         command = ("curl -X POST --data-urlencode 'payload={{\"text\":\"Observation {date}_{datetimesource} "
