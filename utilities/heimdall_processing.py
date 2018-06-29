@@ -97,7 +97,6 @@ class Processing(object):
         CB = int(CB)
         node = CB + 1
 
-
         localconfig = self.config.copy()
         localconfig['filfile'] = "{output_dir}/filterbank/CB{CB:02d}.fil".format(CB=CB, **self.config)
         localconfig['heimdall_dir'] = "{result_dir}/CB{CB:02d}".format(CB=CB, **self.config)
@@ -108,8 +107,13 @@ class Processing(object):
             pass
 
         # Heimdall command line
-        heimdall = "heimdall -f {filfile} -dm 0 {dmmax} -gpu_id 0 -output_dir {heimdall_dir}".format(**localconfig)
-        self.run_on_node(node, heimdall, background=False)
+        command = ("heimdall -f {filfile} -dm 0 {dmmax} -gpu_id 0 -output_dir {heimdall_dir}; "
+                   "cd {heimdall_dir}; cat *cand > CB{CB:02d}.cand; mkdir plots; "
+                   "python $HOME/software/arts-analysis/triggers.py --dm_min 10 --dm_max 5000 --sig_thresh {snrmin} "
+                   " --ndm 1 --save_data hdf5 --ntrig 1000000000 --nfreq_plot 32 --ntime_plot 250 --cmap viridis"
+                   "{filfile} CB{CB:02d}.cand").format(CB=CB, **localconfig)
+
+        self.run_on_node(node, command, background=True)
 
 
 if __name__ == '__main__':
