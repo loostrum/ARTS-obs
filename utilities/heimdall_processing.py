@@ -149,8 +149,8 @@ class Processing(object):
             os.system(command)
 
         # Done - let the users know through slack
-        command = ("curl -X POST --data-urlencode 'payload={{\"text\":\"Observation {date}_{datetimesource} "
-                   "is now available. {result_dir}/{date}_{datetimesource}.tar.gz\"}}' "
+        command = ("curl -X POST --data-urlencode 'payload={{\"text\":\"Observation "
+                   " now available: {result_dir}/{date}_{datetimesource}.tar.gz\"}}' "
                    " https://hooks.slack.com/services/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").format(**self.config)
         sys.stdout.write(command+'\n')
         os.system(command)
