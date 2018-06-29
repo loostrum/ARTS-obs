@@ -31,9 +31,10 @@ class Processing(object):
         for key, item in config.items():
             if isinstance(item, str):
                 config[key] = item.replace('@HOME@', home).format(date=args.date, datetimesource=args.obs)
-        self.config = config
         # add args to config
-        self.config.update(args)
+        config.update(vars(args))
+        config['datetimesource'] = args.obs
+        self.config = config
 
         # set up relevant directories
         if not os.path.isdir(self.config['log_dir']):
@@ -93,11 +94,12 @@ class Processing(object):
         """
 
         # node number, keep in mind 1-based indexing for nodes
-        node = int(CB) + 1
+        CB = int(CB)
+        node = CB + 1
 
 
         localconfig = self.config.copy()
-        localconfig['filfile'] = "{output_dir}/filterbank/CB{cb:02d}.fil".format(CB=CB, **self.config)
+        localconfig['filfile'] = "{output_dir}/filterbank/CB{CB:02d}.fil".format(CB=CB, **self.config)
         localconfig['heimdall_dir'] = "{result_dir}/CB{CB:02d}".format(CB=CB, **self.config)
         try:
             os.makedirs(localconfig['heimdall_dir'] )
@@ -107,8 +109,7 @@ class Processing(object):
 
         # Heimdall command line
         heimdall = "heimdall -f {filfile} -dm 0 {dmmax} -gpu_id 0 -output_dir {heimdall_dir}".format(**localconfig)
-        sys.stdout.write("Running {}\n".format(heimdall))
-        os.system(heimdall)
+        self.run_on_node(node, heimdall, background=False)
 
 
 if __name__ == '__main__':
