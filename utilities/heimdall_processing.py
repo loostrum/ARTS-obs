@@ -88,7 +88,7 @@ class Processing(object):
             t_running = time.time() - t_start
 
         # Heimdall is done, combine plots per beam into archive
-        command = "cd {result_dir}; tar --force-local cvfz {datetimesource}.tar.gz CB??/CB??.pdf".format(**self.config)
+        command = "cd {result_dir}; tar cvfz ./{datetimesource}.tar.gz CB??/CB??.pdf".format(**self.config)
         sys.stdout.write(command+'\n')
         os.system(command)
 
