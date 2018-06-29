@@ -72,6 +72,42 @@ class Processing(object):
         sys.stdout.write("Processing started\n")
         sys.stdout.flush()
 
+        # give all nodes as chance to start
+        time.sleep(10)
+
+        # sleep while ssh commands are running
+        waittime = 60
+        n_running = len(CBs)
+        t_running = 0
+        t_start = time.time()
+        while not n_running == 0 and t_running < MAXTIME:
+            sys.stdout.write("{} processes still running. Sleeping for {} seconds\n".format(n_running, waittime))
+            sys.stdout.flush()
+            time.sleep(waittime)
+            n_running = int(subprocess.check_output("pgrep -a -u `whoami` ssh | grep heimdall | wc -l", shell=True))
+            t_running = time.time() - t_start
+
+        # Heimdall is done, combine plots per beam into archive
+        command = "cd {result_dir}; tar --force-local cvfz {date}_{datetimesource}.tar.gz CB??/CB??.pdf".format(**self.config)
+        sys.stdout.write(command+'\n')
+        os.system(command)
+
+        # copy to arts account
+        current_user = getpass.getuser()
+        if not current_user == 'arts':
+            command = "scp ./{date}_{datetimesource}.tar.gz arts@localhost:heimdall_results/"
+            sys.stdout.write(command+'\n')
+            os.system(command)
+
+        # Done - let the users know through slack
+        command = ("curl -X POST --data-urlencode 'payload={{\"text\":\"Observation "
+                   " now available: {result_dir}/{date}_{datetimesource}.tar.gz\"}}' "
+                   " https://hooks.slack.com/services/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").format(**self.config)
+        sys.stdout.write(command+'\n')
+        os.system(command)
+        sys.stdout.flush()
+
+
     def run_on_node(self, node, command, background=False):
         """Run command on an ARTS node. Assumes ssh keys have been set up
             node: nr of node (string or int)
@@ -91,6 +127,7 @@ class Processing(object):
             ssh_cmd = "ssh {} '{}'".format(hostname, command)
         sys.stdout.write("Executing \"{}\"\n".format(ssh_cmd))
         os.system(ssh_cmd)
+
 
     def process(self, CB):
         """Process filterbank on node specified by CB
@@ -120,41 +157,6 @@ class Processing(object):
                    " > {result_dir}/CB{CB:02d}.log").format(CB=CB, **localconfig)
 
         self.run_on_node(node, command, background=True)
-
-        # give all nodes as chance to start
-        time.sleep(10)
-
-        # sleep while ssh commands are running
-        waittime = 60
-        n_running = 1
-        t_running = 0
-        t_start = time.time()
-        while not n_running == 0 and t_running < MAXTIME:
-            n_running = int(subprocess.check_output("pgrep -a -u `whoami` ssh | grep heimdall | wc -l", shell=True))
-            t_running = time.time() - t_start
-            sys.stdout.write("{} processes still running. Sleeping for {} seconds\n".format(n_running, waittime))
-            sys.stdout.flush()
-            time.sleep(waittime)
-
-        # Heimdall is done, combine lots per beam into archive
-        command = "cd {result_dir}; tar --force-local cvfz {date}_{datetimesource}.tar.gz CB??/CB??.pdf".format(**self.config)
-        sys.stdout.write(command+'\n')
-        os.system(command)
-
-        # copy to arts account
-        current_user = getpass.getuser()
-        if not current_user == 'arts':
-            command = "scp ./{date}_{datetimesource}.tar.gz arts@localhost:heimdall_results/"
-            sys.stdout.write(command+'\n')
-            os.system(command)
-
-        # Done - let the users know through slack
-        command = ("curl -X POST --data-urlencode 'payload={{\"text\":\"Observation "
-                   " now available: {result_dir}/{date}_{datetimesource}.tar.gz\"}}' "
-                   " https://hooks.slack.com/services/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").format(**self.config)
-        sys.stdout.write(command+'\n')
-        os.system(command)
-        sys.stdout.flush()
 
 
 if __name__ == '__main__':
