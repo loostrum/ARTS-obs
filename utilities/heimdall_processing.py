@@ -95,7 +95,7 @@ class Processing(object):
         # copy to arts account
         current_user = getpass.getuser()
         if not current_user == 'arts':
-            command = "scp ./{datetimesource}.tar.gz arts@localhost:heimdall_results/".format(**self.config)
+            command = "cp ./{datetimesource}.tar.gz /home/arts/heimdall_results/".format(**self.config)
             sys.stdout.write(command+'\n')
             os.system(command)
 
