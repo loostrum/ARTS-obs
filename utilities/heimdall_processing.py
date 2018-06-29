@@ -107,7 +107,7 @@ class Processing(object):
             pass
 
         # Heimdall command line
-        command = ("(rm -f {heimdall_dir}/*cand; heimdall -v -f {filfile} -dm 0 {dmmax} -gpu_id 0 -output_dir {heimdall_dir}; "
+        command = ("(rm -f {heimdall_dir}/*cand; heimdall -beam {CB} -v -f {filfile} -dm 0 {dmmax} -gpu_id 0 -output_dir {heimdall_dir}; "
                    " cd {heimdall_dir}; cat *cand > CB{CB:02d}.cand; mkdir plots; "
                    " python $HOME/software/arts-analysis/triggers.py --dm_min 10 --dm_max 5000 --sig_thresh {snrmin} "
                    " --ndm 1 --save_data hdf5 --ntrig 1000000000 --nfreq_plot 32 --ntime_plot 250 --cmap viridis "
