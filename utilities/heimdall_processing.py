@@ -107,11 +107,11 @@ class Processing(object):
             pass
 
         # Heimdall command line
-        command = ("heimdall -f {filfile} -dm 0 {dmmax} -gpu_id 0 -output_dir {heimdall_dir}; "
+        command = ("(heimdall -v -f {filfile} -dm 0 {dmmax} -gpu_id 0 -output_dir {heimdall_dir}; "
                    "cd {heimdall_dir}; cat *cand > CB{CB:02d}.cand; mkdir plots; "
-                   "python $HOME/software/arts-analysis/triggers.py --dm_min 10 --dm_max 5000 --sig_thresh {snrmin} "
-                   " --ndm 1 --save_data hdf5 --ntrig 1000000000 --nfreq_plot 32 --ntime_plot 250 --cmap viridis"
-                   "{filfile} CB{CB:02d}.cand").format(CB=CB, **localconfig)
+                   "echo python $HOME/software/arts-analysis/triggers.py --dm_min 10 --dm_max 5000 --sig_thresh {snrmin} "
+                   " --ndm 1 --save_data hdf5 --ntrig 1000000000 --nfreq_plot 32 --ntime_plot 250 --cmap viridis "
+                   " --mk_plot {filfile} CB{CB:02d}.cand) > {result_dir}/CB{CB:02d}.log").format(CB=CB, **localconfig)
 
         self.run_on_node(node, command, background=True)
 
