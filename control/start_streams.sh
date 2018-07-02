@@ -37,6 +37,11 @@ else
     pol=""
 fi
 
+freq=4770
+for dish in ${tels//,/ }; do
+    ssh arts@lcu-rt$dish "cd LO1; python util_set_lo1freq.py $freq 2>/dev/null"
+done
+
 ssh -t arts@ccu-corr.apertif python /home/arts/SVN/RadioHDL/trunk/applications/apertif/commissioning/main.py --app $app --tel $tels --unb $unbs $opts $pol
 
 # only set gain for science mode (i.e. IAB)
