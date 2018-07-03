@@ -52,8 +52,7 @@ ssh -t arts@ccu-corr.apertif python /home/arts/SVN/RadioHDL/trunk/applications/a
 if [ "$app" == "arts_sc4" ]; then
     single_dish_gain=1000
 
-    ndish_min1=$(grep -o "," <<< $tels | wc -l)
-    ndish=$(echo "$ndish_min1 + 1" | bc)
+    ndish=$(grep -o "," <<< $tels, | wc -l)
     gain=$(echo "$single_dish_gain / $ndish" | bc)
     echo "Found $ndish dishes, setting gain to $gain"
     # setting gain sometimes fails: always try twice
