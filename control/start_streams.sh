@@ -37,9 +37,13 @@ else
     pol=""
 fi
 
-freq=4770
+# set central frequency through LO1
+LO2=3400
+config_file=$(cd $(dirname ${BASH_SOURCE[0]}) && pwd)/../config.yaml
+central_freq=$(grep [[:space:]]freq: $config_file | cut -d : -f 2)
+LO1=$(($LO2+$central_freq))
 for dish in ${tels//,/ }; do
-    ssh arts@lcu-rt$dish "cd LO1; python util_set_lo1freq.py $freq 2>/dev/null"
+    ssh arts@lcu-rt$dish "cd LO1; python util_set_lo1freq.py $LO1 2>/dev/null"
 done
 
 ssh -t arts@ccu-corr.apertif python /home/arts/SVN/RadioHDL/trunk/applications/apertif/commissioning/main.py --app $app --tel $tels --unb $unbs $opts $pol
