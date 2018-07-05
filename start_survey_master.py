@@ -236,12 +236,15 @@ def start_survey(args):
         pars['nreader'] = 5
     elif args.obs_mode == 'amber':
         pars['nreader'] = 3
+    elif args.obs_mode == 'heimdall':
+        pars['nreader'] = 3
     else:
         pars['nreader'] = 1
 
     # load observation specific arguments
     pars['proctrigger'] = args.proctrigger
     pars['amber_mode'] = args.amber_mode
+    pars['heimdall_dm_max'] = args.heimdall_dm_max
     pars['snrmin'] = args.snrmin
     pars['source'] = args.source
     pars['ra'] = args.ra
@@ -332,6 +335,7 @@ def start_survey(args):
     cfg['nbatch'] = pars['nbatch']
     cfg['output_dir'] = pars['output_dir']
     cfg['ntabs'] = pars['ntabs']
+    cfg['heimdall_dm_max'] = pars['heimdall_dm_max']
     cfg['amber_conf_dir'] = os.path.join(os.path.dirname(os.path.realpath(__file__)), AMBERCONFDIR)
     cfg['amber_config'] = os.path.join(os.path.dirname(os.path.realpath(__file__)), AMBERCONFIG)
     cfg['amber_dir'] = pars['amber_dir']
@@ -484,7 +488,7 @@ if __name__ == '__main__':
     parser.add_argument("--ebeam", type=int, help="No of last CB to record " \
                             "(Default: same as sbeam)", default=0)
     # observing modes
-    parser.add_argument("--obs_mode", type=str, help="Observation mode. Can be dump, scrub, fil, fits, amber, survey" \
+    parser.add_argument("--obs_mode", type=str, help="Observation mode. Can be dump, scrub, fil, fits, amber, survey, heimdall" \
                             "(Default: fil)", default="fil")
     parser.add_argument("--science_case", type=int, help="Science case " \
                             "(Default: 4)", default=4)
@@ -495,11 +499,14 @@ if __name__ == '__main__':
                             "(Default: subband)", default="subband")
     parser.add_argument("--snrmin", type=float, help="AMBER minimum S/N " \
                             "(Default: 10)", default=10)
-    parser.add_argument("--proctrigger", help="Process and email triggers. "\
+    parser.add_argument("--proctrigger", help="Process and email triggers. " \
                             "(Default: False)", action="store_true")
     # MAC
-    parser.add_argument("--mac", help="Using MAC. Enables beamlet reordering and non-zero starting subband. " \
+    parser.add_argument("--mac", help="Using MAC. Enables beamlet reordering and non-zero starting subband " \
                             "(Default: False)", action="store_true")
+    # Heimdall
+    parser.add_argument("--heimdall_dm_max", type=float, help="Maximum DM when running heimdall online " \
+                            "(Default: 5000)", default=5000)
 
     # make sure dec does not start with -
     try:
