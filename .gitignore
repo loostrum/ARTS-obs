@@ -5,3 +5,4 @@ auto_gain/header.txt
 *.log
 *.fil
 *.pdf
+.idea
