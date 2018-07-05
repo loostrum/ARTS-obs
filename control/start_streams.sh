@@ -37,14 +37,22 @@ else
     pol=""
 fi
 
+# set central frequency through LO1
+LO2=3400
+config_file=$(cd $(dirname ${BASH_SOURCE[0]}) && pwd)/../config.yaml
+central_freq=$(grep [[:space:]]freq: $config_file | cut -d : -f 2)
+LO1=$(($LO2+$central_freq))
+for dish in ${tels//,/ }; do
+    ssh arts@lcu-rt$dish "cd LO1; python util_set_lo1freq.py $LO1 2>/dev/null"
+done
+
 ssh -t arts@ccu-corr.apertif python /home/arts/SVN/RadioHDL/trunk/applications/apertif/commissioning/main.py --app $app --tel $tels --unb $unbs $opts $pol
 
 # only set gain for science mode (i.e. IAB)
 if [ "$app" == "arts_sc4" ]; then
     single_dish_gain=1000
 
-    ndish_min1=$(grep -o "," <<< $tels | wc -l)
-    ndish=$(echo "$ndish_min1 + 1" | bc)
+    ndish=$(grep -o "," <<< $tels, | wc -l)
     gain=$(echo "$single_dish_gain / $ndish" | bc)
     echo "Found $ndish dishes, setting gain to $gain"
     # setting gain sometimes fails: always try twice
