@@ -349,6 +349,7 @@ def start_survey(args):
     cfg['max_freq'] = pars['min_freq'] + pars['bw'] - pars['chan_width']
     cfg['usemac'] = pars['usemac']
     cfg['affinity'] = pars['affinity']
+    cfg['pagesize'] = pars['pagesize']
 
     # load PSRDADA header template
     with open(os.path.join(os.path.dirname(os.path.realpath(__file__)), TEMPLATE), 'r') as f:

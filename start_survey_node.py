@@ -164,7 +164,7 @@ class Survey(object):
         cpu = self.config['affinity']['amber'][0]
         output_dir = os.path.join(self.config['output_dir'], 'heimdall')
         os.system("mkdir -p {}".format(output_dir))
-        cmd = "taskset -c {cpu} heimdall -beam {beam} -k {dadakey} -dm 0 {heimdall_dm_max} -gpu_id 0 -output_dir {output_heimdall} 2>&1 > {log_dir}/heimdall.{beam:02d} &".format(cpu=cpu, output_heimdall=output_dir, **self.config)
+        cmd = "taskset -c {cpu} heimdall -beam {beam} -k {dadakey} -dm 0 {heimdall_dm_max} -gulp_size {pagesize} -gpu_id 0 -output_dir {output_heimdall} 2>&1 > {log_dir}/heimdall.{beam:02d} &".format(cpu=cpu, output_heimdall=output_dir, **self.config)
         self.log(cmd)
         os.system(cmd)
 
