@@ -101,7 +101,6 @@ if __name__ == '__main__':
     # add obs info
     kwargs.update(obsinfo)
     frm = "ARTS FRB Alert System <arts@{}.apertif>".format(socket.gethostname())
-    #to = ["oostrum@astron.nl", "connor@astron.nl"]
     #to = ["oostrum@astron.nl"]
     to = ["arts-alerts@astron.nl"]
 
