@@ -159,6 +159,7 @@ class Survey(object):
         # start data writers as in survey mode
         self.dadafilterbank()
         self.dadafits()
+        self.log("Starting Heimdall")
 
         # pinning as in AMBER
         cpu = self.config['affinity']['amber'][0]
