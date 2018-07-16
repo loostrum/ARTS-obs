@@ -398,7 +398,9 @@ if __name__ == "__main__":
     all_cands['beam'] -= 1
 
     
-
+    if len(all_cands) == 0:
+        print "Found no candidates, exiting"
+        exit()
 
     
     print "Loaded %i candidates" % len(all_cands)
