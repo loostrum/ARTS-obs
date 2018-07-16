@@ -87,6 +87,10 @@ class Processing(object):
             n_running = int(subprocess.check_output("pgrep -a -u `whoami` ssh | grep heimdall | wc -l", shell=True))
             t_running = time.time() - t_start
 
+        sys.stdout.write('Heimdall done, took {:.2f} hours\n'.format(t_running/3600.))
+        sys.stdout.flush()
+        exit()
+
         # Heimdall is done, combine plots per beam into archive
         command = "cd {result_dir}; tar cvfz ./{datetimesource}.tar.gz CB??/CB??.pdf".format(**self.config)
         sys.stdout.write(command+'\n')
@@ -150,11 +154,12 @@ class Processing(object):
         # Heimdall command line
         command = ("(rm -f {heimdall_dir}/*cand; heimdall -beam {CB} -v -f {filfile} -dm 0 {dmmax} -gpu_id 0 "
                    " -output_dir {heimdall_dir}; cd {heimdall_dir}; cat *cand > CB{CB:02d}.cand; mkdir plots; "
-                   " python $HOME/software/arts-analysis/triggers.py --dm_min 10 --dm_max {dmmax} --sig_thresh {snrmin} "
-                   " --ndm 1 --save_data hdf5 --ntrig 1000000000 --nfreq_plot 32 --ntime_plot 250 --cmap viridis "
-                   " --mk_plot {filfile} CB{CB:02d}.cand; gs -dBATCH -dNOPAUSE -q -sDEVICE=pdfwrite "
-                   " -dPDFSETTINGS=/prepress -sOutputFile=CB{CB:02d}.pdf plots/*pdf) "
-                   " > {result_dir}/CB{CB:02d}.log").format(CB=CB, **localconfig)
+                   #" python $HOME/software/arts-analysis/triggers.py --dm_min 10 --dm_max {dmmax} --sig_thresh {snrmin} "
+                   #" --ndm 1 --save_data hdf5 --ntrig 1000000000 --nfreq_plot 32 --ntime_plot 250 --cmap viridis "
+                   #" --mk_plot {filfile} CB{CB:02d}.cand; gs -dBATCH -dNOPAUSE -q -sDEVICE=pdfwrite "
+                   #" -dPDFSETTINGS=/prepress -sOutputFile=CB{CB:02d}.pdf plots/*pdf) "
+                   #" > {result_dir}/CB{CB:02d}.log").format(CB=CB, **localconfig)
+                   ") 2>&1 > {result_dir}/CB{CB:02d}.log").format(CB=CB, **localconfig)
 
         self.run_on_node(node, command, background=True)
 
