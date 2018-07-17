@@ -67,10 +67,10 @@ class Processing(object):
         sys.stdout.write('\n')
 
         # process each CB
-        self.pids = []
+        self.procs = []
         for CB in CBs:
-            pid = self.process(CB)
-            self.pids.append(pid)
+            proc = self.process(CB)
+            self.procs.append(proc)
         sys.stdout.write("Processing started\n")
         sys.stdout.flush()
 
@@ -78,7 +78,8 @@ class Processing(object):
         time.sleep(10)
 
         # sleep while ssh commands are running
-        waittime = 60
+        #waittime = 60
+        waittime = 2
         n_running = len(CBs)
         t_running = 0
         t_start = time.time()
@@ -87,13 +88,11 @@ class Processing(object):
             sys.stdout.flush()
             time.sleep(waittime)
             #n_running = int(subprocess.check_output("pgrep -a -u `whoami` ssh | grep heimdall | wc -l", shell=True))
-            for pid in self.pids:
-                try:
-                    os.kill(pid, 0)
-                except OSError:
+            for proc in self.procs:
+                if proc.poll() is not None:
                     # process is done
-                    self.pids.remove(pid)
-            n_running = len(self.pids)
+                    self.procs.remove(proc)
+            n_running = len(self.procs)
             t_running = time.time() - t_start
 
         sys.stdout.write('Processing done, took {:.2f} hours\n'.format(t_running/3600.))
@@ -120,11 +119,11 @@ class Processing(object):
         os.system(command)
         sys.stdout.flush()
 
-    def run_on_node(self, node, command, background=False):
+    def run_on_node(self, node, command, background=True):
         """Run command on an ARTS node. Assumes ssh keys have been set up
             node: nr of node (string or int)
             command: command to run
-            background: whether to run ssh in the background
+            background: whether to run command in background
         """
 
         # if node is given as number, change to hostname
@@ -132,17 +131,14 @@ class Processing(object):
             hostname = "arts0{:02d}".format(node)
         else:
             hostname = node
-
         if background:
-            #ssh_cmd = "ssh {} '{}' &".format(hostname, command)
             close_fds = True
         else:
-            #ssh_cmd = "ssh {} '{}'".format(hostname, command)
             close_fds = False
+        #command = ['ssh', hostname, "'{}'".format(command)]
         sys.stdout.write("Executing \"{}\" on {}\n".format(command, hostname))
-        #os.system(ssh_cmd)
-        proc = subprocess.Popen(['echo', hostname, "'{}'".format(command)], close_fds=close_fds)
-        return proc.pid
+        proc = subprocess.Popen(['ssh', hostname, command], close_fds=close_fds)
+        return proc
 
     def process(self, CB):
         """Process filterbank on node specified by CB
@@ -174,7 +170,6 @@ class Processing(object):
                            " -dPDFSETTINGS=/prepress -sOutputFile=CB{CB:02d}.pdf plots/*pdf) "
                            " 2>&1 > {result_dir}/CB{CB:02d}_trigger.log").format(CB=CB, **localconfig)
         full_command = '; '.join([heimdall_command, trigger_command])
-        command = "echo {}; hostname".format(self.config['app'])
         if self.config['app'] == 'heimdall':
             command = heimdall_command
         elif self.config['app'] == 'trigger':
@@ -185,8 +180,8 @@ class Processing(object):
             print "App not recognized: {}".format(self.config['app'])
             exit()
 
-        pid = self.run_on_node(node, command, background=True)
-        return pid
+        proc = self.run_on_node(node, command)
+        return proc
 
 
 if __name__ == '__main__':
