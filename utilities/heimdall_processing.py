@@ -103,17 +103,18 @@ class Processing(object):
         # copy to arts account
         current_user = getpass.getuser()
         if not current_user == 'arts':
-            command = "scp ./{datetimesource}.tar.gz arts@localhost:heimdall_results/triggers/".format(**self.config)
+            command = "cd {result_dir}; scp ./{datetimesource}.tar.gz arts@localhost:heimdall_results/triggers/".format(**self.config)
             sys.stdout.write(command+'\n')
             os.system(command)
 
-        # Done - let the users know through slack
-        command = ("curl -X POST --data-urlencode 'payload={{\"text\":\"Observation "
-                   " now available: {datetimesource}.tar.gz\"}}' "
-                   " https://hooks.slack.com/services/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").format(**self.config)
-        sys.stdout.write(command+'\n')
-        os.system(command)
-        sys.stdout.flush()
+        if not args.silent:
+            # Done - let the users know through slack
+            command = ("curl -X POST --data-urlencode 'payload={{\"text\":\"Observation "
+                       " now available: {datetimesource}.tar.gz\"}}' "
+                       " https://hooks.slack.com/services/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").format(**self.config)
+            sys.stdout.write(command+'\n')
+            os.system(command)
+            sys.stdout.flush()
 
     def run_on_node(self, node, command, background=True):
         """Run command on an ARTS node. Assumes ssh keys have been set up
@@ -190,6 +191,8 @@ if __name__ == '__main__':
     parser.add_argument("--snrmin", type=int, help="Minimum S/N, (default: 8)", default=8)
     # what to run
     parser.add_argument("--app", type=str, help="What to run: heimdall, trigger, all (default: all)")
+    # silent mode disable slack message
+    parser.add_argument("--silent", action="store_true", help="Do not post message to Slack (default: False)")
 
     args = parser.parse_args()
 
