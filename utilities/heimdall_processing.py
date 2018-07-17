@@ -120,7 +120,6 @@ class Processing(object):
         os.system(command)
         sys.stdout.flush()
 
-
     def run_on_node(self, node, command, background=False):
         """Run command on an ARTS node. Assumes ssh keys have been set up
             node: nr of node (string or int)
@@ -140,11 +139,10 @@ class Processing(object):
         else:
             #ssh_cmd = "ssh {} '{}'".format(hostname, command)
             close_fds = False
-        sys.stdout.write("Executing \"{}\"\n".format(ssh_cmd))
+        sys.stdout.write("Executing \"{}\" on {}\n".format(command, hostname))
         #os.system(ssh_cmd)
-        proc = subprocess.Popen(['ssh', hostname, "'{}'".format(command)], close_fds=close_fds)
+        proc = subprocess.Popen(['echo', hostname, "'{}'".format(command)], close_fds=close_fds)
         return proc.pid
-
 
     def process(self, CB):
         """Process filterbank on node specified by CB
@@ -164,15 +162,28 @@ class Processing(object):
             # Directory already exists
             pass
 
-        # Heimdall command line
-        command = ("(rm -f {heimdall_dir}/*cand; heimdall -beam {CB} -v -f {filfile} -dm 0 {dmmax} -gpu_id 0 "
-                   " -output_dir {heimdall_dir}; cd {heimdall_dir}; cat *cand > ../CB{CB:02d}.cand; mkdir plots; "
-                   #" python $HOME/software/arts-analysis/triggers.py --dm_min 10 --dm_max {dmmax} --sig_thresh {snrmin} "
-                   #" --ndm 1 --save_data hdf5 --ntrig 1000000000 --nfreq_plot 32 --ntime_plot 250 --cmap viridis "
-                   #" --mk_plot {filfile} CB{CB:02d}.cand; gs -dBATCH -dNOPAUSE -q -sDEVICE=pdfwrite "
-                   #" -dPDFSETTINGS=/prepress -sOutputFile=CB{CB:02d}.pdf plots/*pdf) "
-                   #" > {result_dir}/CB{CB:02d}.log").format(CB=CB, **localconfig)
-                   ") 2>&1 > {result_dir}/CB{CB:02d}.log").format(CB=CB, **localconfig)
+        # command to run
+        heimdall_command = ("(rm -f {heimdall_dir}/*cand; heimdall -beam {CB} -v -f {filfile} -dm 0 {dmmax} -gpu_id 0 "
+                            " -output_dir {heimdall_dir}; cd {heimdall_dir}; "
+                            " cat *cand > CB{CB:02d}.cand) 2>&1 > {result_dir}/CB{CB:02d}_heimdall.log").format(CB=CB, **localconfig)
+        trigger_command = ("(cd {heimdall_dir}; mkdir plots; "
+                           " python $HOME/software/arts-analysis/triggers.py --dm_min 10 --dm_max {dmmax} "
+                           " --sig_thresh {snrmin} --ndm 20 --save_data hdf5 --ntrig 1000000000 --nfreq_plot 32 "
+                           " --ntime_plot 250 --cmap viridis --mk_plot {filfile} CB{CB:02d}.cand; "
+                           " gs -dBATCH -dNOPAUSE -q -sDEVICE=pdfwrite "
+                           " -dPDFSETTINGS=/prepress -sOutputFile=CB{CB:02d}.pdf plots/*pdf) "
+                           " 2>&1 > {result_dir}/CB{CB:02d}_trigger.log").format(CB=CB, **localconfig)
+        full_command = '; '.join([heimdall_command, trigger_command])
+        command = "echo {}; hostname".format(self.config['app'])
+        if self.config['app'] == 'heimdall':
+            command = heimdall_command
+        elif self.config['app'] == 'trigger':
+            command = trigger_command
+        elif self.config['app'] == 'all':
+            command = full_command
+        else:
+            print "App not recognized: {}".format(self.config['app'])
+            exit()
 
         pid = self.run_on_node(node, command, background=True)
         return pid
@@ -186,6 +197,8 @@ if __name__ == '__main__':
     # Heimdall settings
     parser.add_argument("--dmmax", type=float, help="Maximum DM, (default: 5000)", default=5000)
     parser.add_argument("--snrmin", type=int, help="Minimum S/N, (default: 8)", default=8)
+    # what to run
+    parser.add_argument("--app", type=str, help="What to run: heimdall, trigger, all (default: all)")
 
     args = parser.parse_args()
 
