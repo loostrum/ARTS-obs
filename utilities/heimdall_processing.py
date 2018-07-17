@@ -96,17 +96,14 @@ class Processing(object):
 
         sys.stdout.write('Processing done, took {:.2f} hours\n'.format(t_running/3600.))
         sys.stdout.flush()
-        exit()
-
-        # Heimdall is done, combine plots per beam into archive
-        command = "cd {result_dir}; tar cvfz ./{datetimesource}.tar.gz CB??/CB??.pdf".format(**self.config)
+        command = "cd {result_dir}; tar cvfz ./{datetimesource}.tar.gz CB??.pdf".format(**self.config)
         sys.stdout.write(command+'\n')
         os.system(command)
 
         # copy to arts account
         current_user = getpass.getuser()
         if not current_user == 'arts':
-            command = "cp ./{datetimesource}.tar.gz /home/arts/heimdall_results/".format(**self.config)
+            command = "scp ./{datetimesource}.tar.gz arts@localhost:heimdall_results/triggers/".format(**self.config)
             sys.stdout.write(command+'\n')
             os.system(command)
 
@@ -166,7 +163,7 @@ class Processing(object):
                            " --sig_thresh {snrmin} --ndm 20 --save_data hdf5 --ntrig 1000000000 --nfreq_plot 32 "
                            " --ntime_plot 250 --cmap viridis --mk_plot --outdir data {filfile} "
                            " CB{CB:02d}.cand; gs -dBATCH -dNOPAUSE -q -sDEVICE=pdfwrite "
-                           " -dPDFSETTINGS=/prepress -sOutputFile=CB{CB:02d}.pdf plots/*pdf) "
+                           " -dPDFSETTINGS=/prepress -sOutputFile=../CB{CB:02d}.pdf plots/*pdf) "
                            " 2>&1 > {result_dir}/CB{CB:02d}_trigger.log").format(CB=CB, **localconfig)
         full_command = '; '.join([heimdall_command, trigger_command])
         if self.config['app'] == 'heimdall':
