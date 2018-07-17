@@ -161,8 +161,8 @@ class Processing(object):
                             " cat *cand > CB{CB:02d}.cand) 2>&1 > {result_dir}/CB{CB:02d}_heimdall.log").format(CB=CB, **localconfig)
         trigger_command = ("(cd {heimdall_dir}; mkdir plots; mkdir data; "
                            " python $HOME/software/arts-analysis/triggers.py --dm_min 10 --dm_max {dmmax} "
-                           " --sig_thresh {snrmin} --ndm 20 --save_data hdf5 --ntrig 1000000000 --nfreq_plot 32 "
-                           " --ntime_plot 250 --cmap viridis --mk_plot --outdir data {filfile} "
+                           " --sig_thresh {snrmin} --ndm 20 --save_data concat --ntrig 1000000000 --nfreq_plot 32 "
+                           " --ntime_plot 250 --cmap viridis --outdir data {filfile} "
                            " CB{CB:02d}.cand; gs -dBATCH -dNOPAUSE -q -sDEVICE=pdfwrite "
                            " -dPDFSETTINGS=/prepress -sOutputFile=../CB{CB:02d}.pdf plots/*pdf) "
                            " 2>&1 > {result_dir}/CB{CB:02d}_trigger.log").format(CB=CB, **localconfig)
