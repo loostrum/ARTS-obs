@@ -78,8 +78,7 @@ class Processing(object):
         time.sleep(10)
 
         # sleep while ssh commands are running
-        #waittime = 60
-        waittime = 2
+        waittime = 60
         n_running = len(CBs)
         t_running = 0
         t_start = time.time()
@@ -162,7 +161,7 @@ class Processing(object):
         heimdall_command = ("(rm -f {heimdall_dir}/*cand; heimdall -beam {CB} -v -f {filfile} -dm 0 {dmmax} -gpu_id 0 "
                             " -output_dir {heimdall_dir}; cd {heimdall_dir}; "
                             " cat *cand > CB{CB:02d}.cand) 2>&1 > {result_dir}/CB{CB:02d}_heimdall.log").format(CB=CB, **localconfig)
-        trigger_command = ("(cd {heimdall_dir}; mkdir plots; "
+        trigger_command = ("(cd {heimdall_dir}; mkdir plots; mkdir data; "
                            " python $HOME/software/arts-analysis/triggers.py --dm_min 10 --dm_max {dmmax} "
                            " --sig_thresh {snrmin} --ndm 20 --save_data hdf5 --ntrig 1000000000 --nfreq_plot 32 "
                            " --ntime_plot 250 --cmap viridis --mk_plot {filfile} CB{CB:02d}.cand; "
