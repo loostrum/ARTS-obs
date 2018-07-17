@@ -67,8 +67,10 @@ class Processing(object):
         sys.stdout.write('\n')
 
         # process each CB
+        self.pids = []
         for CB in CBs:
-            self.process(CB)
+            pid = self.process(CB)
+            self.pids.append(pid)
         sys.stdout.write("Processing started\n")
         sys.stdout.flush()
 
@@ -84,10 +86,17 @@ class Processing(object):
             sys.stdout.write("{} processes still running. Sleeping for {} seconds\n".format(n_running, waittime))
             sys.stdout.flush()
             time.sleep(waittime)
-            n_running = int(subprocess.check_output("pgrep -a -u `whoami` ssh | grep heimdall | wc -l", shell=True))
+            #n_running = int(subprocess.check_output("pgrep -a -u `whoami` ssh | grep heimdall | wc -l", shell=True))
+            for pid in self.pids:
+                try:
+                    os.kill(pid, 0)
+                except OSError:
+                    # process is done
+                    self.pids.remove(pid)
+            n_running = len(self.pids)
             t_running = time.time() - t_start
 
-        sys.stdout.write('Heimdall done, took {:.2f} hours\n'.format(t_running/3600.))
+        sys.stdout.write('Processing done, took {:.2f} hours\n'.format(t_running/3600.))
         sys.stdout.flush()
         exit()
 
@@ -126,11 +135,15 @@ class Processing(object):
             hostname = node
 
         if background:
-            ssh_cmd = "ssh {} '{}' &".format(hostname, command)
+            #ssh_cmd = "ssh {} '{}' &".format(hostname, command)
+            close_fds = True
         else:
-            ssh_cmd = "ssh {} '{}'".format(hostname, command)
+            #ssh_cmd = "ssh {} '{}'".format(hostname, command)
+            close_fds = False
         sys.stdout.write("Executing \"{}\"\n".format(ssh_cmd))
-        os.system(ssh_cmd)
+        #os.system(ssh_cmd)
+        proc = subprocess.Popen(['ssh', hostname, "'{}'".format(command)], close_fds=close_fds)
+        return proc.pid
 
 
     def process(self, CB):
@@ -161,7 +174,8 @@ class Processing(object):
                    #" > {result_dir}/CB{CB:02d}.log").format(CB=CB, **localconfig)
                    ") 2>&1 > {result_dir}/CB{CB:02d}.log").format(CB=CB, **localconfig)
 
-        self.run_on_node(node, command, background=True)
+        pid = self.run_on_node(node, command, background=True)
+        return pid
 
 
 if __name__ == '__main__':
