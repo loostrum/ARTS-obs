@@ -20,7 +20,7 @@ import yaml
 
 CONFIG = "config.yaml"
 SC = "sc4"
-RESULTDIR = "@HOME@/observations/heimdall/{date}/{datetimesource}"
+RESULTDIR = "{home}/observations/heimdall/{date}/{datetimesource}"
 MAXTIME = 24*3600  # max runtime per observation
 
 
@@ -34,7 +34,7 @@ class Processing(object):
         home = os.path.expanduser('~')
         for key, item in config.items():
             if isinstance(item, str):
-                config[key] = item.replace('@HOME@', home).format(date=args.date, datetimesource=args.obs)
+                config[key] = item.format(home=home, date=args.date, datetimesource=args.obs)
         # add args to config
         config.update(vars(args))
         config['datetimesource'] = args.obs
@@ -52,7 +52,7 @@ class Processing(object):
             exit()
 
         # create directory to store results in
-        self.config['result_dir'] = RESULTDIR.replace("@HOME@", home).format(**self.config)
+        self.config['result_dir'] = RESULTDIR.format(home=home, **self.config)
         try:
             os.makedirs(self.config['result_dir'])
         except OSError:
