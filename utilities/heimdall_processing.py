@@ -169,15 +169,15 @@ class Processing(object):
         # command to run
         heimdall_command = """(rm -f {heimdall_dir}/*cand; heimdall -beam {CB} -v -f {filfile} -dm 0 {dmmax} -gpu_id 0 -output_dir {heimdall_dir}
             cd {heimdall_dir}
-            cat *cand > CB{CB:02d}.cand) 2>&1 > {result_dir}/CB{CB:02d}_heimdall.log)""".format(CB=CB, **localconfig)
+            cat *cand > CB{CB:02d}.cand) 2>&1 > {result_dir}/CB{CB:02d}_heimdall.log""".format(CB=CB, **localconfig)
 
         trigger_command = """(cd {heimdall_dir}; mkdir plots; mkdir data;
             python $HOME/software/arts-analysis/triggers.py --dm_min 10 --dm_max {dmmax} --sig_thresh {snrmin} --ndm 32 --save_data concat --nfreq_plot 32 --ntime_plot 250 --cmap viridis {filfile} CB{CB:02d}.cand
             source $HOME/python/bin/activate;
-            python $HOME/software/single_pulse_ml/single_pulse_ml/classify.py --pthresh 0.1 --save_ranked data/data_full.hdf5 $HOME/keras_models/keras_model_20000_artsfreq_time.hdf5
+            python $HOME/software/single_pulse_ml/single_pulse_ml/classify.py --pthresh 0.0 --save_ranked {heimdall_dir}/data/data_full.hdf5 $HOME/keras_models/keras_model_20000_artsfreq_time.hdf5
             deactivate
-            python $HOME/software/arts-analysis/plotter.py data/data_fullfreq_time_candidates.hdf5 {CB:02d} {flo} {fhi}
-            gs -dBATCH -dNOPAUSE -q -sDEVICE=pdfwrite -dPDFSETTINGS=/prepress -sOutputFile={result_dir}/CB{CB:02d}.pdf plots/*pdf) 2>&1 > {result_dir}/CB{CB:02d}_trigger.log""".format(CB=CB, **localconfig)
+            cd {heimdall_dir}; python $HOME/software/arts-analysis/plotter.py data/data_fullfreq_time_candidates.hdf5 {CB:02d} {flo} {fhi}
+            gs -dBATCH -dNOPAUSE -q -sDEVICE=pdfwrite -dPDFSETTINGS=/prepress -sOutputFile={result_dir}/CB{CB:02d}.pdf {heimdall_dir}/plots/*pdf) 2>&1 > {result_dir}/CB{CB:02d}_trigger.log""".format(CB=CB, **localconfig)
         full_command = '\n'.join([heimdall_command, trigger_command])
         if self.config['app'] == 'heimdall':
             command = heimdall_command
