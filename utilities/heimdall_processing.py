@@ -179,7 +179,7 @@ class Processing(object):
             python $HOME/software/single_pulse_ml/single_pulse_ml/classify.py --pthresh 0.0 --save_ranked {heimdall_dir}/data/data_full.hdf5 $HOME/keras_models/keras_model_20000_artsfreq_time.hdf5
             deactivate
             cd {heimdall_dir}; python $HOME/software/arts-analysis/plotter.py data/data_fullfreq_time_candidates.hdf5 {CB:02d} {flo} {fhi}
-            if ! [ -n "$(ls plots)"; then
+            if ! [ -n "$(ls plots)" ]; then
                 gs -dBATCH -dNOPAUSE -q -sDEVICE=pdfwrite -dPDFSETTINGS=/prepress -sOutputFile={result_dir}/CB{CB:02d}.pdf {heimdall_dir}/plots/*pdf
             else
                 touch {result_dir}/CB{CB:02d}.nocands
