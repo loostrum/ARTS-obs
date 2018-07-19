@@ -7,6 +7,8 @@
 # -- Plot candidates (plotter.py)
 # -- merge into one pdf per compound beam (bash)
 # -- Put archive in the arts home dir and notify people through slack
+#
+# Author: L.C. Oostrum
 
 
 import os
