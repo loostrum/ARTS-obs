@@ -100,7 +100,7 @@ class Processing(object):
 
         sys.stdout.write('Processing done, took {:.2f} hours\n'.format(t_running/3600.))
         sys.stdout.flush()
-        command = "cd {result_dir}; tar cvfz ./{datetimesource}.tar.gz CB??.pdf".format(**self.config)
+        command = "cd {result_dir}; tar cvfz ./{datetimesource}.tar.gz CB*.pdf".format(**self.config)
         sys.stdout.write(command+'\n')
         os.system(command)
 
@@ -182,7 +182,7 @@ class Processing(object):
             if ! [ -n "$(ls plots)" ]; then
                 gs -dBATCH -dNOPAUSE -q -sDEVICE=pdfwrite -dPDFSETTINGS=/prepress -sOutputFile={result_dir}/CB{CB:02d}.pdf {heimdall_dir}/plots/*pdf
             else
-                touch {result_dir}/CB{CB:02d}.nocands
+                touch {result_dir}/CB{CB:02d}.nocands.pdf
             fi) 2>&1 > {result_dir}/CB{CB:02d}_trigger.log""".format(CB=CB, **localconfig)
         full_command = '\n'.join([heimdall_command, trigger_command])
         if self.config['app'] == 'heimdall':
@@ -208,7 +208,7 @@ if __name__ == '__main__':
     parser.add_argument("--dmmax", type=float, help="Maximum DM, (default: 5000)", default=5000)
     parser.add_argument("--snrmin", type=int, help="Minimum S/N, (default: 8)", default=8)
     # what to run
-    parser.add_argument("--app", type=str, help="What to run: heimdall, trigger, all (default: all)")
+    parser.add_argument("--app", type=str, help="What to run: heimdall, trigger, all (default: all)", default='all')
     # silent mode disable slack message
     parser.add_argument("--silent", action="store_true", help="Do not post message to Slack (default: False)")
 
