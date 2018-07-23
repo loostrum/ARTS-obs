@@ -120,7 +120,7 @@ class Processing(object):
             self.config['ntrig_clustered'] = subprocess.check_output('cd {result_dir}; wc -l */grouped_pulses.singlepulse | tail -n1 | awk \'{{print $1}}\''.format(**self.config), shell=True)
             self.config['ntrig_ml'] = subprocess.check_output('cd {result_dir}; ls */plots/*pdf | wc -l'.format(**self.config), shell=True)
             command = ("curl -X POST --data-urlencode 'payload={{\"text\":\"Observation "
-                       " now available: {datetimesource}.tar.gz\nNumber of CBs: {ncb}\nRaw triggers: {ntrig_raw}\nAfter clustering (and S/N > {snrmin}): {ntrig_clustered}\nAfter ML: {ntrig_ml}\"}}' "
+                       " now available: {datetimesource}.tar.gz\nNumber of CBs: {ncb}\nRaw triggers: {ntrig_raw}\nAfter clustering (and S/N > {snrmin}): {ntrig_clustered}\nAfter classifier: {ntrig_ml}\"}}' "
                        " https://hooks.slack.com/services/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").format(**self.config)
             sys.stdout.write(command+'\n')
             os.system(command)
