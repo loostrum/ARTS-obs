@@ -48,10 +48,8 @@ def run_on_node(node, command, background=False):
 
     if background:
         ssh_cmd = "ssh {} {} &".format(hostname, command)
-        #ssh_cmd = "ssh {} 'source $HOME/python/bin/activate; {}' &".format(hostname, command)
     else:
         ssh_cmd = "ssh {} {}".format(hostname, command)
-        #ssh_cmd = "ssh {} 'source $HOME/python/bin/activate; {}' &".format(hostname, command)
     log("Executing '{}'".format(ssh_cmd))
     os.system(ssh_cmd)
 
@@ -192,19 +190,14 @@ def start_survey(args):
     filename = os.path.join(os.path.dirname(os.path.realpath(__file__)), CONFIG)
     with open(filename, 'r') as f:
         config = yaml.load(f)
-    # replace @HOME@ by current users' home dir
-    home_dir = os.path.expanduser('~')
-    for key, value in config['general'].items():
-        if isinstance(value, str):
-            config['general'][key] = value.replace('@HOME@', home_dir)
-            config['sc3'][key] = value.replace('@HOME@', home_dir)
-            config['sc4'][key] = value.replace('@HOME@', home_dir)
     conf_sc = 'sc{:.0f}'.format(args.science_case)  # sc3 or sc4
     conf_mode = args.science_mode.lower()  # i+tab, iquv+tab, i+iab, iquv+iab
     # IQUV not yet supported
     if 'iquv' in conf_mode:
         log("ERROR: IQUV modes not yet supported")
         exit()
+    # save user home dir
+    pars['home'] = os.path.expanduser('~')
     # science case specific
     pars['affinity'] = config['affinity']
     pars['usemac'] = args.mac
@@ -233,12 +226,16 @@ def start_survey(args):
     pars['chan_width'] = float(pars['bw']) / pars['nchan']
     pars['min_freq'] = pars['freq'] - pars['bw'] / 2 + pars['chan_width'] / 2
     if args.obs_mode == 'survey':
+        # filterbank + fits + 3x AMBER
         pars['nreader'] = 5
     elif args.obs_mode == 'amber':
+        # 3x AMBER
         pars['nreader'] = 3
     elif args.obs_mode == 'heimdall':
+        # filterbank + fits + heimdall
         pars['nreader'] = 3
     else:
+        # filterbank or fits or dbdisk or dbscrubber
         pars['nreader'] = 1
 
     # load observation specific arguments
@@ -270,10 +267,8 @@ def start_survey(args):
 
     pars['utcstart'] = starttime.datetime.strftime('%Y-%m-%d-%H:%M:%S')
     pars['date'] = starttime.datetime.strftime("%Y%m%d")
-    pars['datetimesource'] = "{}.{}".format(pars['utcstart'].replace(' ','-'), pars['source'])
+    pars['datetimesource'] = "{}.{}".format(pars['utcstart'], pars['source'])
     pars['mjdstart'] = starttime.mjd
-    # startpacket has to be along
-    #pars['startpacket'] = long(starttime.unix) * pars['time_unit']
     pars['startpacket'] = "{:.0f}".format(starttime.unix * pars['time_unit'])
     # output directories
     pars['master_dir'] = config[conf_sc]['master_dir'].format(**pars)
@@ -289,7 +284,7 @@ def start_survey(args):
     # beams
     if not args.beams is None:
         pars['beams'] = [int(beam) for beam in args.beams.split(',')]
-        # make sure each beams is present only once
+        # make sure each beam is present only once
         pars['beams'] = list(set(pars['beams']))
     else:
         pars['sbeam'] = args.sbeam
@@ -309,6 +304,7 @@ def start_survey(args):
     if max(pars['beams']) > pars['nbeams']-1:
         log("ERROR: CB index > {} is impossible".format(pars['nbeams']-1))
         exit()
+
     # remove the missing beams
     for beam in pars['missing_beams']:
         try:
@@ -428,15 +424,6 @@ def start_survey(args):
     filename = os.path.join(pars['master_dir'], INFO)
     with open(filename, 'w') as f:
         yaml.dump(info, f, default_flow_style=False)
-
-    # TEMP copy the nodes config
-    #log("Copying files to nodes")
-    #for beam in pars['beams']:
-    #    node = beam + 1
-    #    cmd = "scp -r nodes/ arts0{:02d}.apertif:ARTS-obs/ >/dev/null &".format(node)
-    #    os.system(cmd)
-    #sleep(2)
-    #log("Done")
 
     # Start the node scripts
     script_path = os.path.realpath(os.path.dirname(__file__))

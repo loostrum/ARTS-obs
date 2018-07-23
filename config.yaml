@@ -28,13 +28,13 @@ general: &general
     # output directory of stokes I data
     output_dir: "/data2/output/{date}/{datetimesource}"
     # output directory of amber triggers
-    amber_dir: "@HOME@/observations/amber/{date}/{datetimesource}"
+    amber_dir: "{home}/observations/amber/{date}/{datetimesource}"
     # log prefix
-    log_dir: "@HOME@/observations/log/{date}/{datetimesource}"
+    log_dir: "{home}/observations/log/{date}/{datetimesource}"
     # master output dir
-    master_dir: "@HOME@/observations/results/{date}/{datetimesource}"
+    master_dir: "{home}/observations/results/{date}/{datetimesource}"
     # fits templates dir
-    fits_templates: "@HOME@/software/dadafits/templates"
+    fits_templates: "{home}/software/dadafits/templates"
 
 # Science case 3
 sc3:

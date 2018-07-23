@@ -3,8 +3,12 @@
 # Process ARTS filterbank files
 # -- Run Heimdall
 # -- Group resulting candidate files and extract dedispersed data (triggers.py)
+# -- Run ML classifier (classify.py)
 # -- Plot candidates (plotter.py)
 # -- merge into one pdf per compound beam (bash)
+# -- Put archive in the arts home dir and notify people through slack
+#
+# Author: L.C. Oostrum
 
 
 import os
@@ -20,7 +24,7 @@ import yaml
 
 CONFIG = "config.yaml"
 SC = "sc4"
-RESULTDIR = "@HOME@/observations/heimdall/{date}/{datetimesource}"
+RESULTDIR = "{home}/observations/heimdall/{date}/{datetimesource}"
 MAXTIME = 24*3600  # max runtime per observation
 
 
@@ -34,7 +38,7 @@ class Processing(object):
         home = os.path.expanduser('~')
         for key, item in config.items():
             if isinstance(item, str):
-                config[key] = item.replace('@HOME@', home).format(date=args.date, datetimesource=args.obs)
+                config[key] = item.format(home=home, date=args.date, datetimesource=args.obs)
         # add args to config
         config.update(vars(args))
         config['datetimesource'] = args.obs
@@ -52,7 +56,7 @@ class Processing(object):
             exit()
 
         # create directory to store results in
-        self.config['result_dir'] = RESULTDIR.replace("@HOME@", home).format(**self.config)
+        self.config['result_dir'] = RESULTDIR.format(home=home, **self.config)
         try:
             os.makedirs(self.config['result_dir'])
         except OSError:
@@ -67,8 +71,10 @@ class Processing(object):
         sys.stdout.write('\n')
 
         # process each CB
+        self.procs = []
         for CB in CBs:
-            self.process(CB)
+            proc = self.process(CB)
+            self.procs.append(proc)
         sys.stdout.write("Processing started\n")
         sys.stdout.flush()
 
@@ -84,39 +90,47 @@ class Processing(object):
             sys.stdout.write("{} processes still running. Sleeping for {} seconds\n".format(n_running, waittime))
             sys.stdout.flush()
             time.sleep(waittime)
-            n_running = int(subprocess.check_output("pgrep -a -u `whoami` ssh | grep heimdall | wc -l", shell=True))
+            #n_running = int(subprocess.check_output("pgrep -a -u `whoami` ssh | grep heimdall | wc -l", shell=True))
+            for proc in self.procs:
+                if proc.poll() is not None:
+                    # process is done
+                    self.procs.remove(proc)
+            n_running = len(self.procs)
             t_running = time.time() - t_start
 
-        sys.stdout.write('Heimdall done, took {:.2f} hours\n'.format(t_running/3600.))
+        sys.stdout.write('Processing done, took {:.2f} hours\n'.format(t_running/3600.))
         sys.stdout.flush()
-        exit()
-
-        # Heimdall is done, combine plots per beam into archive
-        command = "cd {result_dir}; tar cvfz ./{datetimesource}.tar.gz CB??/CB??.pdf".format(**self.config)
+        command = "cd {result_dir}; tar cvfz ./{datetimesource}.tar.gz CB*.pdf".format(**self.config)
         sys.stdout.write(command+'\n')
         os.system(command)
 
         # copy to arts account
         current_user = getpass.getuser()
         if not current_user == 'arts':
-            command = "cp ./{datetimesource}.tar.gz /home/arts/heimdall_results/".format(**self.config)
-            sys.stdout.write(command+'\n')
-            os.system(command)
-
-        # Done - let the users know through slack
-        command = ("curl -X POST --data-urlencode 'payload={{\"text\":\"Observation "
-                   " now available: {datetimesource}.tar.gz\"}}' "
-                   " https://hooks.slack.com/services/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").format(**self.config)
+            command = "cd {result_dir}; scp ./{datetimesource}.tar.gz arts@localhost:heimdall_results/triggers/".format(**self.config)
+        else:
+            command = "cd {result_dir}; cp ./{datetimesource}.tar.gz ~/heimdall_results/triggers/".format(**self.config)
         sys.stdout.write(command+'\n')
         os.system(command)
-        sys.stdout.flush()
 
+        if not args.silent:
+            # Done - let the users know through slack
+            self.config['ncb'] = len(CBs)
+            self.config['ntrig_raw'] = subprocess.check_output('cd {result_dir}; wc -l */CB??.cand | tail -n 1 | awk \'{{print $1}}\''.format(**self.config), shell=True)
+            self.config['ntrig_clustered'] = subprocess.check_output('cd {result_dir}; wc -l */grouped_pulses.singlepulse | tail -n1 | awk \'{{print $1}}\''.format(**self.config), shell=True)
+            self.config['ntrig_ml'] = subprocess.check_output('cd {result_dir}; ls */plots/*pdf | wc -l'.format(**self.config), shell=True)
+            command = ("curl -X POST --data-urlencode 'payload={{\"text\":\"Observation "
+                       " now available: {datetimesource}.tar.gz\nNumber of CBs: {ncb}\nRaw triggers: {ntrig_raw}\nAfter clustering (and S/N > {snrmin}): {ntrig_clustered}\nAfter ML: {ntrig_ml}\"}}' "
+                       " https://hooks.slack.com/services/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").format(**self.config)
+            sys.stdout.write(command+'\n')
+            os.system(command)
+            sys.stdout.flush()
 
-    def run_on_node(self, node, command, background=False):
+    def run_on_node(self, node, command, background=True):
         """Run command on an ARTS node. Assumes ssh keys have been set up
             node: nr of node (string or int)
             command: command to run
-            background: whether to run ssh in the background
+            background: whether to run command in background
         """
 
         # if node is given as number, change to hostname
@@ -124,14 +138,13 @@ class Processing(object):
             hostname = "arts0{:02d}".format(node)
         else:
             hostname = node
-
         if background:
-            ssh_cmd = "ssh {} '{}' &".format(hostname, command)
+            close_fds = True
         else:
-            ssh_cmd = "ssh {} '{}'".format(hostname, command)
-        sys.stdout.write("Executing \"{}\"\n".format(ssh_cmd))
-        os.system(ssh_cmd)
-
+            close_fds = False
+        sys.stdout.write("Executing \"{}\" on {}\n".format(command, hostname))
+        proc = subprocess.Popen(['ssh', hostname, command], close_fds=close_fds)
+        return proc
 
     def process(self, CB):
         """Process filterbank on node specified by CB
@@ -151,17 +164,30 @@ class Processing(object):
             # Directory already exists
             pass
 
-        # Heimdall command line
-        command = ("(rm -f {heimdall_dir}/*cand; heimdall -beam {CB} -v -f {filfile} -dm 0 {dmmax} -gpu_id 0 "
-                   " -output_dir {heimdall_dir}; cd {heimdall_dir}; cat *cand > ../CB{CB:02d}.cand; mkdir plots; "
-                   #" python $HOME/software/arts-analysis/triggers.py --dm_min 10 --dm_max {dmmax} --sig_thresh {snrmin} "
-                   #" --ndm 1 --save_data hdf5 --ntrig 1000000000 --nfreq_plot 32 --ntime_plot 250 --cmap viridis "
-                   #" --mk_plot {filfile} CB{CB:02d}.cand; gs -dBATCH -dNOPAUSE -q -sDEVICE=pdfwrite "
-                   #" -dPDFSETTINGS=/prepress -sOutputFile=CB{CB:02d}.pdf plots/*pdf) "
-                   #" > {result_dir}/CB{CB:02d}.log").format(CB=CB, **localconfig)
-                   ") 2>&1 > {result_dir}/CB{CB:02d}.log").format(CB=CB, **localconfig)
+        chan_width = float(self.config['bw']) / self.config['nchan']
+        localconfig['flo'] = self.config['freq'] - .5*self.config['bw'] + .5*chan_width
+        localconfig['fhi'] = self.config['freq'] + .5*self.config['bw'] - .5*chan_width
 
-        self.run_on_node(node, command, background=True)
+        # load commands to run
+        with open(os.path.join(os.path.dirname(os.path.realpath(__file__)), "templates/heimdall.txt"), 'r') as f:
+            heimdall_command = f.read().format(CB=CB, **localconfig)
+
+        with open(os.path.join(os.path.dirname(os.path.realpath(__file__)), "templates/triggers.txt"), 'r') as f:
+            trigger_command = f.read().format(CB=CB, **localconfig)
+
+        full_command = '\n'.join([heimdall_command, trigger_command])
+        if self.config['app'] == 'heimdall':
+            command = heimdall_command
+        elif self.config['app'] == 'trigger':
+            command = trigger_command
+        elif self.config['app'] == 'all':
+            command = full_command
+        else:
+            print "App not recognized: {}".format(self.config['app'])
+            exit()
+
+        proc = self.run_on_node(node, command)
+        return proc
 
 
 if __name__ == '__main__':
@@ -169,9 +195,14 @@ if __name__ == '__main__':
     # observation info
     parser.add_argument("--date", type=str, help="Observation date, e.g. 20180101", required=True)
     parser.add_argument("--obs", type=str, help="Observation name, e.g. 2018-01-01-00:00:00.B0000+00", required=True)
-    # Heimdall settings
+    # Heimdall/trigger settings
+    parser.add_argument("--dmmin", type=float, help="Minimum DM, (default: 10)", default=10)
     parser.add_argument("--dmmax", type=float, help="Maximum DM, (default: 5000)", default=5000)
-    parser.add_argument("--snrmin", type=int, help="Minimum S/N, (default: 8)", default=8)
+    parser.add_argument("--snrmin", type=int, help="Minimum S/N, (default: 10)", default=10)
+    # what to run
+    parser.add_argument("--app", type=str, help="What to run: heimdall, trigger, all (default: all)", default='all')
+    # silent mode disable slack message
+    parser.add_argument("--silent", action="store_true", help="Do not post message to Slack (default: False)")
 
     args = parser.parse_args()
 
