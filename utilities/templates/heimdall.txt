@@ -1,0 +1,5 @@
+# Run heimdall
+(rm -f {heimdall_dir}/*cand; heimdall -beam {CB} -v -f {filfile} -dm 0 {dmmax} -gpu_id 0 -output_dir {heimdall_dir} 2>&1
+cd {heimdall_dir}
+# Concat candidates files
+cat *cand > CB{CB:02d}.cand) 2>&1 > {result_dir}/CB{CB:02d}_heimdall.log
