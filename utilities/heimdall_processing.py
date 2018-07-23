@@ -195,9 +195,10 @@ if __name__ == '__main__':
     # observation info
     parser.add_argument("--date", type=str, help="Observation date, e.g. 20180101", required=True)
     parser.add_argument("--obs", type=str, help="Observation name, e.g. 2018-01-01-00:00:00.B0000+00", required=True)
-    # Heimdall settings
+    # Heimdall/trigger settings
+    parser.add_argument("--dmmin", type=float, help="Minimum DM, (default: 10)", default=10)
     parser.add_argument("--dmmax", type=float, help="Maximum DM, (default: 5000)", default=5000)
-    parser.add_argument("--snrmin", type=int, help="Minimum S/N, (default: 8)", default=8)
+    parser.add_argument("--snrmin", type=int, help="Minimum S/N, (default: 10)", default=10)
     # what to run
     parser.add_argument("--app", type=str, help="What to run: heimdall, trigger, all (default: all)", default='all')
     # silent mode disable slack message
