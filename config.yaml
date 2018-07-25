@@ -13,6 +13,8 @@ general: &general
     first_subband: 137
     # bandwidth
     bw: 300
+    # bandwidth digitized at frontend (only used to calculate freq in MAC mode)
+    bw_rf: 400
     # seconds to timestamp conversion
     time_unit: 781250
     # total nr of beams

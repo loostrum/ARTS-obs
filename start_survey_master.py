@@ -207,7 +207,7 @@ def start_survey(args):
     pars['nchan'] = config[conf_sc]['nchan']
     if args.mac:
         # could have non-zero starting subband
-        pars['freq'] = config[conf_sc]['freq'] + config[conf_sc]['first_subband'] * pars['time_unit'] * 1E-6
+        pars['freq'] = config[conf_sc]['freq'] - .5*(config[conf_sc]['bw_rf'] - config[conf_sc]['bw']) + config[conf_sc]['first_subband'] * pars['time_unit'] * 1E-6
     else:
         pars['freq'] = config[conf_sc]['freq']
     pars['bw'] = config[conf_sc]['bw']
