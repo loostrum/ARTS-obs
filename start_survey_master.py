@@ -501,8 +501,8 @@ if __name__ == '__main__':
     parser.add_argument("--heimdall_dm_max", type=float, help="Maximum DM when running heimdall online " \
                             "(Default: 5000)", default=5000)
     # Parset
-    parset.add_argument("--parset", type=str, help="Path to parset of this observation " \
-                            "(Default: no parset"), default='')
+    parser.add_argument("--parset", type=str, help="Path to parset of this observation " \
+                            "(Default: no parset)", default='')
 
     # make sure dec does not start with -
     try:
