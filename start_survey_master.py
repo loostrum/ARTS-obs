@@ -348,6 +348,7 @@ def start_survey(args):
     cfg['usemac'] = pars['usemac']
     cfg['affinity'] = pars['affinity']
     cfg['pagesize'] = pars['pagesize']
+    cfg['hdr_size'] = pars['hdr_size']
 
     # load PSRDADA header template
     with open(os.path.join(os.path.dirname(os.path.realpath(__file__)), TEMPLATE), 'r') as f:
@@ -361,7 +362,8 @@ def start_survey(args):
     wsrt_loc = EarthLocation(lat=wsrt_lat, lon=wsrt_lon, height=0*u.m)
     # load the parset
     if not pars['parset'] == '':
-        parset = pars['parset'].encode('bz2').encode('hex')
+        with open(pars['parset']) as f:
+            parset = f.read().encode('bz2').encode('hex')
     else:
         parset = ''
 
