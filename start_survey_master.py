@@ -215,11 +215,12 @@ def start_survey(args):
     pars['nbeams'] = config[conf_sc]['nbeams']
     pars['missing_beams'] = config[conf_sc]['missing_beams']
     pars['nbuffer'] = config[conf_sc]['nbuffer']
+    pars['hdr_size'] = config[conf_sc]['hdr_size']
     pars['valid_modes'] = config[conf_sc]['valid_modes']
     pars['network_port_start'] = config[conf_sc]['network_port_start']
     pars['tsamp'] = config[conf_sc]['tsamp']
     pars['pagesize'] = config[conf_sc]['pagesize']
-    pars['fits_templates'] = config[conf_sc]['fits_templates']
+    pars['fits_templates'] = config[conf_sc]['fits_templates'].format(**pars)
     # pol and beam specific
     pars['ntabs'] = config[conf_mode]['ntabs']
     pars['science_mode']  = config[conf_mode]['science_mode']
@@ -361,6 +362,8 @@ def start_survey(args):
     # load the parset
     if not pars['parset'] == '':
         parset = pars['parset'].encode('bz2').encode('hex')
+    else:
+        parset = ''
 
     for beam in pars['beams']:
         # add CB-dependent parameters
@@ -399,6 +402,8 @@ def start_survey(args):
         temppars['bps'] = int(pars['pagesize'] * pars['nchan'] / 1.024)
         temppars['beam'] = beam
         temppars['parset'] = parset
+        temppars['scanlen'] = pars['tobs']
+        temppars['hdr_size'] = pars['hdr_size']
 
         header = header_template.format(**temppars)
 
