@@ -30,3 +30,4 @@ SCIENCE_CASE {science_case}
 SCIENCE_MODE {science_mode}
 RESOLUTION   {resolution}
 BYTES_PER_SECOND {bps}
+PARSET       {parset}
