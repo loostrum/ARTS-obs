@@ -364,6 +364,9 @@ def start_survey(args):
     if not pars['parset'] == '':
         with open(pars['parset']) as f:
             parset = f.read().encode('bz2').encode('hex')
+            if len(parset) > 24575:
+                log("Error: compressed parset is longer than maximum for header (24575 characters)")
+                exit()
     else:
         parset = ''
 
