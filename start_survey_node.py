@@ -195,13 +195,24 @@ class Survey(object):
                 for key in ['dm_first', 'dm_step', 'num_dm', 'opencl_device', 'device_name', 'subbands', 'subbanding_dm_first', 'subbanding_dm_step', 'subbanding_dms']:
                     fullconfig[key] = ambercfg[key][ind]
 
-                cmd = ("taskset -c {cpu} amber -opencl_platform {opencl_platform} -opencl_device {opencl_device} -device_name {device_name} -padding_file {amber_conf_dir}/padding.conf"
-                       " -zapped_channels {amber_conf_dir}/zapped_channels.conf -integration_steps {amber_conf_dir}/integration_steps.conf -subband_dedispersion"
-                       " -dedispersion_step_one_file {amber_conf_dir}/dedispersion_stepone.conf -dedispersion_step_two_file {amber_conf_dir}/dedispersion_steptwo.conf"
-                       " -integration_file {amber_conf_dir}/integration.conf -snr_file {amber_conf_dir}/snr.conf -dms {num_dm} -dm_first {dm_first} -dm_step {dm_step}"
-                       " -subbands {subbands} -subbanding_dms {subbanding_dms} -subbanding_dm_first {subbanding_dm_first} -subbanding_dm_step {subbanding_dm_step}"
+                cmd = (" taskset -c {cpu} amber -print -opencl_platform {opencl_platform}"
+                       " -opencl_device {opencl_device} -device_name {device_name}"
+                       " -padding_file {amber_conf_dir}/padding.conf"
+                       " -zapped_channels {amber_conf_dir}/zapped_channels.conf"
+                       " -integration_steps {amber_conf_dir}/integration_steps.conf -subband_dedispersion"
+                       " -dedispersion_stepone_file {amber_conf_dir}/dedispersion_stepone.conf"
+                       " -dedispersion_steptwo_file {amber_conf_dir}/dedispersion_steptwo.conf"
+                       " -integration_file {amber_conf_dir}/integration.conf -snr_file {amber_conf_dir}/snr.conf"
+                       " -dms {num_dm} -dm_first {dm_first} -dm_step {dm_step}"
+                       " -subbands {subbands} -subbanding_dms {subbanding_dms}"
+                       " -subbanding_dm_first {subbanding_dm_first}"
+                       " -subbanding_dm_step {subbanding_dm_step}"
+                       " -snr_momad -max_file {amber_conf_dir}/max.conf"
+                       " -mom_stepone_file {amber_conf_dir}/mom_stepone.conf"
+                       " -mom_steptwo_file {amber_conf_dir}/mom_steptwo.conf -momad_file {amber_conf_dir}/momad.conf"
                        " -threshold {snrmin} -output {output_prefix}_step{ind} -beams 1 -synthesized_beams 1"
-                       " -dada -dada_key {dadakey} -batches {nbatch} 2>&1 > {log_dir}/amber_{ind}.{beam:02d} &").format(cpu=cpu, ind=ind+1, **fullconfig)
+                       " -dada -dada_key {dadakey} -batches {nbatch}"
+                       " 2>&1 > {log_dir}/amber_{ind}.{beam:02d} &").format(cpu=cpu, ind=ind+1, **fullconfig)
                 self.log(cmd)
                 os.system(cmd)
 
