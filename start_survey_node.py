@@ -99,7 +99,7 @@ class Survey(object):
     def ringbuffer(self):
         self.log("Starting ringbuffers")
         cpu = self.config['affinity']['dada_db_i']
-        cmd = "taskset -c {cpu} dada_db -k {dadakey} -b {buffersize} -n {nbuffer} -p -r {nreader} &".format(cpu=cpu, **self.config)
+        cmd = "taskset -c {cpu} dada_db -a {hdr_size} -k {dadakey} -b {buffersize} -n {nbuffer} -p -r {nreader} &".format(cpu=cpu, **self.config)
         self.log(cmd)
         os.system(cmd)
 

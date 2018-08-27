@@ -201,6 +201,7 @@ def start_survey(args):
     # science case specific
     pars['affinity'] = config['affinity']
     pars['usemac'] = args.mac
+    pars['parset'] = args.parset
     pars['science_case'] = args.science_case
     pars['time_unit'] = config[conf_sc]['time_unit']
     pars['nbit'] = config[conf_sc]['nbit']
@@ -214,11 +215,12 @@ def start_survey(args):
     pars['nbeams'] = config[conf_sc]['nbeams']
     pars['missing_beams'] = config[conf_sc]['missing_beams']
     pars['nbuffer'] = config[conf_sc]['nbuffer']
+    pars['hdr_size'] = config[conf_sc]['hdr_size']
     pars['valid_modes'] = config[conf_sc]['valid_modes']
     pars['network_port_start'] = config[conf_sc]['network_port_start']
     pars['tsamp'] = config[conf_sc]['tsamp']
     pars['pagesize'] = config[conf_sc]['pagesize']
-    pars['fits_templates'] = config[conf_sc]['fits_templates']
+    pars['fits_templates'] = config[conf_sc]['fits_templates'].format(**pars)
     # pol and beam specific
     pars['ntabs'] = config[conf_mode]['ntabs']
     pars['science_mode']  = config[conf_mode]['science_mode']
@@ -346,6 +348,7 @@ def start_survey(args):
     cfg['usemac'] = pars['usemac']
     cfg['affinity'] = pars['affinity']
     cfg['pagesize'] = pars['pagesize']
+    cfg['hdr_size'] = pars['hdr_size']
 
     # load PSRDADA header template
     with open(os.path.join(os.path.dirname(os.path.realpath(__file__)), TEMPLATE), 'r') as f:
@@ -357,6 +360,15 @@ def start_survey(args):
     wsrt_lat = 52.915184*u.deg
     wsrt_lon = 6.60387*u.deg
     wsrt_loc = EarthLocation(lat=wsrt_lat, lon=wsrt_lon, height=0*u.m)
+    # load the parset
+    if not pars['parset'] == '':
+        with open(pars['parset']) as f:
+            parset = f.read().encode('bz2').encode('hex')
+            if len(parset) > 24575:
+                log("Error: compressed parset is longer than maximum for header (24575 characters)")
+                exit()
+    else:
+        parset = ''
 
     for beam in pars['beams']:
         # add CB-dependent parameters
@@ -394,6 +406,9 @@ def start_survey(args):
         temppars['resolution'] = pars['pagesize'] * pars['nchan']
         temppars['bps'] = int(pars['pagesize'] * pars['nchan'] / 1.024)
         temppars['beam'] = beam
+        temppars['parset'] = parset
+        temppars['scanlen'] = pars['tobs']
+        temppars['hdr_size'] = pars['hdr_size']
 
         header = header_template.format(**temppars)
 
@@ -495,6 +510,9 @@ if __name__ == '__main__':
     # Heimdall
     parser.add_argument("--heimdall_dm_max", type=float, help="Maximum DM when running heimdall online " \
                             "(Default: 5000)", default=5000)
+    # Parset
+    parser.add_argument("--parset", type=str, help="Path to parset of this observation " \
+                            "(Default: no parset)", default='')
 
     # make sure dec does not start with -
     try:

@@ -1,0 +1,513 @@
+### ----- system/template keys ----- ###
+_msg.system_name = APERTIF
+_msg.message_type = "CommandMessage"
+_msg.recipients = ['DirectionControl', 'CorrelatorControl', 'SignalControl@lcu-rt2', 'DelayCompControl@lcu-rt2', 'SignalControl@lcu-rt3', 'DelayCompControl@lcu-rt3', 'SignalControl@lcu-rt4', 'DelayCompControl@lcu-rt4', 'SignalControl@lcu-rt6', 'DelayCompControl@lcu-rt6', 'SignalControl@lcu-rt7', 'DelayCompControl@lcu-rt7', 'SignalControl@lcu-rt8', 'DelayCompControl@lcu-rt8', 'SignalControl@lcu-rt9', 'DelayCompControl@lcu-rt9'] # 'SignalControl', 'CorrelatorControl', 'DirectionControl', 'DelayCompControl', 'DatawriterControl'
+
+_control.command.type = "start_observation"
+_control.command.execution_time = 'utcnow()' # utcnow()
+
+### ----- user keys ----- ###
+
+task.pointing.pattern=[[-0.6, 0.0, 10, 50], [0.6, 0.0, 10, 50]]
+# Task related
+task.taskID = 0821004                  		# taskID (int>0) (= ObsID, but task can be more than obs). Must be unique, else we may overwrite earlier recorded data!
+task.taskGroupID = 0000018                     	# it is possible to cluster Tasks in groups, and this will be the groupID a specific Task belongs to
+# To convert between timestamp string and time_t, run:
+#   date --utc --date='Jan  1 2015 00:00:00' +%s  # -> 1420070400
+#   date --utc --date=@2147483647  # -> Tue Jan 19 03:14:07 UTC 2038
+task.startTime = '2018-08-21 20:05:00'                 # starttime for the task (utcnow() not ok unless python-only test)
+task.stopTime = '2018-08-21 20:30:00'                   # endtime for the task   (idem)
+task.telescopes = [RT2, RT3, RT4, RT6, RT7, RT8, RT9]                  # telescopes involved
+task.directionReferenceFrame = 'J2000'        	# any casacore reference frame for task.telescope.RTx.pointing, task.phaseCenter.x, task.source.direction
+task.LO1freq = 4770                        # freq in MHz of local oscillator 1 for freq conversion (determines spectral window)
+task.fieldName = 'B1933+16'                 # name of the field (small region of well-known sky (often the same as source name)) or empty string
+task.pointingName = 'P01234'                    # name of the pointing (empty string, or user named for e.g. survey pointings)
+task.source.name = 'B1933+16'               # name of the source pointed at in field, or empty string if not pointed at a (known) source, e.g. target pointing in survey grid
+task.source.calibrationGroup = 0                # grouping for calibration purpose
+task.source.code = 'BANDPASS CAL'               # used to describe any special characteristics of the source, such as the nature of a calibrator. Reserved: 'BANDPASS CAL'. Might be useful for pipelines.
+task.source.direction = [0.0, 0.0] # see task.beam.x.phaseCenter for format
+task.project.code = 'DB-001'                   	# project code as assigned by the Observatory
+task.project.PI = 'Hudson Jenkins'              # name of the principal investigator
+task.project.coPIs = 'S. Vn; H. Ttps'           # name(s) of the co-PI(s), separated by semi-colons
+task.project.releaseDate = '2018-11-13 00:00:00' # release date (when will archived data be publicly available), default is 1 yr after cycle project end
+task.scheduleType = 'Manual Schedule'           # could be used to distinguish manual from automatic scheduling (APERTIF already prefixed in MS)
+task.schedule = 'Cycle 0'                       # could be used for observation/proposal a cycle identifier
+task.inputPaths = [0..63]                     	# names of the used input paths
+#task.iblet0Nr = 0                               # first iblet nr to map first beam/subband combo to. E.g. to test with UniBoard 1, set to 1024 to ignore iblet 0..1023. Only for certain datawriteruv tests. Always 0 in operations.
+#task.iblet0Nr can be removed. 16 may 2018.
+
+task.nrOfCompoundBeamSets = 1                  	# nr of compound beam sets defined in this file
+task.beamSet.0.compoundBeams = [0..36]          # beam indices (from beam pattern) in compound beam set 0
+task.beamSet.0.pattern = 'ebm_20171214T104900.dat'      # name of the compound beam pattern; used in key name system.<PATTERN>.compoundBeamOffset.x
+task.beamSet.0.subbands = [137,138,139,140,140,140,141,142,143,144,144,144,145,146,147,148,148,148,149,150,151,152,152,152,153,154,155,156,156,156,157,158,159,160,160,160,161,162,163,164,164,164,165,166,167,168,168,168,169,170,171,172,172,172,173,174,175,176,176,176,177,178,179,180,180,180,181,182,183,184,184,184,185,186,187,188,188,188,189,190,191,192,192,192,193,194,195,196,196,196,197,198,199,200,200,200,201,202,203,204,204,204,205,206,207,208,208,208,209,210,211,212,212,212,213,214,215,216,216,216,217,218,219,220,220,220,221,222,223,224,224,224,225,226,227,228,228,228,229,230,231,232,232,232,233,234,235,236,236,236,237,238,239,240,240,240,241,242,243,244,244,244,245,246,247,248,248,248,249,250,251,252,252,252,253,254,255,256,256,256,257,258,259,260,260,260,261,262,263,264,264,264,265,266,267,268,268,268,269,270,271,272,272,272,273,274,275,276,276,276,277,278,279,280,280,280,281,282,283,284,284,284,285,286,287,288,288,288,289,290,291,292,292,292,293,294,295,296,296,296,297,298,299,300,300,300,301,302,303,304,304,304,305,306,307,308,308,308,309,310,311,312,312,312,313,314,315,316,316,316,317,318,319,320,320,320,321,322,323,324,324,324,325,326,327,328,328,328,329,330,331,332,332,332,333,334,335,336,336,336,337,338,339,340,340,340,341,342,343,344,344,344,345,346,347,348,348,348,349,350,351,352,352,352,353,354,355,356,356,356,357,358,359,360,360,360,361,362,363,364,364,364,365,366,367,368,368,368,369,370,371,372,372,372,373,374,375,376,376,376,377,378,379,380,380,380,381,382,383,384,384,384,385,386,387,388,388,388,389,390,391,392,392,392]             # subband indices used for all beams in compound beam set 0. Nrs in [0, MAX_SUBBANDS)
+
+task.beamSet.0.dataWriterUV.hostname = 'wcudata1' # datawriteruv hostname, also used in the dataWriterUV.<hostname>.* keys. Valid in operations: 'wcudata1' or 'wcudata1' (fqdn is also fine, but in that case use fqdn in all beam sets). The name 'localhost' is only ok for datawriteruv tests.
+task.beamSet.0.dataWriterUV.interfaces = ['eth0', 'eth1', 'eth2', 'eth3']
+ # network interface indentifiers. Note: only as used in dataWriterUV.<host indent>.<interface indent>.*; 'ethX' matches the i/f name for clarity, but no software has to query the OS for e.g. 'eth0' (i.e. any identifier could do). Default in operations: ['eth0', 'eth1', 'eth2', 'eth3']
+
+# task.beamSet.0.compoundBeam.x.phaseCenter: fringe stopping direction for beam x in spherical coordinates (2 angles) with reference frame task.directionReferenceFrame.
+# Any direction value in this file can be specified with any casacore measures MVAngle format. Some examples below; also see http://casacore.github.io/casacore/classcasacore_1_1MVAngle.html#details
+task.beamSet.0.compoundBeam.0.phaseCenter = [293.949270deg, 16.277770deg]
+task.beamSet.0.compoundBeam.1.phaseCenter = [295.511910deg, 15.527770deg]
+task.beamSet.0.compoundBeam.2.phaseCenter = [295.511910deg, 16.277770deg]
+task.beamSet.0.compoundBeam.3.phaseCenter = [295.511910deg, 17.027770deg]
+task.beamSet.0.compoundBeam.4.phaseCenter = [295.043118deg, 15.227770deg]
+task.beamSet.0.compoundBeam.5.phaseCenter = [295.043118deg, 15.977770deg]
+task.beamSet.0.compoundBeam.6.phaseCenter = [295.043118deg, 16.577770deg]
+task.beamSet.0.compoundBeam.7.phaseCenter = [295.043118deg, 17.327770deg]
+task.beamSet.0.compoundBeam.8.phaseCenter = [294.730590deg, 14.777770deg]
+task.beamSet.0.compoundBeam.9.phaseCenter = [294.730590deg, 15.527770deg]
+task.beamSet.0.compoundBeam.10.phaseCenter = [294.730590deg, 16.277770deg]
+task.beamSet.0.compoundBeam.11.phaseCenter = [294.730590deg, 17.027770deg]
+task.beamSet.0.compoundBeam.12.phaseCenter = [294.730590deg, 17.777770deg]
+task.beamSet.0.compoundBeam.13.phaseCenter = [294.339930deg, 15.227770deg]
+task.beamSet.0.compoundBeam.14.phaseCenter = [294.339930deg, 15.977770deg]
+task.beamSet.0.compoundBeam.15.phaseCenter = [294.339930deg, 16.577770deg]
+task.beamSet.0.compoundBeam.16.phaseCenter = [294.339930deg, 17.327770deg]
+task.beamSet.0.compoundBeam.17.phaseCenter = [293.949270deg, 14.777770deg]
+task.beamSet.0.compoundBeam.18.phaseCenter = [293.949270deg, 15.527770deg]
+task.beamSet.0.compoundBeam.19.phaseCenter = [293.949270deg, 17.027770deg]
+task.beamSet.0.compoundBeam.20.phaseCenter = [293.949270deg, 17.777770deg]
+task.beamSet.0.compoundBeam.21.phaseCenter = [293.558610deg, 15.227770deg]
+task.beamSet.0.compoundBeam.22.phaseCenter = [293.558610deg, 15.977770deg]
+task.beamSet.0.compoundBeam.23.phaseCenter = [293.558610deg, 16.577770deg]
+task.beamSet.0.compoundBeam.24.phaseCenter = [293.558610deg, 17.327770deg]
+task.beamSet.0.compoundBeam.25.phaseCenter = [293.167950deg, 14.777770deg]
+task.beamSet.0.compoundBeam.26.phaseCenter = [293.167950deg, 15.527770deg]
+task.beamSet.0.compoundBeam.27.phaseCenter = [293.167950deg, 16.277770deg]
+task.beamSet.0.compoundBeam.28.phaseCenter = [293.167950deg, 17.027770deg]
+task.beamSet.0.compoundBeam.29.phaseCenter = [293.167950deg, 17.777770deg]
+task.beamSet.0.compoundBeam.30.phaseCenter = [292.855422deg, 15.227770deg]
+task.beamSet.0.compoundBeam.31.phaseCenter = [292.855422deg, 15.977770deg]
+task.beamSet.0.compoundBeam.32.phaseCenter = [292.855422deg, 16.577770deg]
+task.beamSet.0.compoundBeam.33.phaseCenter = [292.855422deg, 17.327770deg]
+task.beamSet.0.compoundBeam.34.phaseCenter = [292.386630deg, 15.527770deg]
+task.beamSet.0.compoundBeam.35.phaseCenter = [292.386630deg, 16.277770deg]
+task.beamSet.0.compoundBeam.36.phaseCenter = [292.386630deg, 17.027770deg]
+task.beamSet.0.compoundBeam.37.phaseCenter = [292.386630deg, 17.027770deg] # FIXME: B037 contains phase center of B036
+task.beamSet.0.compoundBeam.38.phaseCenter = [292.386630deg, 17.027770deg] # FIXME: B038 contains phase center of B036
+task.beamSet.0.compoundBeam.39.phaseCenter = [292.386630deg, 17.027770deg] # FIXME: B039 contains phase center of B036
+
+# telescope pointings: see task.beamSet.x.compoundBeam.y.phaseCenter for format
+task.telescope.RT2.pointing = [293.94927deg, 16.27777deg, task.pointing.pattern]
+task.telescope.RT3.pointing = [293.94927deg, 16.27777deg, task.pointing.pattern]
+task.telescope.RT4.pointing = [293.94927deg, 16.27777deg, task.pointing.pattern]
+task.telescope.RT5.pointing = [293.94927deg, 16.27777deg, task.pointing.pattern]
+task.telescope.RT6.pointing = [293.94927deg, 16.27777deg, task.pointing.pattern]
+task.telescope.RT7.pointing = [293.94927deg, 16.27777deg, task.pointing.pattern]
+task.telescope.RT8.pointing = [293.94927deg, 16.27777deg, task.pointing.pattern]
+task.telescope.RT9.pointing = [293.94927deg, 16.27777deg, task.pointing.pattern]
+task.telescope.RTA.pointing = [293.94927deg, 16.27777deg, task.pointing.pattern]
+task.telescope.RTB.pointing = [293.94927deg, 16.27777deg, task.pointing.pattern]
+task.telescope.RTC.pointing = [293.94927deg, 16.27777deg, task.pointing.pattern]
+task.telescope.RTD.pointing = [293.94927deg, 16.27777deg, task.pointing.pattern]
+system.telescope.RT2.position = [3828729.99081358872354031, 442735.17696416645776480,5064923.00829000025987625] # meter, ITRF
+system.telescope.RT3.position = [3828713.43109884625300765, 442878.21189340209821239,5064923.00435999967157841]
+system.telescope.RT4.position = [3828696.86994427768513560, 443021.24917263782117516,5064923.00396999996155500]
+system.telescope.RT5.position = [3828680.31391932582482696, 443164.28596862131962553,5064923.00035000033676624]
+system.telescope.RT6.position = [3828663.75159173039719462, 443307.32138055720133707,5064923.00203999970108271]
+system.telescope.RT7.position = [3828647.19342757249251008, 443450.35604637680808082,5064923.00229999981820583]
+system.telescope.RT8.position = [3828630.63486200943589211, 443593.39226634375518188,5064922.99755000043660402]
+system.telescope.RT9.position = [3828614.07606798363849521, 443736.42941620573401451,5064923.00000000000000000]
+system.telescope.RTA.position = [3828609.94224429363384843, 443772.19450029480503872,5064922.99868000019341707]
+system.telescope.RTB.position = [3828603.73202611599117517, 443825.83321168005932122,5064922.99963000044226646]
+system.telescope.RTC.position = [3828460.92418734729290009, 445059.52053928520763293,5064922.99070999957621098]
+system.telescope.RTD.position = [3828452.64716351125389338, 445131.03744105156511068,5064922.98792999982833862]
+task.nrChannelsPerSubband = 64                	# always 64 with the current correlator
+task.timeIntegrationFactor = 10            	# integration factor on top of ~1s by UniBoard correlator
+#TODO: add variable attenuator/amp (and other hardware (if any)) settings
+
+# datawriteruv
+dataWriterUV.applyBandpassCorrection = false    # correct channel bandpass from double PPF ripple or not. Always true in operations.
+dataWriterUV.applyNormalization = false 	# normalize visibilities wrt integration time, attenuation/amp, ... or not. Always true in operations.
+dataWriterUV.intent = 'TARGET' 			# TARGET or CALIBRATION (or RESERVATION but never executed)
+dataWriterUV.outputPath = '/data/apertif/' # in operations, preferably an *absolute*, project specific path on /data
+
+# datawriteruv network stream properties. Key format: dataWriterUV.<host ident>.<interface indent>.xxx.
+# The interface indent matches eth interface names for clarity, but never needs to be looked up outside the parset.
+dataWriterUV.wcudata1.eth0.ip = '10.99.100.1'
+dataWriterUV.wcudata1.eth0.mac = 'e4:1d:2d:e4:26:90'
+dataWriterUV.wcudata1.eth0.port = 4000
+dataWriterUV.wcudata1.eth0.proto = 'udp'
+dataWriterUV.wcudata1.eth1.ip = '10.99.100.2'
+dataWriterUV.wcudata1.eth1.mac = 'e4:1d:2d:e4:26:91'
+dataWriterUV.wcudata1.eth1.port = 4000
+dataWriterUV.wcudata1.eth1.proto = 'udp'
+dataWriterUV.wcudata1.eth2.ip = '10.99.100.3'
+dataWriterUV.wcudata1.eth2.mac = 'e4:1d:2d:bc:3c:d0'
+dataWriterUV.wcudata1.eth2.port = 4000
+dataWriterUV.wcudata1.eth2.proto = 'udp'
+dataWriterUV.wcudata1.eth3.ip = '10.99.100.4'
+dataWriterUV.wcudata1.eth3.mac = 'e4:1d:2d:bc:3c:d1'
+dataWriterUV.wcudata1.eth3.port = 4000
+dataWriterUV.wcudata1.eth3.proto = 'udp'
+
+dataWriterUV.wcudata2.eth0.ip = '10.99.101.1'
+dataWriterUV.wcudata2.eth0.mac = 'e4:1d:2d:bc:3d:c0'
+dataWriterUV.wcudata2.eth0.port = 4000
+dataWriterUV.wcudata2.eth0.proto = 'udp'
+dataWriterUV.wcudata2.eth1.ip = '10.99.101.2'
+dataWriterUV.wcudata2.eth1.mac = 'e4:1d:2d:bc:3d:c1'
+dataWriterUV.wcudata2.eth1.port = 4000
+dataWriterUV.wcudata2.eth1.proto = 'udp'
+dataWriterUV.wcudata2.eth2.ip = '10.99.101.3'
+dataWriterUV.wcudata2.eth2.mac = 'e4:1d:2d:e4:0d:30'
+dataWriterUV.wcudata2.eth2.port = 4000
+dataWriterUV.wcudata2.eth2.proto = 'udp'
+dataWriterUV.wcudata2.eth3.ip = '10.99.101.4'
+dataWriterUV.wcudata2.eth3.mac = 'e4:1d:2d:e4:0d:31'
+dataWriterUV.wcudata2.eth3.port = 4000
+dataWriterUV.wcudata2.eth3.proto = 'udp'
+
+# for tests with only datawriteruv (i.e. invalid in operations):
+dataWriterUV.localhost.eth0.ip = '127.0.0.1'
+dataWriterUV.localhost.eth0.mac = '00:00:00:00:00:00'
+dataWriterUV.localhost.eth0.port = 4002
+dataWriterUV.localhost.eth0.proto = 'udp'
+# dataWriterUV.beamSet.x.compoundBeam.y.MSName: unique MeasurementSet names for all beam indices listed in task.beamSet.y.compoundBeams. Contains taskID.
+dataWriterUV.beamSet.0.compoundBeam.0.MSName = 'WSRTA0821004_B000.MS'
+dataWriterUV.beamSet.0.compoundBeam.1.MSName = 'WSRTA0821004_B001.MS'
+dataWriterUV.beamSet.0.compoundBeam.2.MSName = 'WSRTA0821004_B002.MS'
+dataWriterUV.beamSet.0.compoundBeam.3.MSName = 'WSRTA0821004_B003.MS'
+dataWriterUV.beamSet.0.compoundBeam.4.MSName = 'WSRTA0821004_B004.MS'
+dataWriterUV.beamSet.0.compoundBeam.5.MSName = 'WSRTA0821004_B005.MS'
+dataWriterUV.beamSet.0.compoundBeam.6.MSName = 'WSRTA0821004_B006.MS'
+dataWriterUV.beamSet.0.compoundBeam.7.MSName = 'WSRTA0821004_B007.MS'
+dataWriterUV.beamSet.0.compoundBeam.8.MSName = 'WSRTA0821004_B008.MS'
+dataWriterUV.beamSet.0.compoundBeam.9.MSName = 'WSRTA0821004_B009.MS'
+dataWriterUV.beamSet.0.compoundBeam.10.MSName = 'WSRTA0821004_B010.MS'
+dataWriterUV.beamSet.0.compoundBeam.11.MSName = 'WSRTA0821004_B011.MS'
+dataWriterUV.beamSet.0.compoundBeam.12.MSName = 'WSRTA0821004_B012.MS'
+dataWriterUV.beamSet.0.compoundBeam.13.MSName = 'WSRTA0821004_B013.MS'
+dataWriterUV.beamSet.0.compoundBeam.14.MSName = 'WSRTA0821004_B014.MS'
+dataWriterUV.beamSet.0.compoundBeam.15.MSName = 'WSRTA0821004_B015.MS'
+dataWriterUV.beamSet.0.compoundBeam.16.MSName = 'WSRTA0821004_B016.MS'
+dataWriterUV.beamSet.0.compoundBeam.17.MSName = 'WSRTA0821004_B017.MS'
+dataWriterUV.beamSet.0.compoundBeam.18.MSName = 'WSRTA0821004_B018.MS'
+dataWriterUV.beamSet.0.compoundBeam.19.MSName = 'WSRTA0821004_B019.MS'
+dataWriterUV.beamSet.0.compoundBeam.20.MSName = 'WSRTA0821004_B020.MS'
+dataWriterUV.beamSet.0.compoundBeam.21.MSName = 'WSRTA0821004_B021.MS'
+dataWriterUV.beamSet.0.compoundBeam.22.MSName = 'WSRTA0821004_B022.MS'
+dataWriterUV.beamSet.0.compoundBeam.23.MSName = 'WSRTA0821004_B023.MS'
+dataWriterUV.beamSet.0.compoundBeam.24.MSName = 'WSRTA0821004_B024.MS'
+dataWriterUV.beamSet.0.compoundBeam.25.MSName = 'WSRTA0821004_B025.MS'
+dataWriterUV.beamSet.0.compoundBeam.26.MSName = 'WSRTA0821004_B026.MS'
+dataWriterUV.beamSet.0.compoundBeam.27.MSName = 'WSRTA0821004_B027.MS'
+dataWriterUV.beamSet.0.compoundBeam.28.MSName = 'WSRTA0821004_B028.MS'
+dataWriterUV.beamSet.0.compoundBeam.29.MSName = 'WSRTA0821004_B029.MS'
+dataWriterUV.beamSet.0.compoundBeam.30.MSName = 'WSRTA0821004_B030.MS'
+dataWriterUV.beamSet.0.compoundBeam.31.MSName = 'WSRTA0821004_B031.MS'
+dataWriterUV.beamSet.0.compoundBeam.32.MSName = 'WSRTA0821004_B032.MS'
+dataWriterUV.beamSet.0.compoundBeam.33.MSName = 'WSRTA0821004_B033.MS'
+dataWriterUV.beamSet.0.compoundBeam.34.MSName = 'WSRTA0821004_B034.MS'
+dataWriterUV.beamSet.0.compoundBeam.35.MSName = 'WSRTA0821004_B035.MS'
+dataWriterUV.beamSet.0.compoundBeam.36.MSName = 'WSRTA0821004_B036.MS'
+dataWriterUV.beamSet.0.compoundBeam.37.MSName = 'WSRTA0821004_B037.MS'
+dataWriterUV.beamSet.0.compoundBeam.38.MSName = 'WSRTA0821004_B038.MS'
+dataWriterUV.beamSet.0.compoundBeam.39.MSName = 'WSRTA0821004_B039.MS'
+
+# artsControl??
+arts.recordBaseband = True                      # record baseband data to disk
+arts.timing = True                                # perform dedispertion and folding on raw data
+arts.parFile = 'file.par'                                   # name of the parfile used on ARTS-0
+arts.samplingTime = 100.25                                         # sampling time of the folded data in microsec
+arts.frequencyChannelWidth = 10.5                                    # width of frequency channels in MHz
+
+# system
+system.arrayPosition = [3828630.63486200943589211, 443593.39226634375518188, 5064922.99755000043660402] # meter, ITRF. RT8 atm
+system.parsetVersion = '0.0.1'
+system.skipChecksUnsupported = false          	# skipChecksUnsupported; default: false; true means: skip as many parset sanity checks as possible (without affecting system stability for subsequent observations), i.e. log this setting and do as asked, but no software support if anything turns out broken
+
+# to be decided on later maybe more hardware versions needed. Values come from prepare telescope command.
+# system.beamformerVersion = '0.8'            	# beamformer version
+# system.correlatorVersion = '0.9'            	# correlator version
+
+#read from file later
+#system.maxNrOfCompoundBeams = 42		# maximum number of compound beams (equal to APERTIF::MAX_BEAMS) # can be removed. 16 may 2018. # FIXME
+system.ebm_20171214T104900.dat.compoundBeamOffset.0 = [0.0, 0.0]   # Spherical, i.e. 2 delta angles relative to task.telescope.RTx.pointing (with potential wrap-around). In the key name, 'pattern1' is from task.beamPattern. See task.beamSet.x.compoundBeam.y.phaseCenter for format.
+system.ebm_20171214T104900.dat.compoundBeamOffset.1 = [0.0, 0.0]
+system.ebm_20171214T104900.dat.compoundBeamOffset.2 = [0.0, 0.0]
+system.ebm_20171214T104900.dat.compoundBeamOffset.3 = [0.0, 0.0]
+system.ebm_20171214T104900.dat.compoundBeamOffset.4 = [0.0, 0.0]
+system.ebm_20171214T104900.dat.compoundBeamOffset.5 = [0.0, 0.0]
+system.ebm_20171214T104900.dat.compoundBeamOffset.6 = [0.0, 0.0]
+system.ebm_20171214T104900.dat.compoundBeamOffset.7 = [0.0, 0.0]
+system.ebm_20171214T104900.dat.compoundBeamOffset.8 = [0.0, 0.0]
+system.ebm_20171214T104900.dat.compoundBeamOffset.9 = [0.0, 0.0]
+system.ebm_20171214T104900.dat.compoundBeamOffset.10 = [0.0, 0.0]
+system.ebm_20171214T104900.dat.compoundBeamOffset.11 = [0.0, 0.0]
+system.ebm_20171214T104900.dat.compoundBeamOffset.12 = [0.0, 0.0]
+system.ebm_20171214T104900.dat.compoundBeamOffset.13 = [0.0, 0.0]
+system.ebm_20171214T104900.dat.compoundBeamOffset.14 = [0.0, 0.0]
+system.ebm_20171214T104900.dat.compoundBeamOffset.15 = [0.0, 0.0]
+system.ebm_20171214T104900.dat.compoundBeamOffset.16 = [0.0, 0.0]
+system.ebm_20171214T104900.dat.compoundBeamOffset.17 = [0.0, 0.0]
+system.ebm_20171214T104900.dat.compoundBeamOffset.18 = [0.0, 0.0]
+system.ebm_20171214T104900.dat.compoundBeamOffset.19 = [0.0, 0.0]
+system.ebm_20171214T104900.dat.compoundBeamOffset.20 = [0.0, 0.0]
+system.ebm_20171214T104900.dat.compoundBeamOffset.21 = [0.0, 0.0]
+system.ebm_20171214T104900.dat.compoundBeamOffset.22 = [0.0, 0.0]
+system.ebm_20171214T104900.dat.compoundBeamOffset.23 = [0.0, 0.0]
+system.ebm_20171214T104900.dat.compoundBeamOffset.24 = [0.0, 0.0]
+system.ebm_20171214T104900.dat.compoundBeamOffset.25 = [0.0, 0.0]
+system.ebm_20171214T104900.dat.compoundBeamOffset.26 = [0.0, 0.0]
+system.ebm_20171214T104900.dat.compoundBeamOffset.27 = [0.0, 0.0]
+system.ebm_20171214T104900.dat.compoundBeamOffset.28 = [0.0, 0.0]
+system.ebm_20171214T104900.dat.compoundBeamOffset.29 = [0.0, 0.0]
+system.ebm_20171214T104900.dat.compoundBeamOffset.30 = [0.0, 0.0]
+system.ebm_20171214T104900.dat.compoundBeamOffset.31 = [0.0, 0.0]
+system.ebm_20171214T104900.dat.compoundBeamOffset.32 = [0.0, 0.0]
+system.ebm_20171214T104900.dat.compoundBeamOffset.33 = [0.0, 0.0]
+system.ebm_20171214T104900.dat.compoundBeamOffset.34 = [0.0, 0.0]
+system.ebm_20171214T104900.dat.compoundBeamOffset.35 = [0.0, 0.0]
+system.ebm_20171214T104900.dat.compoundBeamOffset.36 = [0.0, 0.0]
+system.ebm_20171214T104900.dat.compoundBeamOffset.37 = [0.0, 0.0]
+system.ebm_20171214T104900.dat.compoundBeamOffset.38 = [0.0, 0.0]
+system.ebm_20171214T104900.dat.compoundBeamOffset.39 = [0.0, 0.0]
+
+# 8071004 used zero values as start
+#system.telescope.RT2.residualDelay =  6.786e-9
+#system.telescope.RT3.residualDelay =  4.216e-9
+#system.telescope.RT4.residualDelay =  0.000e-9
+#system.telescope.RT5.residualDelay =  5.594e-9
+#system.telescope.RT6.residualDelay =  8.699e-9
+#system.telescope.RT7.residualDelay =  5.760e-9
+#system.telescope.RT8.residualDelay =  6.484e-9
+#system.telescope.RT9.residualDelay =  4.376e-9
+#system.telescope.RTA.residualDelay =  0.000e-9
+#system.telescope.RTB.residualDelay =  7.015e-9
+#system.telescope.RTC.residualDelay =  2.552e-9
+#system.telescope.RTD.residualDelay =  42.955e-9
+#system.telescope.RT2.phaseZero =  0.000
+#system.telescope.RT3.phaseZero = -1.332
+#system.telescope.RT4.phaseZero = -2.495
+#system.telescope.RT5.phaseZero =  1.435
+#system.telescope.RT6.phaseZero =  2.394
+#system.telescope.RT7.phaseZero = -1.842
+#system.telescope.RT8.phaseZero =  2.120
+#system.telescope.RT9.phaseZero =  1.654
+#system.telescope.RTA.phaseZero =  0.000
+#system.telescope.RTB.phaseZero =  1.006
+#system.telescope.RTC.phaseZero =  0.053
+#system.telescope.RTD.phaseZero =  0.878
+#system.telescope.RT2.residualDelay =  0.0e-9
+#system.telescope.RT3.residualDelay =  0.0e-9
+#system.telescope.RT4.residualDelay =  0.0e-9
+#system.telescope.RT5.residualDelay =  0.0e-9
+#system.telescope.RT6.residualDelay =  0.0e-9
+#system.telescope.RT7.residualDelay =  0.0e-9
+#system.telescope.RT8.residualDelay =  0.0e-9
+#system.telescope.RT9.residualDelay =  0.0e-9
+#system.telescope.RTA.residualDelay =  0.0e-9
+#system.telescope.RTB.residualDelay =  0.0e-9
+#system.telescope.RTC.residualDelay =  0.0e-9
+#system.telescope.RTD.residualDelay =  0.0e-9
+#system.telescope.RT2.phaseZero =  0.000
+#system.telescope.RT3.phaseZero =  0.000
+#system.telescope.RT4.phaseZero =  0.000
+#system.telescope.RT5.phaseZero =  0.000
+#system.telescope.RT6.phaseZero =  0.000
+#system.telescope.RT7.phaseZero =  0.000
+#system.telescope.RT8.phaseZero =  0.000
+#system.telescope.RT9.phaseZero =  0.000
+#system.telescope.RTA.phaseZero =  0.000
+#system.telescope.RTB.phaseZero =  0.000
+#system.telescope.RTC.phaseZero =  0.000
+#system.telescope.RTD.phaseZero =  0.000
+# calibrated with obs 8071303
+#system.telescope.RT2.residualDelay =  6.797e-9
+#system.telescope.RT3.residualDelay =  4.118e-9
+#system.telescope.RT4.residualDelay =  0.000e-9
+#system.telescope.RT5.residualDelay =  5.859e-9
+#system.telescope.RT6.residualDelay =  12.470e-9
+#system.telescope.RT7.residualDelay =  7.099e-9
+#system.telescope.RT8.residualDelay =  6.305e-9
+#system.telescope.RT9.residualDelay =  4.468e-9
+#system.telescope.RTA.residualDelay =  5.220e-9
+#system.telescope.RTB.residualDelay =  5.795e-9
+#system.telescope.RTC.residualDelay =  2.032e-9
+#system.telescope.RTD.residualDelay =  46.428e-9
+#system.telescope.RT2.phaseZero =  0.000
+#system.telescope.RT3.phaseZero = -0.317
+#system.telescope.RT4.phaseZero =  1.422
+#system.telescope.RT5.phaseZero =  2.054
+#system.telescope.RT6.phaseZero =  1.807
+#system.telescope.RT7.phaseZero = -3.072
+#system.telescope.RT8.phaseZero =  2.347
+#system.telescope.RT9.phaseZero =  3.113
+#system.telescope.RTA.phaseZero = -2.451
+#system.telescope.RTB.phaseZero =  2.847
+#system.telescope.RTC.phaseZero =  2.424
+#system.telescope.RTD.phaseZero = -0.375
+# calibrated with obs 8071304
+#system.telescope.RT2.residualDelay =  6.798e-9
+#system.telescope.RT3.residualDelay =  4.104e-9
+#system.telescope.RT4.residualDelay =  0.000e-9
+#system.telescope.RT5.residualDelay =  4.935e-9
+#system.telescope.RT6.residualDelay =  12.516e-9
+#system.telescope.RT7.residualDelay =  7.090e-9
+#system.telescope.RT8.residualDelay =  6.357e-9
+#system.telescope.RT9.residualDelay =  4.431e-9
+#system.telescope.RTA.residualDelay =  5.210e-9
+#system.telescope.RTB.residualDelay =  5.805e-9
+#system.telescope.RTC.residualDelay =  2.218e-9
+#system.telescope.RTD.residualDelay =  46.534e-9
+#system.telescope.RT2.phaseZero =  0.000
+#system.telescope.RT3.phaseZero =  1.865
+#system.telescope.RT4.phaseZero =  3.703
+#system.telescope.RT5.phaseZero =  0.626
+#system.telescope.RT6.phaseZero =  4.162
+#system.telescope.RT7.phaseZero = -2.580
+#system.telescope.RT8.phaseZero =  1.585
+#system.telescope.RT9.phaseZero =  5.889
+#system.telescope.RTA.phaseZero = -4.811
+#system.telescope.RTB.phaseZero =  1.363
+#system.telescope.RTC.phaseZero =  1.546
+#system.telescope.RTD.phaseZero = -3.152
+# calibrated with obs 8071305
+#system.telescope.RT2.residualDelay =  6.828e-9
+#system.telescope.RT3.residualDelay =  4.086e-9
+#system.telescope.RT4.residualDelay =  0.000e-9
+#system.telescope.RT5.residualDelay =  5.848e-9
+#system.telescope.RT6.residualDelay =  12.484e-9
+#system.telescope.RT7.residualDelay =  7.091e-9
+#system.telescope.RT8.residualDelay =  6.277e-9
+#system.telescope.RT9.residualDelay =  4.416e-9
+#system.telescope.RTA.residualDelay =  5.228e-9
+#system.telescope.RTB.residualDelay =  5.843e-9
+#system.telescope.RTC.residualDelay =  2.285e-9
+#system.telescope.RTD.residualDelay =  46.537e-9
+#system.telescope.RT2.phaseZero =  0.000
+#system.telescope.RT3.phaseZero =  1.850
+#system.telescope.RT4.phaseZero =  3.717
+#system.telescope.RT5.phaseZero = -0.760
+#system.telescope.RT6.phaseZero =  4.193
+#system.telescope.RT7.phaseZero = -2.663
+#system.telescope.RT8.phaseZero =  1.613
+#system.telescope.RT9.phaseZero =  5.757
+#system.telescope.RTA.phaseZero = -4.881
+#system.telescope.RTB.phaseZero =  1.341
+#system.telescope.RTC.phaseZero =  1.793
+#system.telescope.RTD.phaseZero = -3.011
+
+# residualDelay and phaseZero values determined using task 8071309
+#system.telescope.RT2.residualDelay =  6.815e-9
+#system.telescope.RT3.residualDelay =  4.136e-9
+#system.telescope.RT4.residualDelay =  0.000e-9
+#system.telescope.RT5.residualDelay =  5.882e-9
+#system.telescope.RT6.residualDelay =  12.559e-9
+#system.telescope.RT7.residualDelay =  7.097e-9
+#system.telescope.RT8.residualDelay =  6.376e-9
+#system.telescope.RT9.residualDelay =  4.437e-9
+#system.telescope.RTA.residualDelay =  5.257e-9
+#system.telescope.RTB.residualDelay =  7.070e-9
+#system.telescope.RTC.residualDelay =  2.461e-9
+#system.telescope.RTD.residualDelay =  47.785e-9
+#system.telescope.RT2.phaseZero =  0.000
+#system.telescope.RT3.phaseZero =  1.758
+#system.telescope.RT4.phaseZero =  3.675
+#system.telescope.RT5.phaseZero =  0.581
+#system.telescope.RT6.phaseZero =  4.137
+#system.telescope.RT7.phaseZero = -2.722
+#system.telescope.RT8.phaseZero =  1.421
+#system.telescope.RT9.phaseZero =  5.687
+#system.telescope.RTA.phaseZero = -4.895
+##system.telescope.RTB.phaseZero = -0.521
+#system.telescope.RTB.phaseZero =  1.341
+#system.telescope.RTC.phaseZero =  1.904
+##system.telescope.RTD.phaseZero = -4.912
+#system.telescope.RTD.phaseZero = -3.011
+
+# residualDelay and phaseZero values determined using task 8071313
+#system.telescope.RT2.residualDelay =  6.800e-9
+#system.telescope.RT3.residualDelay =  4.156e-9
+#system.telescope.RT4.residualDelay =  0.000e-9
+#system.telescope.RT5.residualDelay =  5.873e-9
+#system.telescope.RT6.residualDelay =  12.489e-9
+#system.telescope.RT7.residualDelay =  7.109e-9
+#system.telescope.RT8.residualDelay =  6.299e-9
+#system.telescope.RT9.residualDelay =  4.423e-9
+#system.telescope.RTA.residualDelay =  5.173e-9
+#system.telescope.RTB.residualDelay =  7.087e-9
+#system.telescope.RTC.residualDelay =  2.654e-9
+#system.telescope.RTD.residualDelay =  47.768e-9
+#system.telescope.RT2.phaseZero =  0.000
+#system.telescope.RT3.phaseZero =  1.840
+#system.telescope.RT4.phaseZero =  3.640
+#system.telescope.RT5.phaseZero =  0.675
+#system.telescope.RT6.phaseZero =  4.293
+#system.telescope.RT7.phaseZero = -2.657
+#system.telescope.RT8.phaseZero =  1.692
+#system.telescope.RT9.phaseZero =  5.813
+#system.telescope.RTA.phaseZero = -4.750
+#system.telescope.RTB.phaseZero =  1.417
+#system.telescope.RTC.phaseZero =  2.471
+#system.telescope.RTD.phaseZero = -3.072
+#
+# residualDelay and phaseZero values determined using task 8071315
+#system.telescope.RT2.residualDelay =  6.788e-9
+#system.telescope.RT3.residualDelay =  4.142e-9
+#system.telescope.RT4.residualDelay =  0.000e-9
+#system.telescope.RT5.residualDelay =  5.860e-9
+#system.telescope.RT6.residualDelay =  12.496e-9
+#system.telescope.RT7.residualDelay =  7.109e-9
+#system.telescope.RT8.residualDelay =  6.289e-9
+#system.telescope.RT9.residualDelay =  4.373e-9
+#system.telescope.RTA.residualDelay =  5.186e-9
+#system.telescope.RTB.residualDelay =  7.092e-9
+#system.telescope.RTC.residualDelay =  2.647e-9
+#system.telescope.RTD.residualDelay =  47.819e-9
+#system.telescope.RT2.phaseZero =  0.000
+#system.telescope.RT3.phaseZero =  2.014
+#system.telescope.RT4.phaseZero =  3.594
+#system.telescope.RT5.phaseZero =  0.779
+#system.telescope.RT6.phaseZero =  4.289
+#system.telescope.RT7.phaseZero = -2.471
+#system.telescope.RT8.phaseZero =  1.508
+#system.telescope.RT9.phaseZero =  5.608
+#system.telescope.RTA.phaseZero = -4.884
+#system.telescope.RTB.phaseZero =  1.533
+#system.telescope.RTC.phaseZero =  2.646
+#system.telescope.RTD.phaseZero = -2.930
+#
+
+# residualDelay and phaseZero values determined using task 8082102
+system.telescope.RT2.residualDelay =  13.546e-9
+system.telescope.RT3.residualDelay =  6.904e-9
+system.telescope.RT4.residualDelay =  0.000e-9
+system.telescope.RT5.residualDelay =  10.351e-9
+system.telescope.RT6.residualDelay =  22.315e-9
+system.telescope.RT7.residualDelay =  13.885e-9
+system.telescope.RT8.residualDelay =  12.841e-9
+system.telescope.RT9.residualDelay =  9.876e-9
+system.telescope.RTA.residualDelay =  10.333e-9
+system.telescope.RTB.residualDelay =  10.267e-9
+system.telescope.RTC.residualDelay =  103.697e-9
+system.telescope.RTD.residualDelay =  93.007e-9
+system.telescope.RT2.phaseZero =  0.000
+system.telescope.RT3.phaseZero =  2.055
+system.telescope.RT4.phaseZero =  0.604
+system.telescope.RT5.phaseZero =  1.519
+system.telescope.RT6.phaseZero =  3.043
+system.telescope.RT7.phaseZero = -2.691
+system.telescope.RT8.phaseZero = -0.998
+system.telescope.RT9.phaseZero =  7.013
+system.telescope.RTA.phaseZero = -2.107
+system.telescope.RTB.phaseZero =  3.145
+system.telescope.RTC.phaseZero =  3.224
+system.telescope.RTD.phaseZero = -4.397
+
+system.telescope.axesDistance      = 4.95     # meter
+system.telescope.focalAxesDistance = 9.25     # meter
+system.telescope.polarAxesLength   = 16.922   # meter
+
+# TODO: temporarely parset key to limit the number of correlator boards that send data.
+# There are 16 correlator boards (numbered from 0 till 15). Finally all boards will be used
+# for sending data but during commisioning the number of boards is limited.
+#system.correlator.outputBoardList = [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15]     # only use board 14
+system.correlator.outputBoardList = [3,4,5,6,7,8,9,10,11,12,13,14,15]     # only use board 0
+
+# atmosphere constants taken from WSRT (pre-APERTIF) MS
+atmosphere.refracDryAir = 0.000305
+atmosphere.refracWaterVapour = 0.0
+atmosphere.scaleHeight = 8                     # km

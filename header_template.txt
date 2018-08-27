@@ -1,6 +1,6 @@
 HEADER       DADA
 HDR_VERSION  1.0
-HDR_SIZE     4096
+HDR_SIZE     {hdr_size}
 SOURCE       {source}
 RA           {ra}
 RA_HMS       {ra_hms}
@@ -11,6 +11,7 @@ MJD_START    {mjdstart}
 AZ_START     {az_start}
 ZA_START     {za_start}
 LST_START    {lst_start}
+SCANLEN      {scanlen}
 TELESCOPE    WSRT
 INSTRUMENT   ARTS
 BEAM         {beam}
@@ -30,3 +31,4 @@ SCIENCE_CASE {science_case}
 SCIENCE_MODE {science_mode}
 RESOLUTION   {resolution}
 BYTES_PER_SECOND {bps}
+PARSET       {parset}
