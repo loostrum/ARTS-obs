@@ -56,8 +56,6 @@ class Survey(object):
             self.dadafits()
         elif self.config['obs_mode'] == 'amber':
             self.amber()
-        elif self.config['obs_mode'] == 'heimdall':
-            self.heimdall()
         elif self.config['obs_mode'] == 'survey':
             self.survey()
         sleep(waittime)
@@ -151,21 +149,6 @@ class Survey(object):
         output_dir = os.path.join(self.config['output_dir'], 'fits', 'CB{:02d}'.format(self.config['beam']))
         os.system("mkdir -p {}".format(output_dir))
         cmd = "taskset -c {cpu} dadafits -k {dadakey} -l {log_dir}/dadafits.{beam:02d} -t {fits_templates} -d {output_fits} &".format(cpu=cpu, output_fits=output_dir, **self.config)
-        self.log(cmd)
-        os.system(cmd)
-
-
-    def heimdall(self):
-        # start data writers as in survey mode
-        self.dadafilterbank()
-        self.dadafits()
-        self.log("Starting Heimdall")
-
-        # pinning as in AMBER
-        cpu = self.config['affinity']['amber'][0]
-        output_dir = os.path.join(self.config['output_dir'], 'heimdall')
-        os.system("mkdir -p {}".format(output_dir))
-        cmd = "taskset -c {cpu} heimdall -beam {beam} -k {dadakey} -dm 0 {heimdall_dm_max} -gulp_size {pagesize} -gpu_id 0 -output_dir {output_heimdall} 2>&1 > {log_dir}/heimdall.{beam:02d} &".format(cpu=cpu, output_heimdall=output_dir, **self.config)
         self.log(cmd)
         os.system(cmd)
 
