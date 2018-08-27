@@ -363,7 +363,7 @@ def start_survey(args):
                 log("Error: compressed parset is longer than maximum for header (24575 characters)")
                 exit()
     else:
-        parset = ''
+        parset = 'no parset'
 
     for beam in pars['beams']:
         # add CB-dependent parameters
