@@ -12,7 +12,7 @@ from time import sleep
 import yaml
 import numpy as np
 
-NUMTHREADS = 24
+NUMTHREADS = 40
 
 
 class Survey(object):
