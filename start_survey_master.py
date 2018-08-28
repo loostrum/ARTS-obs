@@ -219,7 +219,7 @@ def start_survey(args):
     pars['valid_modes'] = config[conf_sc]['valid_modes']
     pars['network_port_start'] = config[conf_sc]['network_port_start']
     pars['tsamp'] = config[conf_sc]['tsamp']
-    pars['pagesize'] = config[conf_sc]['pagesize']
+    pars['page_size'] = config[conf_sc]['page_size']
     pars['fits_templates'] = config[conf_sc]['fits_templates'].format(**pars)
     # pol and beam specific
     pars['ntabs'] = config[conf_mode]['ntabs']
@@ -256,17 +256,17 @@ def start_survey(args):
         log("Specific start time not yet supported")
         exit()  
 
-    #Time(pars['utcstart'], format='iso', scale='utc')
+    #Time(pars['utc_start'], format='iso', scale='utc')
     # round to multiple of 1.024 s since epoch
     unixstart = round(starttime.unix / 1.024) * 1.024
     starttime = Time(unixstart, format='unix')
     # delta=0 means slightly less accurate (~10arcsec), but no need for internet
     starttime.delta_ut1_utc = 0
 
-    pars['utcstart'] = starttime.datetime.strftime('%Y-%m-%d-%H:%M:%S')
+    pars['utc_start'] = starttime.datetime.strftime('%Y-%m-%d-%H:%M:%S')
     pars['date'] = starttime.datetime.strftime("%Y%m%d")
-    pars['datetimesource'] = "{}.{}".format(pars['utcstart'], pars['source'])
-    pars['mjdstart'] = starttime.mjd
+    pars['datetimesource'] = "{}.{}".format(pars['utc_start'], pars['source'])
+    pars['mjd_start'] = starttime.mjd
     pars['startpacket'] = "{:.0f}".format(starttime.unix * pars['time_unit'])
     # output directories
     pars['master_dir'] = config[conf_sc]['master_dir'].format(**pars)
@@ -320,7 +320,7 @@ def start_survey(args):
     #create psrdada header and config file for each beam
     # config file
     cfg = {}
-    cfg['buffersize'] = pars['ntabs'] * pars['nchan'] * pars['pagesize']
+    cfg['buffersize'] = pars['ntabs'] * pars['nchan'] * pars['page_size']
     cfg['nbuffer'] = pars['nbuffer']
     cfg['nreader'] = pars['nreader']
     cfg['obs_mode'] = pars['obs_mode']
@@ -342,7 +342,7 @@ def start_survey(args):
     cfg['max_freq'] = pars['min_freq'] + pars['bw'] - pars['chan_width']
     cfg['usemac'] = pars['usemac']
     cfg['affinity'] = pars['affinity']
-    cfg['pagesize'] = pars['pagesize']
+    cfg['page_size'] = pars['page_size']
     cfg['hdr_size'] = pars['hdr_size']
 
     # load PSRDADA header template
@@ -398,8 +398,9 @@ def start_survey(args):
         temppars['lst_start'] = lststart
         temppars['az_start'] = az
         temppars['za_start'] = za
-        temppars['resolution'] = pars['pagesize'] * pars['nchan']
-        temppars['bps'] = int(pars['pagesize'] * pars['nchan'] / 1.024)
+        temppars['resolution'] = pars['page_size'] * pars['nchan']
+        temppars['file_size'] = pars['page_size'] * 10  #10 pages per file
+        temppars['bps'] = int(pars['page_size'] * pars['nchan'] / 1.024)
         temppars['beam'] = beam
         temppars['parset'] = parset
         temppars['scanlen'] = pars['tobs']
@@ -418,7 +419,7 @@ def start_survey(args):
 
     # save obs info to disk
     info = {}
-    for key in ['utcstart', 'source', 'tobs']:
+    for key in ['utc_start', 'source', 'tobs']:
         info[key] = pars[key]
     # get MW DMs
     # YMW16

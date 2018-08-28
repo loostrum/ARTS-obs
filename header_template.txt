@@ -6,8 +6,8 @@ RA           {ra}
 RA_HMS       {ra_hms}
 DEC          {dec}
 DEC_HMS      {dec_hms}
-UTC_START    {utcstart}
-MJD_START    {mjdstart}
+UTC_START    {utc_start}
+MJD_START    {mjd_start}
 AZ_START     {az_start}
 ZA_START     {za_start}
 LST_START    {lst_start}
@@ -25,10 +25,11 @@ NBIT         {nbit}
 NDIM         2
 NPOL         2
 IN_USE       1
-PADDED_SIZE {pagesize}
-SAMPLES_PER_BATCH {pagesize}
+PADDED_SIZE {page_size}
+SAMPLES_PER_BATCH {page_size}
 SCIENCE_CASE {science_case}
 SCIENCE_MODE {science_mode}
 RESOLUTION   {resolution}
 BYTES_PER_SECOND {bps}
+FILE_SIZE    {file_size}
 PARSET       {parset}
