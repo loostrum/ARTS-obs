@@ -15,8 +15,8 @@ def get_scaling(dest_value):
     bandpass = f.bandpass() / f.header.nsamples
     maxsample = np.amax(bandpass[np.nonzero(bandpass)])
     avgsample = np.average(bandpass[np.nonzero(bandpass)])
-    print "Maximum sample value: {:.2f}".format(avgsample)
-    print "Average sample value: {:.2f}".format(maxsample)
+    print "Maximum sample value: {:.2f}".format(maxsample)
+    print "Average sample value: {:.2f}".format(avgsample)
     scale = float(dest_value) / maxsample
 
     return scale
