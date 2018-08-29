@@ -117,7 +117,7 @@ if __name__ == '__main__':
     <p>
     <table style="width:20%">
     <tr>
-        <th style="text-align:left">UTC start</th><td colspan="4">{utcstart}</td>
+        <th style="text-align:left">UTC start</th><td colspan="4">{utc_start}</td>
     </tr><tr>
         <th style="text-align:left">Source</th><td colspan="4">{source}</td>
     </tr><tr>
