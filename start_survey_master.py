@@ -497,7 +497,7 @@ if __name__ == '__main__':
     parser.add_argument("--amber_mode", type=str, help="AMBER dedispersion mode, can be bruteforce or suband " \
                             "(Default: subband)", default="subband")
     parser.add_argument("--snrmin", type=float, help="AMBER minimum S/N " \
-                            "(Default: 10)", default=10)
+                            "(Default: 0)", default=8)
     parser.add_argument("--proctrigger", help="Process and email triggers. " \
                             "(Default: False)", action="store_true")
     # MAC
