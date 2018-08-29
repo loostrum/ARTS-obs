@@ -35,18 +35,17 @@ CB=$6
 export CUDA_VISIBLE_DEVICES=$ML_GPUs
 
 # create master trigger files
-#cat ${prefix}_step*trigger > ${prefix}.trigger
+cat ${prefix}_step*trigger > ${prefix}.trigger
 # get number of raw candidates
 ncand_raw=$(grep -v \# ${prefix}.trigger | wc -l)
 
 # make sure we start clean
-mkdir -p $outputdir/plots
-mkdir -p $outputdir/data
 rm -f $outputdir/data/*
 rm -f $outputdir/plots/*pdf
 cd $outputdir
 # process the triggers without making plots
-python $triggerscript --mk_plot --dm_min $dmmin --dm_max $dmmax --sig_thresh $snrmin --ndm $ndm --save_data $fmt --nfreq_plot $nfreq_plot --ntime_plot $ntime_plot --cmap $cmap --outdir=$outputdir $filfile ${prefix}.trigger
+python $triggerscript --beamno $CB --mk_plot --dm_min $dmmin --dm_max $dmmax --sig_thresh $snrmin --ndm $ndm --save_data $fmt --nfreq_plot $nfreq_plot --ntime_plot $ntime_plot --cmap $cmap --outdir=$outputdir $filfile ${prefix}.trigger
+
 # get number of triggers after grouping
 if [ ! -f grouped_pulses.singlepulse ]; then
     ncand_grouped=0
@@ -55,13 +54,13 @@ else
     # run the classifier
     source $venv_dir/bin/activate
     #python $classifier combined.hdf5
-    python $classifier --fn_model_dm $modeldir/heimdall_dm_time.hdf5 --fn_model_time $modeldir/heimdall_b0329_mix_147411d_time.hdf5 --pthresh $pthresh --save_ranked --plot_ranked --fnout=ranked_CB$CB $outputdir/data_full.hdf5 $modeldir/heimdall_b0329_mix_14741freq_time.hdf5
+    python $classifier --fn_model_dm $modeldir/heimdall_dm_time.hdf5 --fn_model_time $modeldir/heimdall_b0329_mix_147411d_time.hdf5 --pthresh $pthresh --save_ranked --plot_ranked --fnout=ranked_CB$CB $outputdir/data/data_full.hdf5 $modeldir/heimdall_b0329_mix_14741freq_time.hdf5
     deactivate
     exit
-    # merge and copy to master dir
-    ncands=$(ls $outputdir/plots | wc -l)
-    merged=candidates.pdf
-    if [ $ncands -ne 0 ]; then
+    # merge classifier summary figs
+    nMLfigs=$(ls $outputdir/*pdf | wc -l)
+    merged=candidates_summary.pdf
+    if [ $nMLfigs -ne 0 ]; then
         # create merged pdf
         gs -dBATCH -dNOPAUSE -q -sDEVICE=pdfwrite -sOutputFile=$merged plots/*pdf
     fi
