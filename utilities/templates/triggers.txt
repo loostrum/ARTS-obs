@@ -2,11 +2,11 @@
 modeldir=$HOME/keras_models
 ML_GPUs=0
 
-rm *pdf
+rm -f *pdf *hdf5
 rm -f plots/*pdf
 rm data/*hdf5
 # Run trigger clustering
-python $HOME/software/arts-analysis/triggers.py --beamno {CB:02d} --mk_plot --dm_min {dmmin} --dm_max {dmmax} --sig_thresh {snrmin} --ndm 32 --save_data concat --nfreq_plot 32 --ntime_plot 64 --cmap viridis --outdir={heimdall_dir} {filfile} CB{CB:02d}.cand 2>&1
+python $HOME/software/arts-analysis/triggers.py --beamno {CB:02d} --mk_plot --dm_min {dmmin} --dm_max {dmmax} --sig_thresh {snrmin} --ndm 64 --save_data concat --nfreq_plot 32 --ntime_plot 64 --cmap viridis --outdir={heimdall_dir} {filfile} CB{CB:02d}.cand 2>&1
 # Run classifier in python 3
 source $HOME/python/bin/activate
 export CUDA_VISIBLE_DEVICES=$ML_GPUs
