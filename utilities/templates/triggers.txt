@@ -1,17 +1,21 @@
 (cd {heimdall_dir}
-mkdir -p plots data
+modeldir=$HOME/keras_models
+pthresh=0.0
+ML_GPUs=0
+
+rm *pdf
+rm -f plots/*pdf
+rm data/*hdf5
 # Run trigger clustering
-python $HOME/software/arts-analysis/triggers.py --dm_min {dmmin} --dm_max {dmmax} --sig_thresh {snrmin} --ndm 32 --save_data concat --nfreq_plot 32 --ntime_plot 250 --cmap viridis {filfile} CB{CB:02d}.cand 2>&1
+python $HOME/software/arts-analysis/triggers.py --beamno {CB:02d} --mk_plot --dm_min {dmmin} --dm_max {dmmax} --sig_thresh {snrmin} --ndm 32 --save_data concat --nfreq_plot 32 --ntime_plot 64 --cmap viridis --outdir={heimdall_dir} {filfile} CB{CB:02d}.cand 2>&1
 # Run classifier in python 3
 source $HOME/python/bin/activate
-python $HOME/software/single_pulse_ml/single_pulse_ml/classify.py --pthresh 0.0 --save_ranked {heimdall_dir}/data/data_full.hdf5 $HOME/keras_models/heimdall_b0329_mix_14741freq_time.hdf5 2>&1
+export CUDA_VISIBLE_DEVICES=$ML_GPUs
+python $HOME/software/single_pulse_ml/single_pulse_ml/classify.py --fn_model_dm $modeldir/heimdall_dm_time.hdf5 --fn_model_time $modeldir/heimdall_b0329_mix_147411d_time.hdf5 --pthresh $pthresh --save_ranked --plot_ranked --fnout=ranked_CB{CB:02d} {heimdall_dir}/data/data_full.hdf5 $modeldir/heimdall_b0329_mix_14741freq_time.hdf5 2>&1
 deactivate
-# Run plotter
-cd {heimdall_dir}; python $HOME/software/arts-analysis/plotter.py data/data_fullfreq_time_candidates.hdf5 {CB:02d} {flo} {fhi} 2>&1
 # Create one pdf per CB
-if [ -n "$(ls plots)" ]; then
-    gs -dBATCH -dNOPAUSE -q -sDEVICE=pdfwrite -dPDFSETTINGS=/prepress -sOutputFile={result_dir}/CB{CB:02d}.pdf {heimdall_dir}/plots/*pdf 2>&1
+if [ -n "$(ls *pdf 2>/dev/null)" ]; then
+    gs -dBATCH -dNOPAUSE -q -sDEVICE=pdfwrite -dPDFSETTINGS=/prepress -sOutputFile={result_dir}/CB{CB:02d}.pdf {heimdall_dir}/*pdf 2>&1
 else
     touch {result_dir}/CB{CB:02d}.nocands.pdf
 fi) > {result_dir}/CB{CB:02d}_trigger.log
-
