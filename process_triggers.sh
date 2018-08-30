@@ -56,13 +56,12 @@ else
     #python $classifier combined.hdf5
     python $classifier --fn_model_dm $modeldir/heimdall_dm_time.hdf5 --fn_model_time $modeldir/heimdall_b0329_mix_147411d_time.hdf5 --pthresh $pthresh --save_ranked --plot_ranked --fnout=ranked_CB$CB $outputdir/data/data_full.hdf5 $modeldir/heimdall_b0329_mix_14741freq_time.hdf5
     deactivate
-    exit
     # merge classifier summary figs
     nMLfigs=$(ls $outputdir/*pdf | wc -l)
     merged=candidates_summary.pdf
     if [ $nMLfigs -ne 0 ]; then
         # create merged pdf
-        gs -dBATCH -dNOPAUSE -q -sDEVICE=pdfwrite -sOutputFile=$merged plots/*pdf
+        gs -dBATCH -dNOPAUSE -q -sDEVICE=pdfwrite -sOutputFile=$merged $outputdir/*pdf
     fi
 fi
 # copy results to masternode
