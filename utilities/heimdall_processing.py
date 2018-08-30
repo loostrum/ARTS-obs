@@ -64,6 +64,9 @@ class Processing(object):
 
         # get used beams from dadafilterbank logs
         CBs = sorted([x.split('.')[-1] for x in dadafilterbank_logs])
+        if "13" in CBs:
+            print "WARNING: removing CB13"
+            CBs.remove("13")
         print "Found {} CBs:".format(len(CBs))
         for CB in CBs:
             sys.stdout.write(CB+' ')

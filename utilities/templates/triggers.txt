@@ -2,11 +2,6 @@
 modeldir=$HOME/keras_models
 ML_GPUs=0
 
-if [ "{CB:02d}" == "13" ]; then
-    arg="--ntrig 1000"
-fi
-
-
 rm -f *pdf *hdf5
 rm -f plots/*pdf
 rm data/*hdf5
