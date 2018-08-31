@@ -21,18 +21,18 @@ if __name__ == '__main__':
     try:
         fname = sys.argv[1]
     except IndexError:
-        sys.stderr.write('Provide filename as first argument\n')
+        sys.stderr.write('{}: Provide filename as first argument\n'.format(sys.argv[0]))
         exit()
 
     if not os.path.isfile(fname):
-        sys.stderr.write('File not found: {}\n'.format(fname))
+        sys.stderr.write('{}: File not found: {}\n'.format(sys.argv[0], fname))
         exit()
 
     # typical filename: ranked_CB21_freq_time.hdf5
     with h5py.File(fname) as f:
         keys = f.keys()
         if not key in keys:
-            sys.stderr('Key not found: {}, setting nitem to 0\n'.format(key))
+            sys.stderr('{}: Key not found: {}, setting nitem to 0\n'.format(sys.argv[0], key))
             nitem = 0
         else:
             nitem = f[key].shape[0]
