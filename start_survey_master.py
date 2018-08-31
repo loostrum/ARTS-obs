@@ -88,10 +88,29 @@ def pointing_to_CB_pos(CB, coords, pol='X'):
     nrows = 11
     ncols = 11
     # gel offsets
-    offset_to_RADEC = 0.375  # degrees
+    # Found in calc_beam_dirs.py in Apertif software:
+    # From Marc Verheijen:
+    #  Vivaldi elements are separated by 10cm in the PAF.
+    #  The horizontal and vertical seperation of the Vivaldi's is thus
+    #  10/sqrt(2)=7.071 cm, which corresponds to a geometric angle of
+    #  atan(7.071/875) = 0.4630 degrees for a F/0.35 dish.
+    #
+    #  Because of the fast focal ratio, the focal plane is strongly curved.
+    #  This leads to a Beam Deviation Factor of 0.7845. Therefore, the
+    #  effective horizontal and vertical separation of the elements is
+    #  actually dA = 0.7845*0.4630 = 0.3632 deg on the sky.
+    #  Note that a SKA White Paper (SD-FPA_system_tradeoffs_V2.doc)
+    #  describes how to calculate the BFD.
+    #
+    #  The planar PAF can be considered as a plane that is tangential to
+    #  the celestial sphere, so the sky maps with a TAN projection onto the
+    #  PAF.
+    #
+    ofset_to_RADEC = 0.7845*0.4630  # degrees
 
     ### 32-beam IAB layout
-    shift = 0.075  # degrees, extra shift needed for some rows/cols to match Apertif layout
+    #shift = 0.075  # degrees, extra shift needed for some rows/cols to match Apertif layout
+    shift = 0.0  # degrees, extra shift needed for some rows/cols to match Apertif layout
     # gel for each CB, -1 means gel is not used
     # because gels use fortran ordering, this looks like the transpose of the beam layout on-sky
     gel_to_CB = [ -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1, \
