@@ -120,12 +120,9 @@ class Processing(object):
             self.config['ncb'] = len(CBs)
             self.config['ntrig_raw'] = subprocess.check_output('cd {result_dir}; wc -l */CB??.cand | tail -n 1 | awk \'{{print $1}}\''.format(**self.config), shell=True)
             self.config['ntrig_clustered'] = subprocess.check_output('cd {result_dir}; wc -l */grouped_pulses.singlepulse | tail -n1 | awk \'{{print $1}}\''.format(**self.config), shell=True)
-            #self.config['ntrig_ml'] = subprocess.check_output('cd {result_dir}; ls */plots/*pdf | wc -l'.format(**self.config), shell=True)
-            #command = ("curl -X POST --data-urlencode 'payload={{\"text\":\"Observation "
-            #           " now available: {datetimesource}.tar.gz\nNumber of CBs: {ncb}\nRaw triggers: {ntrig_raw}\nAfter clustering (and S/N > {snrmin}): {ntrig_clustered}\nAfter classifier: {ntrig_ml}\"}}' "
-            #           " https://hooks.slack.com/services/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").format(**self.config)
+            self.config['ntrig_ml'] = subprocess.check_output('cd {result_dir}; cat */ncandML.txt | awk \'{{sum+=$1}} END {{print sum}}\''.format(**self.config), shell=True)
             command = ("curl -X POST --data-urlencode 'payload={{\"text\":\"Observation "
-                       " now available: {datetimesource}.tar.gz\nNumber of CBs: {ncb}\nRaw triggers: {ntrig_raw}\nAfter clustering (and S/N > {snrmin}): {ntrig_clustered}\nClassifier threshold: {pthresh}\"}}' "
+                       " now available: {datetimesource}.tar.gz\nNumber of CBs: {ncb}\nRaw triggers: {ntrig_raw}\nAfter clustering (and S/N > {snrmin}): {ntrig_clustered}\nAfter classifier: {ntrig_ml}\nClassifier threshold: {pthresh}\"}}' "
                        " https://hooks.slack.com/services/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").format(**self.config)
             sys.stdout.write(command+'\n')
             os.system(command)
@@ -166,10 +163,6 @@ class Processing(object):
             # Directory already exists
             pass
 
-        #chan_width = float(self.config['bw']) / self.config['nchan']
-        #localconfig['flo'] = self.config['freq'] - .5*self.config['bw'] + .5*chan_width
-        #localconfig['fhi'] = self.config['freq'] + .5*self.config['bw'] - .5*chan_width
-
         # load commands to run
         with open(os.path.join(os.path.dirname(os.path.realpath(__file__)), "templates/heimdall.txt"), 'r') as f:
             heimdall_command = f.read().format(CB=CB, **localconfig)
@@ -201,7 +194,7 @@ if __name__ == '__main__':
     parser.add_argument("--dmmin", type=float, help="Minimum DM, (default: 10)", default=10)
     parser.add_argument("--dmmax", type=float, help="Maximum DM, (default: 5000)", default=5000)
     parser.add_argument("--snrmin", type=int, help="Minimum S/N, (default: 10)", default=10)
-    parser.add_argument("--pthresh", type=int, help="Classifier probability threshold, (default: 0)", default=0.0)
+    parser.add_argument("--pthresh", type=int, help="Classifier probability threshold, (default: 0.01)", default=0.01)
     # what to run
     parser.add_argument("--app", type=str, help="What to run: heimdall, trigger, all (default: all)", default='all')
     # silent mode disable slack message
