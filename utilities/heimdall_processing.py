@@ -102,18 +102,19 @@ class Processing(object):
 
         sys.stdout.write('Processing done, took {:.2f} hours\n'.format(t_running/3600.))
         sys.stdout.flush()
-        command = "cd {result_dir}; tar cvfz ./{datetimesource}.tar.gz CB*.pdf".format(**self.config)
-        sys.stdout.write(command+'\n')
-        os.system(command)
+        if not args.app == 'heimdall': 
+            command = "cd {result_dir}; tar cvfz ./{datetimesource}.tar.gz CB*.pdf".format(**self.config)
+            sys.stdout.write(command+'\n')
+            os.system(command)
 
-        # copy to arts account
-        current_user = getpass.getuser()
-        if not current_user == 'arts':
-            command = "cd {result_dir}; scp ./{datetimesource}.tar.gz arts@localhost:heimdall_results/triggers/".format(**self.config)
-        else:
-            command = "cd {result_dir}; cp ./{datetimesource}.tar.gz ~/heimdall_results/triggers/".format(**self.config)
-        sys.stdout.write(command+'\n')
-        os.system(command)
+            # copy to arts account
+            current_user = getpass.getuser()
+            if not current_user == 'arts':
+                command = "cd {result_dir}; scp ./{datetimesource}.tar.gz arts@localhost:heimdall_results/triggers/".format(**self.config)
+            else:
+                command = "cd {result_dir}; cp ./{datetimesource}.tar.gz ~/heimdall_results/triggers/".format(**self.config)
+            sys.stdout.write(command+'\n')
+            os.system(command)
 
         if not args.silent:
             # Done - let the users know through slack
