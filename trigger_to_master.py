@@ -28,18 +28,19 @@ if __name__ == '__main__':
         with h5py.File(fname, 'r') as f:
             data_frb_candidate = f['data_frb_candidate'][:]
             probability = f['probability'][:]
-            params = f['params'][:]  # snr, DM, boxcar width, arrival time
+            params = f['params'][:]  # snr, DM, downsampling, arrival time, dt
+            print params[0]
     except IOError:
         success = False
         ncand_classifier = 0
     # else only gets executed if the try succeeds
     else:
-        # convert widths to ms instead of s
-        params[:, 2] *= 1000
+        # convert widths to ms 
+        params[:, 2] *= params[:, 4] * 1000
         # number of canddiates
         ncand_classifier = len(params)
-        # make one big matrix with candidates
-        data = np.column_stack([params, probability])
+        # make one big matrix with candidates, removing the dt column
+        data = np.column_stack([params[:, :4], probability])
         # sort by probability
         data = data[data[:, -1].argsort()[::-1]]
         # save to file
