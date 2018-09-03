@@ -65,4 +65,4 @@ else
     fi
 fi
 # copy results to masternode
-python $trigger_to_master data/data_fullfreq_time_candidates.hdf5 $ncand_raw $ncand_grouped $master_dir
+python $trigger_to_master ranked_CB${CB}_freq_time.hdf5 $ncand_raw $ncand_grouped $master_dir
