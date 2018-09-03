@@ -106,7 +106,7 @@ def pointing_to_CB_pos(CB, coords, pol='X'):
     #  the celestial sphere, so the sky maps with a TAN projection onto the
     #  PAF.
     #
-    ofset_to_RADEC = 0.7845*0.4630  # degrees
+    offset_to_RADEC = 0.7845*0.4630  # degrees
 
     ### 32-beam IAB layout
     #shift = 0.075  # degrees, extra shift needed for some rows/cols to match Apertif layout
@@ -516,7 +516,7 @@ if __name__ == '__main__':
     parser.add_argument("--amber_mode", type=str, help="AMBER dedispersion mode, can be bruteforce or suband " \
                             "(Default: subband)", default="subband")
     parser.add_argument("--snrmin", type=float, help="AMBER minimum S/N " \
-                            "(Default: 0)", default=8)
+                            "(Default: 8)", default=8)
     parser.add_argument("--proctrigger", help="Process and email triggers. " \
                             "(Default: False)", action="store_true")
     # MAC
