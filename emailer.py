@@ -184,7 +184,7 @@ if __name__ == '__main__':
     for fname in attachments or ():
         with open(fname, 'rb') as f:
             part = MIMEApplication(f.read(), 'pdf', Name=os.path.basename(fname))
-        part['Content-Disposition'] = 'attachment; filename="{}"'.format(os.path.basename(fname).replace('_candidates', ''))
+        part['Content-Disposition'] = 'attachment; filename="{}"'.format(os.path.basename(fname).replace('_candidates_summary', ''))
         msg.attach(part)
 
     log("Sending email to: {}".format(", ".join(to)))
