@@ -45,7 +45,7 @@ if __name__ == '__main__':
         # save to file
         header = "SNR DM Width T0 p"
         fname = "CB{:02d}_triggers.txt".format(beam)
-        np.savetxt(fname, data, header=header, fmt="%.2f %.2f %.4f %.4f %.2f")
+        np.savetxt(fname, data, header=header, fmt="%.2f %.2f %.4f %.3f %.2f")
         # copy to master node
         cmd = "cp {fname} {master_dir}/ &".format(fname=fname, master_dir=master_dir, beam=beam)
         os.system(cmd)
