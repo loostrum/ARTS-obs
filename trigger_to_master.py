@@ -29,7 +29,6 @@ if __name__ == '__main__':
             data_frb_candidate = f['data_frb_candidate'][:]
             probability = f['probability'][:]
             params = f['params'][:]  # snr, DM, downsampling, arrival time, dt
-            print params[0]
     except IOError:
         success = False
         ncand_classifier = 0
