@@ -8,7 +8,7 @@ rm -f {heimdall_dir}/*pdf {heimdall_dir}/*hdf5 {heimdall_dir}/plots/*pdf {heimda
 # Check filterbank size (at least 10s expected)
 min_size=$(({nchan}*{page_size}*10*1000/1024))
 size=$(stat --printf="%s" {filfile})
-if [ $size -lt $min_size]; then
+if [ $size -lt $min_size ]; then
     echo "WARNING: size of {filfile} is $size, skipping CB{CB:02d}"
     touch {result_dir}/CB{CB:02d}.beam_missing.pdf
     exit
@@ -22,7 +22,7 @@ if [ ! -f {heimdall_dir}/grouped_pulses.singlepulse ]; then
     touch {result_dir}/CB{CB:02d}.grouping_failed.pdf
     exit
 fi
-ncand_grouped=$(wc -l {heimdall_dir}/grouped_pulses.singlepulse | awk '{print $1}')
+ncand_grouped=$(wc -l {heimdall_dir}/grouped_pulses.singlepulse | awk '{{print $1}}')
 if [ "$ncand_grouped" == "0" ]; then
     echo "WARNING: no candidates after grouping"
     touch {result_dir}/CB{CB:02d}.no_cands_after_grouping.pdf
@@ -44,10 +44,10 @@ fi
 ncandML=$($HOME/ARTS-obs/utilities/get_nitem_hdf5.py ranked_CB{CB:02d}_freq_time.hdf5)
 echo $ncandML > ncandML.txt
 # Create one pdf per CB
-if "$ncandML" == "0"; then
+if [ "$ncandML" == "0" ]; then
     echo "WARNING: no candidates after classifier"
     touch {result_dir}/CB{CB:02d}.nocands.pdf
     exit
 fi
 gs -dBATCH -dNOPAUSE -q -sDEVICE=pdfwrite -dPDFSETTINGS=/prepress -sOutputFile={result_dir}/CB{CB:02d}.pdf {heimdall_dir}/*pdf 2>&1
-fi) > {result_dir}/CB{CB:02d}_trigger.log
+) > {result_dir}/CB{CB:02d}_trigger.log
