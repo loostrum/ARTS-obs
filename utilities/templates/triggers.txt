@@ -6,7 +6,7 @@ ML_GPUs=0
 rm -f {heimdall_dir}/*pdf {heimdall_dir}/*hdf5 {heimdall_dir}/plots/*pdf {heimdall_dir}/data/*hdf5
 
 # Check filterbank exists
-if [ ! -f {filfile}; then
+if [ ! -f {filfile} ]; then
     echo "WARNING: filterbank file {filfile} does not exist, skipping CB{CB:02d}"
     touch {result_dir}/CB{CB:02d}.beam_missing.pdf
     exit
