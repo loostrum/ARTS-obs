@@ -72,7 +72,7 @@ if __name__ == '__main__':
         if summary['success']:
             trigger_file = os.path.join(master_dir, "CB{:02d}_triggers.txt".format(beam))
             triggers[beam] = np.loadtxt(trigger_file, dtype=str, ndmin=2)
-            attachments.append(os.path.join(master_dir, "CB{:02d}_candidates.pdf".format(beam)))
+            attachments.append(os.path.join(master_dir, "CB{:02d}_candidates_summary.pdf".format(beam)))
 
     # convert triggers to one big numpy array we can sort
     alltriggers = []
