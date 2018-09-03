@@ -5,6 +5,13 @@ ML_GPUs=0
 # remove old data/plots
 rm -f {heimdall_dir}/*pdf {heimdall_dir}/*hdf5 {heimdall_dir}/plots/*pdf {heimdall_dir}/data/*hdf5
 
+# Check filterbank exists
+if [ ! -f {filfile}; then
+    echo "WARNING: filterbank file {filfile} does not exist, skipping CB{CB:02d}"
+    touch {result_dir}/CB{CB:02d}.beam_missing.pdf
+    exit
+fi
+
 # Check filterbank size (at least 10s expected)
 min_size=$(({nchan}*{page_size}*10*1000/1024))
 size=$(stat --printf="%s" {filfile})
