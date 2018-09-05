@@ -21,6 +21,13 @@ if [ $size -lt $min_size ]; then
     exit
 fi
 
+# Check heimdall cand file
+if[ ! -f CB{CB:02d}.cand]; then
+    echo "WARNING: heimdall CB{CB:02d}.cand file missing"
+    touch {result_dir}/CB{CB:02d}.noheimdall_candfile.pdf
+    exit
+fi
+
 # Run trigger clustering
 python $HOME/software/arts-analysis/triggers.py $arg --beamno {CB:02d} --mk_plot --dm_min {dmmin} --dm_max {dmmax} --sig_thresh {snrmin} --ndm 64 --save_data concat --nfreq_plot 32 --ntime_plot 64 --cmap viridis --outdir={heimdall_dir} {filfile} CB{CB:02d}.cand 2>&1
 # check candidates
