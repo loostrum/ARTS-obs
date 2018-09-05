@@ -11,7 +11,8 @@ fi
 tels2="${tels//,/ }"
 
 for tel in $tels2; do 
-    ssh lcu-rt$tel "cd LO1; python util_set_lo1freq.py $freq 2>/dev/null"
+    ssh lcu-rt$tel "cd LO1; python util_set_lo1freq.py $freq 2>/dev/null" &
 done
+wait
 
 exit
