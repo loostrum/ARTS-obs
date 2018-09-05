@@ -59,8 +59,8 @@ class Processing(object):
         try:
             os.makedirs(self.config['result_dir'])
         except OSError:
-            # Directory already exists
-            pass
+            # Directory already exists, try to remove any old output pdfs
+            os.system("rm -f {result_dir}/*pdf".format(**self.config))
 
         # get used beams from dadafilterbank logs
         CBs = sorted([x.split('.')[-1] for x in dadafilterbank_logs])
