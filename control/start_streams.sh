@@ -2,12 +2,12 @@
 # Adapted for any science case + bands + telescopes by Leon Oostrum
 
 if [ "$#" -ne 2 ] && [ "$#" -ne 3 ] && [ "$#" -ne 4 ]; then
-    echo "Usage: $0 [dev] bands, telescopes, opts (optional), pol (optional)"
+    echo "Usage: $0 [dev] bands, telescopes, pol (optional), opts (optional)"
     echo "E.g. for starting 14 bands on RT4 and RT7:"
     echo "$0 2:15 4,7"
     echo "Or"
-    echo "$0 2:15 4,7 centraldipole 0"
-    echo "Note: bands are specified as a range, telescopes should be a comma-separated list. pol 0 = X, pol 1 = Y. Anything else for dual pol. Opts can be 'centraldipole' to use only central dipole. Also specify opts when using pol"
+    echo "$0 2:15 4,7 0 centraldipole"
+    echo "Note: bands are specified as a range, telescopes should be a comma-separated list. pol 0 = X, pol 1 = Y. Anything else for dual pol. Opts can be 'centraldipole' to use only central dipole. Also specify pol when using opts"
     exit
 fi
 
@@ -20,11 +20,11 @@ fi
 
 unbs="$1"
 tels="$2"
-opts="$3"
-pol="$4"
+pol="$3"
+opts="$4"
 
 if [ x"$opts" == x ]; then
-    opts="--opt none"
+    opts=""
 else
     opts="--opt $opts"
 fi
