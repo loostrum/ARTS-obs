@@ -22,7 +22,7 @@ if [ $size -lt $min_size ]; then
 fi
 
 # Check heimdall cand file
-if[ ! -f CB{CB:02d}.cand]; then
+if [ ! -f CB{CB:02d}.cand ]; then
     echo "WARNING: heimdall CB{CB:02d}.cand file missing"
     touch {result_dir}/CB{CB:02d}.noheimdall_candfile.pdf
     exit
