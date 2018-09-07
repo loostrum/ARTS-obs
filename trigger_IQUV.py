@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 import sys
+import socket
 from time import sleep
 
 import numpy as np
@@ -20,7 +21,11 @@ class Trigger(object):
         self.interval = 2  # interval between trigger checking
         self.snrmin = 10
         self.maxage = 10  # seconds
-        self.dt = 5.0  # how many secs to save
+        self.dmmin = 50
+        self.dmmax = 65
+        self.dt = 6.0  # how many secs to save
+        self.host = 'localhost' # hostname for triggers
+        self.port = 30000  # port for triggers
 
         self.ntrig = 0
 
@@ -38,14 +43,20 @@ class Trigger(object):
     def check_triggers(self):
         print "Checking triggers"
         # load new triggers
-        alltrigs = np.loadtxt(self.fname, dtype=float, ndmin=2)
+        try:
+            alltrigs = np.loadtxt(self.fname, dtype=float, ndmin=2)
+        except IOError:
+            print "Trigger file does not exist yet"
+            return
         if len(alltrigs) == 0:
+            print alltrigs
             print "No triggers yet"
             return
         if len(alltrigs) == self.ntrig:
             print "No new triggers"
             return
 
+        print "Found new triggers"
         # skip already processed triggers
         triggers = list(alltrigs[self.ntrig:])
         # set number of processed triggesr
@@ -56,12 +67,18 @@ class Trigger(object):
         trigger = triggers[0]
         # check S/N and age
         snr = trigger[-1]
-        #age = (Time.now() - TimeDelta(trigger[5], format='sec') - self.tstart ).sec
-        age = (Time(58367.56700231481481481481, format='mjd') - TimeDelta(trigger[5], format='sec') - self.tstart ).sec + 5
-        if snr >= self.snrmin and age <= self.maxage:
-            self.do_trigger(trigger)
+        dm = trigger[6]
+        age = (Time.now() - TimeDelta(trigger[5], format='sec') - self.tstart ).sec
+        print age, self.maxage
+        if snr >= self.snrmin and age <= self.maxage and dm >= self.dmmin and dm <= self.dmmax:
+            print "Trigger ok, creating command"
+            command = self.create_trigger(trigger)
+            print "Sending trigger"
+            self.send_trigger(command)
+        else:
+            print "Trigger not ok"
 
-    def do_trigger(self, trig):
+    def create_trigger(self, trig):
         beam, batch, sample, integration_step, compacted_integration_steps, time, DM, compacted_DMs, SNR = trig
         width = integration_step * 4.096e-5
 
@@ -69,30 +86,32 @@ class Trigger(object):
         utc_start = self.tstart.datetime.strftime('%Y-%m-%d-%H:%M:%S')
 
         t_start = t_event - TimeDelta(.5*self.dt, format='sec')
+        t_start_frac = 0 #t_start.unix - int(t_start.unix)
         t_end = t_event + TimeDelta(.5*self.dt, format='sec')
+        t_end_frac = 0 #t_end.unix - int(t_end.unix)
         t_start = t_start.datetime.strftime('%Y-%m-%d-%H:%M:%S')
         t_end = t_end.datetime.strftime('%Y-%m-%d-%H:%M:%S')
         print "Trigger: t={0:.2f}    DM={1:.2f}    SNR={2:.2f}".format(time, DM, SNR)
 
         command="""N_EVENTS 1
-UTC_START {utc_start}
-{t_start} 0 {t_end} {DM} {SNR} {width} {beam}
-""".format(utc_start=utc_start, t_start=t_start, t_end=t_end, DM=DM, SNR=SNR, width=width, beam=int(beam))
+{utc_start}
+{t_start} {t_start_frac} {t_end} {t_end_frac}  {DM} {SNR} {width} {beam}
+""".format(utc_start=utc_start, t_start=t_start, t_start_frac=t_start_frac, t_end=t_end, t_end_frac=t_end_frac, DM=DM, SNR=SNR, width=width, beam=int(beam))
 
-        print command
         with open('trigger.txt', 'w') as f:
             f.writelines(command)
-        #os.system('cat trigger.txt | ncat localhost 30000')
 
-        # trigger format
-        # N_EVENTS 1
-        # UTC_START  {utc_start}
-        # // yymmddss:hh:mm:ss_start fraction yymmddss:hh:mm:ss_end DM S/N width beam
-        # {t_start} 0 {t_end} {DM} {SNR} {width} {beam}
+        return command
+
+    def send_trigger(self, trigger):
+        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        s.connect((self.host, self.port))
+        s.sendall(trigger.encode())
+        s.shutdown(socket.SHUT_WR)
+        s.close()
+
             
 
 if __name__ == '__main__':
-    # give unix time as arg
-    #t = Trigger(tstart=sys.argv[1], fname='/dev/null')
-    t = Trigger(tstart=Time(58367.56700231481481481481, format='mjd'), fname='output/amber_step2.trigger')
+    t = Trigger(tstart=Time(int(sys.argv[1]), format='unix'), fname=sys.argv[2])
     t.run()
