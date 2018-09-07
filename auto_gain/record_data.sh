@@ -38,8 +38,8 @@ utc_start=$(date -u +%Y-%m-%d-%H:%M:%S --date "@$tstart")
 
 # CB is hostname-1
 host=$(hostname | tail -c 3)
-hostnum=$(printf "%02d" $host)
-cb=$(($hostnum-1))
+hostnum=$(printf "%02d" $((10#$host)))
+cb=$((10#$hostnum-1))
 if [ $cb -lt 10 ]; then
     cb=0$cb
 fi
