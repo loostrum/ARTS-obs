@@ -44,7 +44,7 @@ if [ "$ncand_grouped" == "0" ]; then
 fi
 
 # Run classifier in python 3
-source $HOME/python/bin/activate
+source $HOME/python34/bin/activate
 export CUDA_VISIBLE_DEVICES=$ML_GPUs
 python $HOME/software/single_pulse_ml/single_pulse_ml/classify.py --fn_model_dm $modeldir/heimdall_dm_time.hdf5 --fn_model_time $modeldir/heimdall_b0329_mix_147411d_time.hdf5 --pthresh {pthresh} --save_ranked --plot_ranked --fnout=ranked_CB{CB:02d} {heimdall_dir}/data/data_full.hdf5 $modeldir/august18_heimdall_crab_simfreq_time.hdf5 2>&1
 deactivate

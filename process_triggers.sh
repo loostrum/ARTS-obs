@@ -11,7 +11,7 @@ classifier=$HOME/software/single_pulse_ml/single_pulse_ml/classify.py
 trigger_to_master=$SOURCE_DIR/trigger_to_master.py
 plotter=$HOME/software/arts-analysis/plotter.py
 # python venv location
-venv_dir=$HOME/python
+venv_dir=$HOME/python34
 
 cmap=viridis
 ntime_plot=64
