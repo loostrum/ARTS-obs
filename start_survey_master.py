@@ -88,10 +88,29 @@ def pointing_to_CB_pos(CB, coords, pol='X'):
     nrows = 11
     ncols = 11
     # gel offsets
-    offset_to_RADEC = 0.375  # degrees
+    # Found in calc_beam_dirs.py in Apertif software:
+    # From Marc Verheijen:
+    #  Vivaldi elements are separated by 10cm in the PAF.
+    #  The horizontal and vertical seperation of the Vivaldi's is thus
+    #  10/sqrt(2)=7.071 cm, which corresponds to a geometric angle of
+    #  atan(7.071/875) = 0.4630 degrees for a F/0.35 dish.
+    #
+    #  Because of the fast focal ratio, the focal plane is strongly curved.
+    #  This leads to a Beam Deviation Factor of 0.7845. Therefore, the
+    #  effective horizontal and vertical separation of the elements is
+    #  actually dA = 0.7845*0.4630 = 0.3632 deg on the sky.
+    #  Note that a SKA White Paper (SD-FPA_system_tradeoffs_V2.doc)
+    #  describes how to calculate the BFD.
+    #
+    #  The planar PAF can be considered as a plane that is tangential to
+    #  the celestial sphere, so the sky maps with a TAN projection onto the
+    #  PAF.
+    #
+    offset_to_RADEC = 0.7845*0.4630  # degrees
 
     ### 32-beam IAB layout
-    shift = 0.075  # degrees, extra shift needed for some rows/cols to match Apertif layout
+    #shift = 0.075  # degrees, extra shift needed for some rows/cols to match Apertif layout
+    shift = 0.0  # degrees, extra shift needed for some rows/cols to match Apertif layout
     # gel for each CB, -1 means gel is not used
     # because gels use fortran ordering, this looks like the transpose of the beam layout on-sky
     gel_to_CB = [ -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1, \
@@ -219,7 +238,7 @@ def start_survey(args):
     pars['valid_modes'] = config[conf_sc]['valid_modes']
     pars['network_port_start'] = config[conf_sc]['network_port_start']
     pars['tsamp'] = config[conf_sc]['tsamp']
-    pars['pagesize'] = config[conf_sc]['pagesize']
+    pars['page_size'] = config[conf_sc]['page_size']
     pars['fits_templates'] = config[conf_sc]['fits_templates'].format(**pars)
     # pol and beam specific
     pars['ntabs'] = config[conf_mode]['ntabs']
@@ -256,17 +275,17 @@ def start_survey(args):
         log("Specific start time not yet supported")
         exit()  
 
-    #Time(pars['utcstart'], format='iso', scale='utc')
+    #Time(pars['utc_start'], format='iso', scale='utc')
     # round to multiple of 1.024 s since epoch
     unixstart = round(starttime.unix / 1.024) * 1.024
     starttime = Time(unixstart, format='unix')
     # delta=0 means slightly less accurate (~10arcsec), but no need for internet
     starttime.delta_ut1_utc = 0
 
-    pars['utcstart'] = starttime.datetime.strftime('%Y-%m-%d-%H:%M:%S')
+    pars['utc_start'] = starttime.datetime.strftime('%Y-%m-%d-%H:%M:%S')
     pars['date'] = starttime.datetime.strftime("%Y%m%d")
-    pars['datetimesource'] = "{}.{}".format(pars['utcstart'], pars['source'])
-    pars['mjdstart'] = starttime.mjd
+    pars['datetimesource'] = "{}.{}".format(pars['utc_start'], pars['source'])
+    pars['mjd_start'] = starttime.mjd
     pars['startpacket'] = "{:.0f}".format(starttime.unix * pars['time_unit'])
     # output directories
     pars['master_dir'] = config[conf_sc]['master_dir'].format(**pars)
@@ -320,7 +339,7 @@ def start_survey(args):
     #create psrdada header and config file for each beam
     # config file
     cfg = {}
-    cfg['buffersize'] = pars['ntabs'] * pars['nchan'] * pars['pagesize']
+    cfg['buffersize'] = pars['ntabs'] * pars['nchan'] * pars['page_size']
     cfg['nbuffer'] = pars['nbuffer']
     cfg['nreader'] = pars['nreader']
     cfg['obs_mode'] = pars['obs_mode']
@@ -342,7 +361,7 @@ def start_survey(args):
     cfg['max_freq'] = pars['min_freq'] + pars['bw'] - pars['chan_width']
     cfg['usemac'] = pars['usemac']
     cfg['affinity'] = pars['affinity']
-    cfg['pagesize'] = pars['pagesize']
+    cfg['page_size'] = pars['page_size']
     cfg['hdr_size'] = pars['hdr_size']
 
     # load PSRDADA header template
@@ -363,7 +382,7 @@ def start_survey(args):
                 log("Error: compressed parset is longer than maximum for header (24575 characters)")
                 exit()
     else:
-        parset = ''
+        parset = 'no parset'
 
     for beam in pars['beams']:
         # add CB-dependent parameters
@@ -398,8 +417,9 @@ def start_survey(args):
         temppars['lst_start'] = lststart
         temppars['az_start'] = az
         temppars['za_start'] = za
-        temppars['resolution'] = pars['pagesize'] * pars['nchan']
-        temppars['bps'] = int(pars['pagesize'] * pars['nchan'] / 1.024)
+        temppars['resolution'] = pars['page_size'] * pars['nchan']
+        temppars['file_size'] = pars['page_size'] * 10  #10 pages per file
+        temppars['bps'] = int(pars['page_size'] * pars['nchan'] / 1.024)
         temppars['beam'] = beam
         temppars['parset'] = parset
         temppars['scanlen'] = pars['tobs']
@@ -418,7 +438,7 @@ def start_survey(args):
 
     # save obs info to disk
     info = {}
-    for key in ['utcstart', 'source', 'tobs']:
+    for key in ['utc_start', 'source', 'tobs']:
         info[key] = pars[key]
     # get MW DMs
     # YMW16
@@ -496,7 +516,7 @@ if __name__ == '__main__':
     parser.add_argument("--amber_mode", type=str, help="AMBER dedispersion mode, can be bruteforce or suband " \
                             "(Default: subband)", default="subband")
     parser.add_argument("--snrmin", type=float, help="AMBER minimum S/N " \
-                            "(Default: 10)", default=10)
+                            "(Default: 8)", default=8)
     parser.add_argument("--proctrigger", help="Process and email triggers. " \
                             "(Default: False)", action="store_true")
     # MAC

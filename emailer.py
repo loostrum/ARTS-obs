@@ -72,7 +72,7 @@ if __name__ == '__main__':
         if summary['success']:
             trigger_file = os.path.join(master_dir, "CB{:02d}_triggers.txt".format(beam))
             triggers[beam] = np.loadtxt(trigger_file, dtype=str, ndmin=2)
-            attachments.append(os.path.join(master_dir, "CB{:02d}_candidates.pdf".format(beam)))
+            attachments.append(os.path.join(master_dir, "CB{:02d}_candidates_summary.pdf".format(beam)))
 
     # convert triggers to one big numpy array we can sort
     alltriggers = []
@@ -117,7 +117,7 @@ if __name__ == '__main__':
     <p>
     <table style="width:20%">
     <tr>
-        <th style="text-align:left">UTC start</th><td colspan="4">{utcstart}</td>
+        <th style="text-align:left">UTC start</th><td colspan="4">{utc_start}</td>
     </tr><tr>
         <th style="text-align:left">Source</th><td colspan="4">{source}</td>
     </tr><tr>
@@ -184,7 +184,7 @@ if __name__ == '__main__':
     for fname in attachments or ():
         with open(fname, 'rb') as f:
             part = MIMEApplication(f.read(), 'pdf', Name=os.path.basename(fname))
-        part['Content-Disposition'] = 'attachment; filename="{}"'.format(os.path.basename(fname).replace('_candidates', ''))
+        part['Content-Disposition'] = 'attachment; filename="{}"'.format(os.path.basename(fname).replace('_candidates_summary', ''))
         msg.attach(part)
 
     log("Sending email to: {}".format(", ".join(to)))

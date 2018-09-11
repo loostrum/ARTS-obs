@@ -11,7 +11,7 @@ RA=$(psrcat -e $psr | grep RAJ | awk '{print $2}')
 DEC=$(psrcat -e $psr | grep DECJ | awk '{print $2}')
 
 if [ -z $RA ]; then
-    echo "Warning: coordinates not found for PSR $psr"
+    echo "Warning: coordinates not found for PSR $psr" >&2
     RA=00:00:00
     DEC=00:00:00
 fi

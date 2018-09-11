@@ -2,10 +2,9 @@
 #
 # Process ARTS filterbank files
 # -- Run Heimdall
-# -- Group resulting candidate files and extract dedispersed data (triggers.py)
-# -- Run ML classifier (classify.py)
-# -- Plot candidates (plotter.py)
-# -- merge into one pdf per compound beam (bash)
+# -- Group resulting candidate files and extract dedispersed data + plots (triggers.py)
+# -- Run ML classifier +plots (classify.py)
+# -- merge classifier plots into one pdf per compound beam (bash)
 # -- Put archive in the arts home dir and notify people through slack
 #
 # Author: L.C. Oostrum
@@ -60,11 +59,14 @@ class Processing(object):
         try:
             os.makedirs(self.config['result_dir'])
         except OSError:
-            # Directory already exists
-            pass
+            # Directory already exists, try to remove any old output pdfs
+            os.system("rm -f {result_dir}/*pdf".format(**self.config))
 
         # get used beams from dadafilterbank logs
         CBs = sorted([x.split('.')[-1] for x in dadafilterbank_logs])
+        if "13" in CBs:
+            print "WARNING: removing CB13"
+            CBs.remove("13")
         print "Found {} CBs:".format(len(CBs))
         for CB in CBs:
             sys.stdout.write(CB+' ')
@@ -100,27 +102,28 @@ class Processing(object):
 
         sys.stdout.write('Processing done, took {:.2f} hours\n'.format(t_running/3600.))
         sys.stdout.flush()
-        command = "cd {result_dir}; tar cvfz ./{datetimesource}.tar.gz CB*.pdf".format(**self.config)
-        sys.stdout.write(command+'\n')
-        os.system(command)
+        if not args.app == 'heimdall': 
+            command = "cd {result_dir}; tar cvfz ./{datetimesource}.tar.gz CB*.pdf".format(**self.config)
+            sys.stdout.write(command+'\n')
+            os.system(command)
 
-        # copy to arts account
-        current_user = getpass.getuser()
-        if not current_user == 'arts':
-            command = "cd {result_dir}; scp ./{datetimesource}.tar.gz arts@localhost:heimdall_results/triggers/".format(**self.config)
-        else:
-            command = "cd {result_dir}; cp ./{datetimesource}.tar.gz ~/heimdall_results/triggers/".format(**self.config)
-        sys.stdout.write(command+'\n')
-        os.system(command)
+            # copy to arts account
+            current_user = getpass.getuser()
+            if not current_user == 'arts':
+                command = "cd {result_dir}; scp ./{datetimesource}.tar.gz arts@localhost:heimdall_results/triggers/".format(**self.config)
+            else:
+                command = "cd {result_dir}; cp ./{datetimesource}.tar.gz ~/heimdall_results/triggers/".format(**self.config)
+            sys.stdout.write(command+'\n')
+            os.system(command)
 
         if not args.silent:
             # Done - let the users know through slack
             self.config['ncb'] = len(CBs)
             self.config['ntrig_raw'] = subprocess.check_output('cd {result_dir}; wc -l */CB??.cand | tail -n 1 | awk \'{{print $1}}\''.format(**self.config), shell=True)
             self.config['ntrig_clustered'] = subprocess.check_output('cd {result_dir}; wc -l */grouped_pulses.singlepulse | tail -n1 | awk \'{{print $1}}\''.format(**self.config), shell=True)
-            self.config['ntrig_ml'] = subprocess.check_output('cd {result_dir}; ls */plots/*pdf | wc -l'.format(**self.config), shell=True)
+            self.config['ntrig_ml'] = subprocess.check_output('cd {result_dir}; cat */ncandML.txt | awk \'{{sum+=$1}} END {{print sum}}\''.format(**self.config), shell=True)
             command = ("curl -X POST --data-urlencode 'payload={{\"text\":\"Observation "
-                       " now available: {datetimesource}.tar.gz\nNumber of CBs: {ncb}\nRaw triggers: {ntrig_raw}\nAfter clustering (and S/N > {snrmin}): {ntrig_clustered}\nAfter classifier: {ntrig_ml}\"}}' "
+                       " now available: {datetimesource}.tar.gz\nNumber of CBs: {ncb}\nRaw triggers: {ntrig_raw}\nAfter clustering (and S/N > {snrmin}): {ntrig_clustered}\nAfter classifier: {ntrig_ml}\nClassifier threshold: {pthresh}\"}}' "
                        " https://hooks.slack.com/services/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").format(**self.config)
             sys.stdout.write(command+'\n')
             os.system(command)
@@ -138,10 +141,7 @@ class Processing(object):
             hostname = "arts0{:02d}".format(node)
         else:
             hostname = node
-        if background:
-            close_fds = True
-        else:
-            close_fds = False
+        close_fds = not background
         sys.stdout.write("Executing \"{}\" on {}\n".format(command, hostname))
         proc = subprocess.Popen(['ssh', hostname, command], close_fds=close_fds)
         return proc
@@ -163,10 +163,6 @@ class Processing(object):
         except OSError:
             # Directory already exists
             pass
-
-        chan_width = float(self.config['bw']) / self.config['nchan']
-        localconfig['flo'] = self.config['freq'] - .5*self.config['bw'] + .5*chan_width
-        localconfig['fhi'] = self.config['freq'] + .5*self.config['bw'] - .5*chan_width
 
         # load commands to run
         with open(os.path.join(os.path.dirname(os.path.realpath(__file__)), "templates/heimdall.txt"), 'r') as f:
@@ -199,6 +195,7 @@ if __name__ == '__main__':
     parser.add_argument("--dmmin", type=float, help="Minimum DM, (default: 10)", default=10)
     parser.add_argument("--dmmax", type=float, help="Maximum DM, (default: 5000)", default=5000)
     parser.add_argument("--snrmin", type=int, help="Minimum S/N, (default: 10)", default=10)
+    parser.add_argument("--pthresh", type=int, help="Classifier probability threshold, (default: 0.01)", default=0.01)
     # what to run
     parser.add_argument("--app", type=str, help="What to run: heimdall, trigger, all (default: all)", default='all')
     # silent mode disable slack message

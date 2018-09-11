@@ -58,8 +58,10 @@ def gel_to_offset(gel):
     """
     nrows = 11
     ncols = 11
-    offset_to_RADEC = 0.375  # degrees
-    shift = 0.075  # degrees
+    #offset_to_RADEC = 0.375  # degrees
+    offset_to_RADEC = 0.7845*0.4630  # degrees
+    #shift = 0.075  # degrees
+    shift = 0
 
     # Negative offsets are up and left with respect to central element. 
     # That corresponds to a positive offset in DEC and a negative offset in RA

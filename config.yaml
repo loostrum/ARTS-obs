@@ -46,7 +46,7 @@ sc3:
     # sampling time
     tsamp: 81.92E-6
     # ringbuffer page size, is nr of samples per 1.024s
-    pagesize: 12500
+    page_size: 12500
 
 # Science case 4
 sc4:
@@ -54,7 +54,7 @@ sc4:
     # sampling time
     tsamp: 40.96E-6
     # ringbuffer page size, is nr of samples per 1.024s
-    pagesize: 25000
+    page_size: 25000
 
 # Stokes I + Tied Array Beam
 i+tab:
