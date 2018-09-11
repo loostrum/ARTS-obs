@@ -2,6 +2,7 @@
 import sys
 import socket
 from time import sleep
+import argparse
 
 import numpy as np
 from astropy.time import Time, TimeDelta
@@ -9,23 +10,18 @@ from astropy.time import Time, TimeDelta
 
 class Trigger(object):
 
-    def __init__(self, tstart, fname):
+    def __init__(self, args)
         """
-        fname : amber output file to watch
-        tstart: astropy time object with start time of observation
+        args: settings through argument parser
         """
-        self.fname = fname
-        self.tstart = tstart
 
-        # Settings
-        self.interval = 2  # interval between trigger checking
-        self.snrmin = 10
-        self.maxage = 10  # seconds
-        self.dmmin = 50
-        self.dmmax = 65
-        self.dt = 6.0  # how many secs to save
-        self.host = 'localhost' # hostname for triggers
-        self.port = 30000  # port for triggers
+        
+        config = vars(args)
+        config['tstart'] = Time(config['tstart'], format='unix')
+
+        for key, value in config.items():
+            setattr(self, key, value)
+
 
         self.ntrig = 0
 
@@ -113,5 +109,27 @@ class Trigger(object):
             
 
 if __name__ == '__main__':
-    t = Trigger(tstart=Time(int(sys.argv[1]), format='unix'), fname=sys.argv[2])
+    parser = argparse.ArgumentParser(description="Watch triggers and start I/IQUV data dump")
+
+    parser.add_argument("--tstart", type=float, help="Observation start time (unix timestamp)", required=True)
+    parser.add_argument("--fname", type=str, help="Filename to watch", required=True)
+
+    parser.add_argument("--interval", type=float, help="Interval for checking triggers (s) " \
+                            "(Default: 2)", default="2")
+    parser.add_argument("--snrmin", type=float, help="Minium S/N" \
+                            "(Default: 20)", default=20)
+    parser.add_argument("--dmmin", type=float, help="Minimum DM" \
+                            "(Default: 100)", default=100)
+    parser.add_argument("--dmmax", type=float, help="Maximum DM" \
+                            "(Default: 5000)", default=5000)
+    parser.add_argument("--dumpsize", type=float, help="Size of data dump (s)" \
+                            "(Default: 6.0)", default=6.0)
+    parser.add_argument("--host", type=str, help="Host name to send events to" \
+                            "(Default: localhost)", default="localhost")
+    parser.add_argument("--port", type=int, help="Port to send events to" \
+                            "(Default: 30000)", default=30000)
+
+
+    args = parser.parse_args()
+    t = Trigger(args)
     t.run()
