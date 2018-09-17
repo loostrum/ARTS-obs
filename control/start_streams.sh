@@ -12,6 +12,8 @@ if [ "$#" -ne 2 ] && [ "$#" -ne 3 ] && [ "$#" -ne 4 ]; then
 fi
 
 if [ "$1" == "dev" ]; then
+    echo "ERROR: dev option not implemented yet on ccu-corr"
+    exit
     app=arts_sc4-dev
     shift
 else
