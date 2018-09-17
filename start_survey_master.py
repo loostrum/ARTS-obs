@@ -27,6 +27,7 @@ AMBERCONFIG = "amber.yaml"
 AMBERCONFDIR = "amber_conf"
 COORD = "coordinates.txt"
 INFO = "info.yaml"
+CHECKBSN = "utilities/get_init_bsn.sh"
 
 
 def run_on_node(node, command, background=False):
@@ -276,8 +277,18 @@ def start_survey(args):
         exit()  
 
     #Time(pars['utc_start'], format='iso', scale='utc')
-    # round to multiple of 1.024 s since epoch
-    unixstart = round(starttime.unix / 1.024) * 1.024
+    # round to multiple of 1.024 s since sync time (=init bsn)
+    # note: init bsn is multiple of 781250
+    # then increases by 80000 every 1.024s
+    cmd = os.path.join(os.path.dirname(os.path.realpath(__file__)), CHECKBSN)
+    try:
+        init_bsn = float(subprocess.check_output(cmd).strip())
+    except:
+        log("ERROR: Could not get init bsn from ccu-corr")
+        exit()
+    init_unix = init_bsn / pars['time_unit']
+    unixstart = round((starttime.unix-init_unix) / 1.024) * 1.024 + init_unix
+    delta_bsn = (unixstart - init_unix) * pars['time_unit']
     starttime = Time(unixstart, format='unix')
     # delta=0 means slightly less accurate (~10arcsec), but no need for internet
     starttime.delta_ut1_utc = 0
@@ -286,7 +297,7 @@ def start_survey(args):
     pars['date'] = starttime.datetime.strftime("%Y%m%d")
     pars['datetimesource'] = "{}.{}".format(pars['utc_start'], pars['source'])
     pars['mjd_start'] = starttime.mjd
-    pars['startpacket'] = "{:.0f}".format(starttime.unix * pars['time_unit'])
+    pars['startpacket'] = "{:.0f}".format(init_bsn + delta_bsn)
     # output directories
     pars['master_dir'] = config[conf_sc]['master_dir'].format(**pars)
     pars['output_dir'] = config[conf_sc]['output_dir'].format(**pars)
