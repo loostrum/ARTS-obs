@@ -272,9 +272,10 @@ def start_survey(args):
         # start in 30 s
         starttime = Time.now() + TimeDelta(30, format='sec')
     else:
-        #starttime = Time(args.tstart, format='iso', scale='utc')
-        log("Specific start time not yet supported")
-        exit()  
+        starttime = Time(args.tstart, scale='utc')
+        if (starttime - Time.now()).sec < 30:
+            log("ERROR: start time should be at least 30 seconds in the future")
+            exit()  
 
     #Time(pars['utc_start'], format='iso', scale='utc')
     # round to multiple of 1.024 s since sync time (=init bsn)
@@ -527,7 +528,7 @@ if __name__ == '__main__':
     parser.add_argument("--amber_mode", type=str, help="AMBER dedispersion mode, can be bruteforce or suband " \
                             "(Default: subband)", default="subband")
     parser.add_argument("--snrmin", type=float, help="AMBER minimum S/N " \
-                            "(Default: 8)", default=8)
+                            "(Default: 10)", default=10)
     parser.add_argument("--proctrigger", help="Process and email triggers. " \
                             "(Default: False)", action="store_true")
     # MAC
