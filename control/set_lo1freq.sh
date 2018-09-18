@@ -8,6 +8,17 @@ if [ "$#" -ne 2 ]; then
     exit
 fi
 
+if [ "$tels" == "all" ]; then
+    tels="2,3,4,5,6,7,8,9,a,b,c,d"
+elif [ "$tels" == "fixed" ]; then
+    tels="2,3,4,5,6,7,8,9"
+elif [ "$tels" == "a8" ]; then
+    tels="2,3,4,5,6,7,8,9"
+elif [ "$tels" == "a10" ]; then
+    tels="2,3,4,5,6,7,8,9,a,b"
+fi
+
+
 tels2="${tels//,/ }"
 
 for tel in $tels2; do 
