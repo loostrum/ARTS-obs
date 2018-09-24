@@ -429,9 +429,9 @@ def start_survey(args):
         temppars['lst_start'] = lststart
         temppars['az_start'] = az
         temppars['za_start'] = za
-        temppars['resolution'] = pars['page_size'] * pars['nchan']
-        temppars['file_size'] = pars['page_size'] * 10  #10 pages per file
-        temppars['bps'] = int(pars['page_size'] * pars['nchan'] / 1.024)
+        temppars['resolution'] = pars['page_size'] * pars['nchan'] * pars['ntabs']
+        temppars['file_size'] = pars['page_size'] * pars['nchan'] * pars['ntabs'] * 10  #10 pages per file
+        temppars['bps'] = int(pars['page_size'] * pars['nchan'] * pars['ntabs'] / 1.024)
         temppars['beam'] = beam
         temppars['parset'] = parset
         temppars['scanlen'] = pars['tobs']
