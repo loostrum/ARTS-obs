@@ -21,6 +21,7 @@ if [ "$(hostname)" == "$MASTER" ]; then
     read_gain () { $CONTROL/read_gain.sh; }
     auto_gain () { $SOURCE_DIR/auto_gain/set_auto_gain.py; }
     point_array () { $CONTROL/point_array.sh; }
+    start_obs () { $SOURCE_DIR/start_survey_master.py; }
     offline_processing () { $UTIL/offline_processing.py; }
     heimdall_processing () { $UTIL/heimdall_processing.py; }
     wait_for_pointing () {
