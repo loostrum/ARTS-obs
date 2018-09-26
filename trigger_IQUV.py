@@ -10,20 +10,21 @@ from astropy.time import Time, TimeDelta
 
 class Trigger(object):
 
+
     def __init__(self, args)
         """
         args: settings through argument parser
         """
 
-        
         config = vars(args)
+        # Convert start time to an Astropy time object
         config['tstart'] = Time(config['tstart'], format='unix')
 
         for key, value in config.items():
             setattr(self, key, value)
 
-
         self.ntrig = 0
+
 
     def run(self):
         prev_time = Time(0, format='unix')
@@ -35,6 +36,7 @@ class Trigger(object):
                 self.check_triggers()
             else:
                 sleep(.05)
+
 
     def check_triggers(self):
         print "Checking triggers"
@@ -74,6 +76,7 @@ class Trigger(object):
         else:
             print "Trigger not ok"
 
+
     def create_trigger(self, trig):
         beam, batch, sample, integration_step, compacted_integration_steps, time, DM, compacted_DMs, SNR = trig
         width = integration_step * 4.096e-5
@@ -99,6 +102,7 @@ class Trigger(object):
 
         return command
 
+
     def send_trigger(self, trigger):
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         s.connect((self.host, self.port))
@@ -106,7 +110,6 @@ class Trigger(object):
         s.shutdown(socket.SHUT_WR)
         s.close()
 
-            
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Watch triggers and start I/IQUV data dump")

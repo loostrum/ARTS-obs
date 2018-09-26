@@ -16,18 +16,32 @@ except ImportError:
 if __name__ == '__main__':
     if not len(sys.argv) in [2, 3]:
         print 'Please provide the RA of the object in hh:mm:ss format'
-        print 'Also provide DEC if you want the correct rise and set time for DEC<0'
+        print 'Also provide DEC (dd:mm:ss.s) if you want the correct rise and set time for DEC<0'
         exit()
 
     # don't complain about Unicode conversion warning
     warnings.filterwarnings('ignore', category=UnicodeWarning)
 
-    RA = c.Angle(sys.argv[1]+' hours').to(u.degree)
+    # get RA
+    try:
+        RA = c.Angle(sys.argv[1]+' hours').to(u.degree)
+    except c.errors.IllegalHourError:
+        print 'Error: RA should be between 0 and 24 hours'
+        exit()
+
+    # get DEC
     try:
         tmp = sys.argv[2]
     except IndexError:
         tmp = '00:00:00'
+
     DEC = c.Angle(tmp+' degrees')
+    if DEC > 90*u.degree or DEC < -90*u.degree:
+        print 'Error: DEC should be between -90 and 90 degrees'
+        exit()
+    elif DEC < -35*u.degree:
+        print "DEC < -35 degrees, not observable with WSRT"
+        exit()
 
     # WSRT coordinates
     lat = 52.915184*u.degree
@@ -49,9 +63,6 @@ if __name__ == '__main__':
         # limited by HA
         ha_min = -90*u.degree
         ha_max = 90*u.degree
-    elif DEC < -35*u.degree:
-        print "DEC < -35, not observable with WSRT"
-        exit()
     else:
         ha_tmp = np.arccos(-1*np.tan(lat)*np.tan(DEC))
         if ha_tmp > 0:
@@ -63,13 +74,12 @@ if __name__ == '__main__':
             print ha_min, ha_max
 
     # Get rise and set time
-    visible=False
     if ha_min < HA < ha_max:
-        # Source is currently up
         visible = True
         dt_rise = ha_min - HA
         dt_set = dt_rise + ha_max - ha_min
     else:
+        visible=False
         dt_rise = 360*u.degree + ha_min - HA
         dt_rise = dt_rise % (360*u.degree)
         dt_set = dt_rise + ha_max - ha_min
@@ -79,6 +89,7 @@ if __name__ == '__main__':
     dt_rise = dt_rise.to(u.hourangle) * u.hour/u.hourangle
     dt_set = dt_set.to(u.hourangle) * u.hour/u.hourangle
     t_rise = UT + dt_rise
+    t_transit = UT + .5 * (dt_set + dt_rise)
     t_set = UT + dt_set
     time_to_set = t_set - UT
 
@@ -95,6 +106,7 @@ if __name__ == '__main__':
     print 'HA:', HA.to_string(u.degree, decimal=True)
     print 'Altitude:', h_now.to(u.degree)
     print 'T rise:', t_rise
+    print 'T transit:', t_transit
     print 'T set:', t_set
     print 'Time to set:', time_to_set.to(u.hour), '=', time_to_set.to(u.second)
     print 'HA at rise:', ha_min.to(u.degree)

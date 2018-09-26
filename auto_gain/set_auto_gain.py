@@ -49,7 +49,7 @@ if __name__ == '__main__':
 
     start_gain = 20  # should not overflow IAB-12
     max_offset = 0.05  # 5<% difference between new and old gain means we're done
-    dest_value = 128  # the sample value we want
+    dest_value = 32  # the sample value we want
 
     # loop until new gain is close to old gain
     old_gain = 1

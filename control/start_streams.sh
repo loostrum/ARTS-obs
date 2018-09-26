@@ -7,7 +7,7 @@ if [ "$#" -ne 2 ] && [ "$#" -ne 3 ] && [ "$#" -ne 4 ]; then
     echo "$0 2:15 4,7"
     echo "Or"
     echo "$0 2:15 4,7 0 centraldipole"
-    echo "Note: bands are specified as a range, telescopes should be a comma-separated list. pol 0 = X, pol 1 = Y. Anything else for dual pol. Opts can be 'centraldipole' to use only central dipole. Also specify pol when using opts"
+    echo "Note: bands are specified as a range, telescopes should be a comma-separated list or all/fixed/a8/10. pol 0 = X, pol 1 = Y. Anything else for dual pol. Opts can be 'centraldipole' to use only central dipole. Also specify pol when using opts"
     exit
 fi
 
@@ -24,6 +24,16 @@ unbs="$1"
 tels="$2"
 pol="$3"
 opts="$4"
+
+if [ "$tels" == "all" ]; then
+    tels="2,3,4,5,6,7,8,9,a,b,c,d"
+elif [ "$tels" == "fixed" ]; then
+    tels="2,3,4,5,6,7,8,9"
+elif [ "$tels" == "a8" ]; then
+    tels="2,3,4,5,6,7,8,9"
+elif [ "$tels" == "a10" ]; then
+    tels="2,3,4,5,6,7,8,9,a,b"
+fi
 
 if [ x"$opts" == x ]; then
     opts=""
