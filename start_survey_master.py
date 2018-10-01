@@ -274,7 +274,7 @@ def start_survey(args):
     else:
         starttime = Time(args.tstart, scale='utc')
         if (starttime - Time.now()).sec < 30:
-            log("ERROR: start time should be at least 30 seconds in the future")
+            log("ERROR: start time should be at least 30 seconds in the future, got {}".format(starttime))
             exit()  
 
     #Time(pars['utc_start'], format='iso', scale='utc')
