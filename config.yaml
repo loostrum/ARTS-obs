@@ -9,8 +9,8 @@ general: &general
     nchan: 1536
     # central frequency
     freq: 1370
-    # first subband (usually 0, or 137 when using MAC)
-    first_subband: 137
+    # first subband (usually 0, or 64 when using MAC)
+    first_subband: 64  # corresponds to central freq of 1370 MHz if LO1=4770
     # bandwidth
     bw: 300
     # bandwidth digitized at frontend (only used to calculate freq in MAC mode)
@@ -20,7 +20,8 @@ general: &general
     # total nr of beams
     nbeams: 40
     # beams that are not present
-    missing_beams: [4, 9, 14, 19, 24, 29, 34, 39]
+    # TMP: CB35 is borked, receiving data from only one UNB
+    missing_beams: [4, 9, 14, 19, 24, 29, 34, 39, 35]
     # nr of buffers for readers
     nbuffer: 5
     # size of ringbuffer header
