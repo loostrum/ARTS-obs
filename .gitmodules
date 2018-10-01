@@ -1,0 +1,6 @@
+[submodule "arts-analysis"]
+	path = arts-analysis
+	url = https://github.com/liamconnor/arts-analysis.git
+[submodule "single_pulse_ml"]
+	path = single_pulse_ml
+	url = https://github.com/AA-ALERT/single_pulse_ml.git
