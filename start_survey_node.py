@@ -179,7 +179,7 @@ class Survey(object):
                 cmd = ("taskset -c {cpu} amber -opencl_platform {opencl_platform} -opencl_device {opencl_device} -device_name {device_name} -padding_file {amber_conf_dir}/padding.conf"
                        " -zapped_channels {amber_conf_dir}/zapped_channels.conf -integration_steps {amber_conf_dir}/integration_steps.conf -dedispersion_file"
                        " {amber_conf_dir}/dedispersion.conf -integration_file {amber_conf_dir}/integration.conf -snr_file {amber_conf_dir}/snr.conf -dms {num_dm}"
-                       " -dm_first {dm_first} -dm_step {dm_step} -threshold {snrmin} -output {output_prefix}_step{ind} -beams 1 -synthesized_beams 1"
+                       " -dm_first {dm_first} -dm_step {dm_step} -threshold {snrmin} -output {output_prefix}_step{ind} -beams 1 -synthesized_beams 1 -compact_results"
                        " -dada -dada_key {dadakey} -batches {nbatch} 2>&1 > {log_dir}/amber_{ind}.{beam:02d} &").format(cpu=cpu, ind=ind+1, **fullconfig)
                 self.log(cmd)
                 os.system(cmd)
@@ -211,7 +211,7 @@ class Survey(object):
                        " -mom_stepone_file {amber_conf_dir}/mom_stepone.conf"
                        " -mom_steptwo_file {amber_conf_dir}/mom_steptwo.conf -momad_file {amber_conf_dir}/momad.conf"
                        " -threshold {snrmin} -output {output_prefix}_step{ind} -beams 1 -synthesized_beams 1"
-                       " -dada -dada_key {dadakey} -batches {nbatch}"
+                       " -dada -dada_key {dadakey} -batches {nbatch} -compact_results"
                        " 2>&1 > {log_dir}/amber_{ind}.{beam:02d} &").format(cpu=cpu, ind=ind+1, **fullconfig)
                 self.log(cmd)
                 os.system(cmd)
