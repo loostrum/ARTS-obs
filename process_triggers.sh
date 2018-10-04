@@ -6,10 +6,9 @@
 # directory of this script
 SOURCE_DIR=$(cd $(dirname ${BASH_SOURCE[0]}) && pwd)
 
-triggerscript=$HOME/software/arts-analysis/triggers.py
-classifier=$HOME/software/single_pulse_ml/single_pulse_ml/classify.py
+triggerscript=$SOURCE_DIR/external/arts-analysis/triggers.py
+classifier=$SOURCE_DIR/external/single_pulse_ml/single_pulse_ml/classify.py
 trigger_to_master=$SOURCE_DIR/trigger_to_master.py
-plotter=$HOME/software/arts-analysis/plotter.py
 # python venv location
 venv_dir=$HOME/python34
 
