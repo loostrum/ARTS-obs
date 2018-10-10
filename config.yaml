@@ -20,8 +20,7 @@ general: &general
     # total nr of beams
     nbeams: 40
     # beams that are not present
-    # TMP: CB35 is borked, receiving data from only one UNB
-    missing_beams: [4, 9, 14, 19, 24, 29, 34, 39, 35]
+    missing_beams: [4, 9, 14, 19, 24, 29, 34, 39]
     # nr of buffers for readers
     nbuffer: 5
     # size of ringbuffer header
