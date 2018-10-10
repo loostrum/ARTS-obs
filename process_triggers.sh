@@ -29,6 +29,7 @@ prefix=$3
 master_dir=$4
 snrmin=$5
 CB=$6
+time_limit=$7
 
 # Set GPUs visible to the classifier
 export CUDA_VISIBLE_DEVICES=$ML_GPUs
@@ -43,7 +44,7 @@ rm -f $outputdir/data/*
 rm -f $outputdir/plots/*pdf
 cd $outputdir
 # process the triggers without making plots
-python $triggerscript --descending_snr --ntrig 1000 --beamno $CB --mk_plot --dm_min $dmmin --dm_max $dmmax --sig_thresh $snrmin --ndm $ndm --save_data $fmt --nfreq_plot $nfreq_plot --ntime_plot $ntime_plot --cmap $cmap --outdir=$outputdir $filfile ${prefix}.trigger
+python $triggerscript --time_limit $time_limit --descending_snr --ntrig 1000 --beamno $CB --mk_plot --dm_min $dmmin --dm_max $dmmax --sig_thresh $snrmin --ndm $ndm --save_data $fmt --nfreq_plot $nfreq_plot --ntime_plot $ntime_plot --cmap $cmap --outdir=$outputdir $filfile ${prefix}.trigger
 
 # get number of triggers after grouping
 if [ ! -f grouped_pulses.singlepulse ]; then
