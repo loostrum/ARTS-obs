@@ -22,6 +22,7 @@ dmmax=5000
 modeldir=$HOME/keras_models
 pthresh=0.0
 ML_GPUs=0
+snrmin_local=7
 
 outputdir=$1
 filfile=$2
@@ -44,7 +45,7 @@ rm -f $outputdir/data/*
 rm -f $outputdir/plots/*pdf
 cd $outputdir
 # process the triggers without making plots
-python $triggerscript --time_limit $time_limit --descending_snr --ntrig 1000 --beamno $CB --mk_plot --dm_min $dmmin --dm_max $dmmax --sig_thresh $snrmin --ndm $ndm --save_data $fmt --nfreq_plot $nfreq_plot --ntime_plot $ntime_plot --cmap $cmap --outdir=$outputdir $filfile ${prefix}.trigger
+python $triggerscript --sig_thresh_local $snrmin_local --time_limit $time_limit --descending_snr --beamno $CB --mk_plot --dm_min $dmmin --dm_max $dmmax --sig_thresh $snrmin --ndm $ndm --save_data $fmt --nfreq_plot $nfreq_plot --ntime_plot $ntime_plot --cmap $cmap --outdir=$outputdir $filfile ${prefix}.trigger
 
 # get number of triggers after grouping
 if [ ! -f grouped_pulses.singlepulse ]; then
