@@ -6,10 +6,9 @@
 # directory of this script
 SOURCE_DIR=$(cd $(dirname ${BASH_SOURCE[0]}) && pwd)
 
-triggerscript=$HOME/software/arts-analysis/triggers.py
-classifier=$HOME/software/single_pulse_ml/single_pulse_ml/classify.py
+triggerscript=$SOURCE_DIR/external/arts-analysis/triggers.py
+classifier=$SOURCE_DIR/external/single_pulse_ml/single_pulse_ml/classify.py
 trigger_to_master=$SOURCE_DIR/trigger_to_master.py
-plotter=$HOME/software/arts-analysis/plotter.py
 # python venv location
 venv_dir=$HOME/python34
 
@@ -18,11 +17,12 @@ ntime_plot=64
 nfreq_plot=32
 ndm=64
 fmt=concat
-dmmin=10
+dmmin=40
 dmmax=5000
 modeldir=$HOME/keras_models
 pthresh=0.0
 ML_GPUs=0
+snrmin_local=7
 
 outputdir=$1
 filfile=$2
@@ -30,6 +30,7 @@ prefix=$3
 master_dir=$4
 snrmin=$5
 CB=$6
+time_limit=$7
 
 # Set GPUs visible to the classifier
 export CUDA_VISIBLE_DEVICES=$ML_GPUs
@@ -44,7 +45,7 @@ rm -f $outputdir/data/*
 rm -f $outputdir/plots/*pdf
 cd $outputdir
 # process the triggers without making plots
-python $triggerscript --beamno $CB --mk_plot --dm_min $dmmin --dm_max $dmmax --sig_thresh $snrmin --ndm $ndm --save_data $fmt --nfreq_plot $nfreq_plot --ntime_plot $ntime_plot --cmap $cmap --outdir=$outputdir $filfile ${prefix}.trigger
+python $triggerscript --sig_thresh_local $snrmin_local --time_limit $time_limit --descending_snr --beamno $CB --mk_plot --dm_min $dmmin --dm_max $dmmax --sig_thresh $snrmin --ndm $ndm --save_data $fmt --nfreq_plot $nfreq_plot --ntime_plot $ntime_plot --cmap $cmap --outdir=$outputdir $filfile ${prefix}.trigger
 
 # get number of triggers after grouping
 if [ ! -f grouped_pulses.singlepulse ]; then
