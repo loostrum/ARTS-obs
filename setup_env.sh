@@ -14,7 +14,7 @@ UTIL=$SOURCE_DIR/utilities
 
 # scripts only for master node
 if [ "$(hostname)" == "$MASTER" ]; then
-    start_streams () { $CONTROL/start_streams.sh "$@" "$@"; }
+    start_streams () { $CONTROL/start_streams.sh "$@"; }
     set_lo1freq () { $CONTROL/set_lo1freq.sh "$@"; }
     read_lo1freq () { $CONTROL/read_lo1freq.sh "$@"; }
     set_gain () { $CONTROL/set_gain.sh "$@"; }
