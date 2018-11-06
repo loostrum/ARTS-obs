@@ -228,6 +228,9 @@ def start_survey(args):
     pars['nchan'] = config[conf_sc]['nchan']
     # debug options
     pars['debug'] = args['debug']
+    if pars['debug'] and not '{cb}' in args['dada_dir']:
+        log("ERROR: {cb} not present in dada_dir")
+        exit()
     pars['dada_dir'] = args['dada_dir']
     if args.mac:
         # could have non-zero starting subband
@@ -381,8 +384,7 @@ def start_survey(args):
     cfg['affinity'] = pars['affinity']
     cfg['page_size'] = pars['page_size']
     cfg['hdr_size'] = pars['hdr_size']
-    cfg['debug'] = pars['debug'[
-    cfg['dada_dir'] = pars['dada_dir']
+    cfg['debug'] = pars['debug']
 
     # load PSRDADA header template
     with open(os.path.join(os.path.dirname(os.path.realpath(__file__)), TEMPLATE), 'r') as f:
@@ -410,6 +412,8 @@ def start_survey(args):
         cfg['dadakey'] = pars['network_port_start'] + beam
         cfg['network_port'] = pars['network_port_start'] + beam
         cfg['header'] = os.path.join(os.path.dirname(os.path.realpath(__file__)), NODEHEADER.format(beam))
+        if cfg['debug']:
+            cfg['dada_dir'] = pars['dada_dir'].replace('{cb}', '{:02d}'.format(beam))
 
         # save to file
         filename = os.path.join(os.path.dirname(os.path.realpath(__file__)), NODECONFIG.format(beam))

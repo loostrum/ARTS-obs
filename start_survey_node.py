@@ -59,8 +59,10 @@ class Survey(object):
         elif self.config['obs_mode'] == 'survey':
             self.survey()
         sleep(waittime)
-        # start fill ringbuffer
-        if self.config['usemac']:
+        # start fill ringbuffer (operations) or read from disk (debug)
+        if self.config['debug']:
+            self.diskdb()
+        elif self.config['usemac']:
             self.fill_ringbuffer(reorder=True)
         else:
             self.fill_ringbuffer()
@@ -111,6 +113,16 @@ class Survey(object):
         else:
             cmd = ("taskset -c {cpu} fill_ringbuffer -k {dadakey} -s {startpacket} -d {duration}"
                " -p {network_port} -h {header} -l {log_dir}/fill_ringbuffer.{beam:02d} &").format(cpu=cpu, **self.config)
+        self.log(cmd)
+        os.system(cmd)
+
+
+    def diskdb(self):
+        self.log("Starting dada_diskdb")
+        cpu = self.config('affinity')['fill_ringbuffer_i']
+        files = os.listdir(self.config['dada_dir'])
+        arg = "-f ".join(files)
+        cmd = "taskset -c {cpu} dada_diskdb -k {dadakey} " + arg
         self.log(cmd)
         os.system(cmd)
 
