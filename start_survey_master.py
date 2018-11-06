@@ -226,6 +226,9 @@ def start_survey(args):
     pars['time_unit'] = config[conf_sc]['time_unit']
     pars['nbit'] = config[conf_sc]['nbit']
     pars['nchan'] = config[conf_sc]['nchan']
+    # debug options
+    pars['debug'] = args['debug']
+    pars['dada_dir'] = args['dada_dir']
     if args.mac:
         # could have non-zero starting subband
         pars['freq'] = config[conf_sc]['freq'] - .5*(config[conf_sc]['bw_rf'] - config[conf_sc]['bw']) + config[conf_sc]['first_subband'] * pars['time_unit'] * 1E-6
@@ -273,7 +276,7 @@ def start_survey(args):
         starttime = Time.now() + TimeDelta(30, format='sec')
     else:
         starttime = Time(args.tstart, scale='utc')
-        if (starttime - Time.now()).sec < 30:
+        if ((starttime - Time.now()).sec < 30) and not pars['debug']:
             log("ERROR: start time should be at least 30 seconds in the future, got {}".format(starttime))
             exit()  
 
@@ -281,16 +284,18 @@ def start_survey(args):
     # round to multiple of 1.024 s since sync time (=init bsn)
     # note: init bsn is multiple of 781250
     # then increases by 80000 every 1.024s
-    cmd = os.path.join(os.path.dirname(os.path.realpath(__file__)), CHECKBSN)
-    try:
-        init_bsn = float(subprocess.check_output(cmd).strip())
-    except:
-        log("ERROR: Could not get init bsn from ccu-corr")
-        exit()
-    init_unix = init_bsn / pars['time_unit']
-    unixstart = round((starttime.unix-init_unix) / 1.024) * 1.024 + init_unix
-    delta_bsn = (unixstart - init_unix) * pars['time_unit']
-    starttime = Time(unixstart, format='unix')
+    # simply use user-provided value in debug mode
+    if not pars['debug']:
+        cmd = os.path.join(os.path.dirname(os.path.realpath(__file__)), CHECKBSN)
+        try:
+            init_bsn = float(subprocess.check_output(cmd).strip())
+        except:
+            log("ERROR: Could not get init bsn from ccu-corr")
+            exit()
+        init_unix = init_bsn / pars['time_unit']
+        unixstart = round((starttime.unix-init_unix) / 1.024) * 1.024 + init_unix
+        delta_bsn = (unixstart - init_unix) * pars['time_unit']
+        starttime = Time(unixstart, format='unix')
     # delta=0 means slightly less accurate (~10arcsec), but no need for internet
     starttime.delta_ut1_utc = 0
 
@@ -304,6 +309,7 @@ def start_survey(args):
     pars['output_dir'] = config[conf_sc]['output_dir'].format(**pars)
     pars['log_dir'] = config[conf_sc]['log_dir'].format(**pars)
     pars['amber_dir'] = config[conf_sc]['amber_dir'].format(**pars)
+    
     # observing mode
     if args.obs_mode not in pars['valid_modes']:
         log("ERROR: observation mode not valid: {}".format(args.obs_mode))
@@ -375,6 +381,8 @@ def start_survey(args):
     cfg['affinity'] = pars['affinity']
     cfg['page_size'] = pars['page_size']
     cfg['hdr_size'] = pars['hdr_size']
+    cfg['debug'] = pars['debug'[
+    cfg['dada_dir'] = pars['dada_dir']
 
     # load PSRDADA header template
     with open(os.path.join(os.path.dirname(os.path.realpath(__file__)), TEMPLATE), 'r') as f:
@@ -537,6 +545,10 @@ if __name__ == '__main__':
     # Parset
     parser.add_argument("--parset", type=str, help="Path to parset of this observation " \
                             "(Default: no parset)", default='')
+    # debug mode; read from disk instead of network
+    parser.add_argument("--debug", type=bool, help="Debug mode: read from disk intead of network " \
+                            "(Default: False)", action="store_true")
+    parser.add_argument("--dada_dir", type=str, help="Path to dada files to read in debug mode with {cb} for CB number, e.g. /home/arts/debugfiles/CB{cb}/dada", default='')
 
     # make sure dec does not start with -
     try:
@@ -560,5 +572,9 @@ if __name__ == '__main__':
     if args.proctrigger and not args.obs_mode == 'survey':
         print "ERROR: proctrigger can only be used in survey mode"
         exit()
+
+    # dada_dir is required in debug mode
+    if args.debug and not args.dada_dir:
+        print "ERROR: dada_dir is required in debug mode"
 
     start_survey(args)
