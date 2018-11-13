@@ -11,8 +11,8 @@
 # TAB 07 = RT9
 # TAB 08 = RTA
 # TAB 09 = RTB
-# TAB 10 = RTC
-# TAB 11 = RTD
+# TAB 10 = unused -> all zeroes
+# TAB 11 = unused -> all zeroes
 
 
 if [ "$#" -ne 2 ]; then
@@ -28,6 +28,6 @@ weights="$2"
 # first set all weights to zero
 ssh -t arts@ccu-corr.apertif python /home/arts/SVN/UniBoard/trunk/Software/python/peripherals/pi_arts_tab_beamformer_weights.py --cmd 3 --input 0:11 --tabs 0:11 --unb $unbs --fn 0:3 --bn 0:3 --weight 0,0
 
-for i in {00..11}; do 
+for i in {00..09}; do 
     ssh -t arts@ccu-corr.apertif python /home/arts/SVN/UniBoard/trunk/Software/python/peripherals/pi_arts_tab_beamformer_weights.py --cmd 3 --input $i --tabs $i --unb $unbs --fn 0:3 --bn 0:3 -a --weight $weights
 done
