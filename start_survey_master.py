@@ -228,7 +228,7 @@ def start_survey(args):
     pars['nchan'] = config[conf_sc]['nchan']
     # debug options
     pars['debug'] = args.debug
-    if pars['debug'] and not '{cb}' in args['dada_dir']:
+    if args.debug and not '{cb}' in args.dada_dir:
         log("ERROR: {cb} not present in dada_dir")
         exit()
     pars['dada_dir'] = args.dada_dir
@@ -298,7 +298,12 @@ def start_survey(args):
         init_unix = init_bsn / pars['time_unit']
         unixstart = round((starttime.unix-init_unix) / 1.024) * 1.024 + init_unix
         delta_bsn = (unixstart - init_unix) * pars['time_unit']
-        starttime = Time(unixstart, format='unix')
+        pars['startpacket'] = "{:.0f}".format(init_bsn + delta_bsn)
+    else:
+        unixstart = starttime.unix
+        pars['startpacket'] = "{:.0f}".format(unixstart * pars['time_unit'])
+
+    starttime = Time(unixstart, format='unix')
     # delta=0 means slightly less accurate (~10arcsec), but no need for internet
     starttime.delta_ut1_utc = 0
 
@@ -306,7 +311,12 @@ def start_survey(args):
     pars['date'] = starttime.datetime.strftime("%Y%m%d")
     pars['datetimesource'] = "{}.{}".format(pars['utc_start'], pars['source'])
     pars['mjd_start'] = starttime.mjd
-    pars['startpacket'] = "{:.0f}".format(init_bsn + delta_bsn)
+    # change output directories in debug mode
+    if args.debug:
+        config[conf_sc]['output_dir'] = config[conf_sc]['output_dir'].replace('/data2', '{home}/debug')
+        config[conf_sc]['amber_dir'] = config[conf_sc]['amber_dir'].replace('observations', 'debug')
+        config[conf_sc]['log_dir'] = config[conf_sc]['log_dir'].replace('observations', 'debug')
+        config[conf_sc]['master_dir'] = config[conf_sc]['master_dir'].replace('observations', 'debug')
     # output directories
     pars['master_dir'] = config[conf_sc]['master_dir'].format(**pars)
     pars['output_dir'] = config[conf_sc]['output_dir'].format(**pars)

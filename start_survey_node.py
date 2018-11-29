@@ -119,10 +119,11 @@ class Survey(object):
 
     def diskdb(self):
         self.log("Starting dada_diskdb")
-        cpu = self.config('affinity')['fill_ringbuffer_i']
+        cpu = self.config['affinity']['fill_ringbuffer_i']
         files = os.listdir(self.config['dada_dir'])
-        arg = "-f ".join(files)
-        cmd = "taskset -c {cpu} dada_diskdb -k {dadakey} " + arg
+        files.sort()
+        arg = " -f {dada_dir}/".format(**self.config) + " -f {dada_dir}/".format(**self.config).join(files)
+        cmd = "taskset -c {cpu} dada_diskdb -k {dadakey}".format(cpu=cpu, **self.config) + arg
         self.log(cmd)
         os.system(cmd)
 
@@ -167,6 +168,7 @@ class Survey(object):
 
     def amber(self):
         self.log("Starting AMBER")
+        os.system('which amber > $HOME/amber.amber')
         os.system("mkdir -p {}".format(self.config['amber_dir']))
         # load AMBER config
         with open(self.config['amber_config'], 'r') as f:

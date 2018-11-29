@@ -52,9 +52,9 @@ sc3:
 sc4:
     <<: *general
     # sampling time
-    tsamp: 40.96E-6
+    tsamp: 81.92E-6
     # ringbuffer page size, is nr of samples per 1.024s
-    page_size: 25000
+    page_size: 12500
 
 # Stokes I + Tied Array Beam
 i+tab:
