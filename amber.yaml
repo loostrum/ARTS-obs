@@ -38,3 +38,5 @@ subband:
     num_dm: [32, 32, 32]
     # downsampling factors before dedispersion
     downsamp: [1, 1, 2]
+    # integration steps to use for each step
+    integration_file: [integration_steps_81.92us_x1.conf, integration_steps_81.92us_x1.conf, integration_steps_81.92us_x2.conf]
