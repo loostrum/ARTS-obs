@@ -191,7 +191,7 @@ class Survey(object):
                     fullconfig[key] = ambercfg[key][ind]
 
                 cmd = ("taskset -c {cpu} amber -opencl_platform {opencl_platform} -opencl_device {opencl_device} -device_name {device_name} -padding_file {amber_conf_dir}/padding.conf"
-                       " -zapped_channels {amber_conf_dir}/zapped_channels.conf -integration_steps {amber_conf_dir}/integration_steps.conf -dedispersion_file"
+                       " -zapped_channels {amber_conf_dir}/zapped_channels.conf -integration_steps {amber_conf_dir}/integration_steps_81.92us.conf -dedispersion_file"
                        " {amber_conf_dir}/dedispersion.conf -integration_file {amber_conf_dir}/integration.conf -snr_file {amber_conf_dir}/snr.conf -dms {num_dm}"
                        " -dm_first {dm_first} -dm_step {dm_step} -threshold {snrmin} -output {output_prefix}_step{ind} -beams 1 -synthesized_beams 1 -compact_results"
                        " -downsampling_factor {downsamp} -downsampling_configuration {amber_conf_dir}/downsampling.conf"
