@@ -168,7 +168,6 @@ class Survey(object):
 
     def amber(self):
         self.log("Starting AMBER")
-        os.system('which amber > $HOME/amber.amber')
         os.system("mkdir -p {}".format(self.config['amber_dir']))
         # load AMBER config
         with open(self.config['amber_config'], 'r') as f:
@@ -179,25 +178,8 @@ class Survey(object):
         ambercfg['output_prefix'] = os.path.join(self.config['amber_dir'], 'CB{:02d}'.format(self.config['beam']))
 
         if self.config['amber_mode'] == 'bruteforce':
-            self.log("Starting amber in bruteforce mode")
-            # loop over the amber configs for the GPUs
-            for ind in range(len(ambercfg['opencl_device'])):
-                cpu = self.config['affinity']['amber'][ind]
-                # make dict with fullconfig, because AMBER settings are spread over the general and node-specific config files
-                fullconfig = ambercfg.copy()
-                fullconfig.update(self.config)
-                # set the settings for this GPU
-                for key in ['dm_first', 'dm_step', 'num_dm', 'opencl_device']:
-                    fullconfig[key] = ambercfg[key][ind]
-
-                cmd = ("taskset -c {cpu} amber -opencl_platform {opencl_platform} -opencl_device {opencl_device} -device_name {device_name} -padding_file {amber_conf_dir}/padding.conf"
-                       " -zapped_channels {amber_conf_dir}/zapped_channels.conf -integration_steps {amber_conf_dir}/integration_steps_81.92us.conf -dedispersion_file"
-                       " {amber_conf_dir}/dedispersion.conf -integration_file {amber_conf_dir}/integration.conf -snr_file {amber_conf_dir}/snr.conf -dms {num_dm}"
-                       " -dm_first {dm_first} -dm_step {dm_step} -threshold {snrmin} -output {output_prefix}_step{ind} -beams 1 -synthesized_beams 1 -compact_results"
-                       " -downsampling_factor {downsamp} -downsampling_configuration {amber_conf_dir}/downsampling.conf"
-                       " -dada -dada_key {dadakey} -batches {nbatch} 2>&1 > {log_dir}/amber_{ind}.{beam:02d} &").format(cpu=cpu, ind=ind+1, **fullconfig)
-                self.log(cmd)
-                os.system(cmd)
+            self.log("ERROR: amber bruteforce mode no longer supported")
+            exit(1)
         elif self.config['amber_mode'] == 'subband':
             self.log("Starting amber in subband mode")
             # loop over the amber configs for the GPUs
@@ -207,14 +189,14 @@ class Survey(object):
                 fullconfig = ambercfg.copy()
                 fullconfig.update(self.config)
                 # set the settings for this GPU
-                for key in ['dm_first', 'dm_step', 'num_dm', 'opencl_device', 'device_name', 'subbands', 'subbanding_dm_first', 'subbanding_dm_step', 'subbanding_dms']:
+                for key in ['dm_first', 'dm_step', 'num_dm', 'opencl_device', 'device_name', 'subbands', 'subbanding_dm_first', 'subbanding_dm_step', 'subbanding_dms', 'downsamp', 'integration_file']:
                     fullconfig[key] = ambercfg[key][ind]
 
                 cmd = (" taskset -c {cpu} amber -print -opencl_platform {opencl_platform}"
                        " -opencl_device {opencl_device} -device_name {device_name}"
                        " -padding_file {amber_conf_dir}/padding.conf"
                        " -zapped_channels {amber_conf_dir}/zapped_channels.conf"
-                       " -integration_steps {amber_conf_dir}/integration_steps.conf -subband_dedispersion"
+                       " -integration_steps {amber_conf_dir}/{integration_file} -subband_dedispersion"
                        " -dedispersion_stepone_file {amber_conf_dir}/dedispersion_stepone.conf"
                        " -dedispersion_steptwo_file {amber_conf_dir}/dedispersion_steptwo.conf"
                        " -integration_file {amber_conf_dir}/integration.conf -snr_file {amber_conf_dir}/snr.conf"
@@ -225,6 +207,7 @@ class Survey(object):
                        " -snr_momad -max_file {amber_conf_dir}/max.conf"
                        " -mom_stepone_file {amber_conf_dir}/mom_stepone.conf"
                        " -mom_steptwo_file {amber_conf_dir}/mom_steptwo.conf -momad_file {amber_conf_dir}/momad.conf"
+                       " -downsampling_factor {downsamp} -downsampling_configuration {amber_conf_dir}/downsampling.conf"
                        " -threshold {snrmin} -output {output_prefix}_step{ind} -beams 1 -synthesized_beams 1"
                        " -dada -dada_key {dadakey} -batches {nbatch} -compact_results"
                        " 2>&1 > {log_dir}/amber_{ind}.{beam:02d} &").format(cpu=cpu, ind=ind+1, **fullconfig)
