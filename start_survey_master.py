@@ -227,11 +227,11 @@ def start_survey(args):
     pars['nbit'] = config[conf_sc]['nbit']
     pars['nchan'] = config[conf_sc]['nchan']
     # debug options
-    pars['debug'] = args['debug']
+    pars['debug'] = args.debug
     if pars['debug'] and not '{cb}' in args['dada_dir']:
         log("ERROR: {cb} not present in dada_dir")
         exit()
-    pars['dada_dir'] = args['dada_dir']
+    pars['dada_dir'] = args.dada_dir
     if args.mac:
         # could have non-zero starting subband
         pars['freq'] = config[conf_sc]['freq'] - .5*(config[conf_sc]['bw_rf'] - config[conf_sc]['bw']) + config[conf_sc]['first_subband'] * pars['time_unit'] * 1E-6
@@ -550,7 +550,7 @@ if __name__ == '__main__':
     parser.add_argument("--parset", type=str, help="Path to parset of this observation " \
                             "(Default: no parset)", default='')
     # debug mode; read from disk instead of network
-    parser.add_argument("--debug", type=bool, help="Debug mode: read from disk intead of network " \
+    parser.add_argument("--debug", help="Debug mode: read from disk intead of network " \
                             "(Default: False)", action="store_true")
     parser.add_argument("--dada_dir", type=str, help="Path to dada files to read in debug mode with {cb} for CB number, e.g. /home/arts/debugfiles/CB{cb}/dada", default='')
 
