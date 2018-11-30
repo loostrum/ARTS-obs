@@ -314,10 +314,10 @@ def start_survey(args):
     pars['debug_dir'] = config[conf_sc]['debug_dir']
     # change output directories in debug mode
     if args.debug:
-        config[conf_sc]['output_dir'] = '{debug_dir}/output/'
-        config[conf_sc]['amber_dir'] = '{debug_dir}/output/amber'
-        config[conf_sc]['log_dir'] = '{debug_dir}/output/log'
-        config[conf_sc]['master_dir'] = '{debug_dir}/output/results'
+        config[conf_sc]['output_dir'] = '{debug_dir}/output/'.format(**pars)
+        config[conf_sc]['amber_dir'] = '{debug_dir}/output/amber'.format(**pars)
+        config[conf_sc]['log_dir'] = '{debug_dir}/output/log'.format(**pars)
+        config[conf_sc]['master_dir'] = '{debug_dir}/output/results'.format(**pars)
     # output directories
     pars['master_dir'] = config[conf_sc]['master_dir'].format(**pars)
     pars['output_dir'] = config[conf_sc]['output_dir'].format(**pars)
