@@ -192,7 +192,13 @@ class Survey(object):
                 for key in ['dm_first', 'dm_step', 'num_dm', 'opencl_device', 'device_name', 'subbands', 'subbanding_dm_first', 'subbanding_dm_step', 'subbanding_dms', 'downsamp', 'integration_file']:
                     fullconfig[key] = ambercfg[key][ind]
 
-                cmd = (" taskset -c {cpu} amber -print -opencl_platform {opencl_platform}"
+                # Set downsampling flag if downsampling is used
+                if fullconfig['downsamp'] > 1:
+                    fullconfig['downsampling_cmd'] = '-downsampling'
+                else:
+                    fullconfig['downsampling_cmd'] = ''
+
+                cmd = (" taskset -c {cpu} amber -sync -print -opencl_platform {opencl_platform}"
                        " -opencl_device {opencl_device} -device_name {device_name}"
                        " -padding_file {amber_conf_dir}/padding.conf"
                        " -zapped_channels {amber_conf_dir}/zapped_channels.conf"
@@ -207,7 +213,7 @@ class Survey(object):
                        " -snr_momad -max_file {amber_conf_dir}/max.conf"
                        " -mom_stepone_file {amber_conf_dir}/mom_stepone.conf"
                        " -mom_steptwo_file {amber_conf_dir}/mom_steptwo.conf -momad_file {amber_conf_dir}/momad.conf"
-                       " -downsampling_factor {downsamp} -downsampling_configuration {amber_conf_dir}/downsampling.conf"
+                       " {downsampling_cmd} -downsampling_configuration {amber_conf_dir}/downsampling.conf -downsampling_factor {downsamp}"
                        " -threshold {snrmin} -output {output_prefix}_step{ind} -beams 1 -synthesized_beams 1"
                        " -dada -dada_key {dadakey} -batches {nbatch} -compact_results"
                        " 2>&1 > {log_dir}/amber_{ind}.{beam:02d} &").format(cpu=cpu, ind=ind+1, **fullconfig)
