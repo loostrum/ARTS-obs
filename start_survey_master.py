@@ -311,12 +311,13 @@ def start_survey(args):
     pars['date'] = starttime.datetime.strftime("%Y%m%d")
     pars['datetimesource'] = "{}.{}".format(pars['utc_start'], pars['source'])
     pars['mjd_start'] = starttime.mjd
+    pars['debug_dir'] = config[conf_sc]['debug_dir']
     # change output directories in debug mode
     if args.debug:
-        config[conf_sc]['output_dir'] = config[conf_sc]['output_dir'].replace('/data2', '{home}/debug')
-        config[conf_sc]['amber_dir'] = config[conf_sc]['amber_dir'].replace('observations', 'debug')
-        config[conf_sc]['log_dir'] = config[conf_sc]['log_dir'].replace('observations', 'debug')
-        config[conf_sc]['master_dir'] = config[conf_sc]['master_dir'].replace('observations', 'debug')
+        config[conf_sc]['output_dir'] = '{debug_dir}/output/'
+        config[conf_sc]['amber_dir'] = '{debug_dir}/output/amber'
+        config[conf_sc]['log_dir'] = '{debug_dir}/output/log'
+        config[conf_sc]['master_dir'] = '{debug_dir}/output/results'
     # output directories
     pars['master_dir'] = config[conf_sc]['master_dir'].format(**pars)
     pars['output_dir'] = config[conf_sc]['output_dir'].format(**pars)

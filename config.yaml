@@ -37,6 +37,8 @@ general: &general
     log_dir: "{home}/observations/log/{date}/{datetimesource}"
     # master output dir
     master_dir: "{home}/observations/results/{date}/{datetimesource}"
+    # output of everything in debug mode
+    debug_dir : "{home}/debug"
     # fits templates dir
     fits_templates: "{home}/software/dadafits/templates"
 
