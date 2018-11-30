@@ -37,6 +37,8 @@ general: &general
     log_dir: "{home}/observations/log/{date}/{datetimesource}"
     # master output dir
     master_dir: "{home}/observations/results/{date}/{datetimesource}"
+    # output of everything in debug mode
+    debug_dir : "{home}/debug"
     # fits templates dir
     fits_templates: "{home}/software/dadafits/templates"
 
@@ -52,9 +54,9 @@ sc3:
 sc4:
     <<: *general
     # sampling time
-    tsamp: 40.96E-6
+    tsamp: 81.92E-6
     # ringbuffer page size, is nr of samples per 1.024s
-    page_size: 25000
+    page_size: 12500
 
 # Stokes I + Tied Array Beam
 i+tab:
