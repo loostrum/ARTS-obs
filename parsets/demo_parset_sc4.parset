@@ -1,0 +1,78 @@
+### ----- system/template keys ----- ###
+_msg.system_name = APERTIF
+_msg.message_type = "CommandMessage"
+_msg.recipients = ['ARTSSurveyMasterControl']
+
+_control.command.type = "start_observation"
+_control.command.execution_time = '2018-11-26 12:10:10'
+
+### ----- user keys ----- ###
+
+# Task related
+task.taskID = 1811261208   # taskID (int>0) (= ObsID, but task can be more than obs). Must be unique, else we may overwrite earlier recorded data!
+task.startTime = '2018-11-26 12:11:00'
+task.stopTime = '2018-11-26 12:16:00'
+task.LO1freq = 4770
+task.source.name = 'B1933+16'
+task.beamSet.0.subbands = [64..447]
+task.telescopes = [RT2, RT3, RT4, RT5, RT6, RT7, RT8, RT9, RTA, RTB]
+
+# taks keys that are not in current parsets yet (?)
+task.duration = 10800
+task.central_freq = 1370
+
+# ARTS Survey keys
+# list of compound beams to use (this list without every 5th beam is default for 8-bit mode)
+arts.survey.beams = [00,01,02,03,05,06,07,08,10,11,12,13,15,16,17,18,20,21,22,23,25,26,27,28,30,31,32,33,35,36,37,38]
+# observing mode: survey/record/dump (survey could also be called "full" or "all" or something else that may be more clear than "survey")
+arts.survey.observing_mode = survey
+# science case: 3 or 4
+arts.survey.science_case = 4
+# science mode: incoherent (IAB) or coherent (TAB)
+arts.survey.science_mode = TAB
+# GPU pipeline S/N threshold. May want to add another snr_threshold for the processing/emailing pipeline, TBD
+arts.survey.snr_threshold = 10
+# Enable/disable processing pipeline (i.e. everything after GPU pipeline)
+arts.survey.process_triggers = True
+# Enable/disable emailing of triggers
+arts.survey.email_triggers = True
+
+# Existing task keys related to compound beam pointing:
+task.beamSet.0.compoundBeams=[0..36]  # this could replace arts.survey.beams if it also supports a list like above and not just a range
+task.beamSet.0.compoundBeam.0.phaseCenter=[293.949270deg,  16.277770deg]
+task.beamSet.0.compoundBeam.1.phaseCenter=[292.373095deg,  15.258999deg]
+task.beamSet.0.compoundBeam.10.phaseCenter=[293.584701deg,  15.669469deg]
+task.beamSet.0.compoundBeam.11.phaseCenter=[294.070794deg,  15.669737deg]
+task.beamSet.0.compoundBeam.12.phaseCenter=[294.556870deg,  15.668933deg]
+task.beamSet.0.compoundBeam.13.phaseCenter=[295.042858deg,  15.667057deg]
+task.beamSet.0.compoundBeam.14.phaseCenter=[295.528689deg,  15.664110deg]
+task.beamSet.0.compoundBeam.15.phaseCenter=[292.853425deg,  16.072309deg]
+task.beamSet.0.compoundBeam.16.phaseCenter=[293.340416deg,  16.074236deg]
+task.beamSet.0.compoundBeam.17.phaseCenter=[293.827495deg,  16.075062deg]
+task.beamSet.0.compoundBeam.18.phaseCenter=[294.314591deg,  16.074787deg]
+task.beamSet.0.compoundBeam.19.phaseCenter=[294.801635deg,  16.073410deg]
+task.beamSet.0.compoundBeam.2.phaseCenter=[292.857929deg,  15.261866deg]
+task.beamSet.0.compoundBeam.20.phaseCenter=[295.288555deg,  16.070932deg]
+task.beamSet.0.compoundBeam.21.phaseCenter=[292.607217deg,  16.476168deg]
+task.beamSet.0.compoundBeam.22.phaseCenter=[293.095143deg,  16.478711deg]
+task.beamSet.0.compoundBeam.23.phaseCenter=[293.583193deg,  16.480125deg]
+task.beamSet.0.compoundBeam.24.phaseCenter=[294.071297deg,  16.480408deg]
+task.beamSet.0.compoundBeam.25.phaseCenter=[294.559383deg,  16.479559deg]
+task.beamSet.0.compoundBeam.26.phaseCenter=[295.047380deg,  16.477581deg]
+task.beamSet.0.compoundBeam.27.phaseCenter=[292.848885deg,  16.882832deg]
+task.beamSet.0.compoundBeam.28.phaseCenter=[293.337893deg,  16.884863deg]
+task.beamSet.0.compoundBeam.29.phaseCenter=[293.826990deg,  16.885733deg]
+task.beamSet.0.compoundBeam.3.phaseCenter=[293.342919deg,  15.263691deg]
+task.beamSet.0.compoundBeam.30.phaseCenter=[294.316105deg,  16.885443deg]
+task.beamSet.0.compoundBeam.31.phaseCenter=[294.805167deg,  16.883992deg]
+task.beamSet.0.compoundBeam.32.phaseCenter=[295.294103deg,  16.881383deg]
+task.beamSet.0.compoundBeam.33.phaseCenter=[292.601645deg,  17.286537deg]
+task.beamSet.0.compoundBeam.34.phaseCenter=[293.091596deg,  17.289213deg]
+task.beamSet.0.compoundBeam.35.phaseCenter=[293.581673deg,  17.290700deg]
+task.beamSet.0.compoundBeam.36.phaseCenter=[294.071804deg,  17.290997deg]
+task.beamSet.0.compoundBeam.4.phaseCenter=[293.827995deg,  15.264473deg]
+task.beamSet.0.compoundBeam.5.phaseCenter=[294.313090deg,  15.264212deg]
+task.beamSet.0.compoundBeam.6.phaseCenter=[294.798132deg,  15.262909deg]
+task.beamSet.0.compoundBeam.7.phaseCenter=[295.283052deg,  15.260563deg]
+task.beamSet.0.compoundBeam.8.phaseCenter=[292.612742deg,  15.665717deg]
+task.beamSet.0.compoundBeam.9.phaseCenter=[293.098661deg,  15.668129deg]
