@@ -26,7 +26,7 @@ general: &general
     # size of ringbuffer header
     hdr_size: 40960
     # observation modes
-    valid_modes: [scrub, dump, fil, fits, amber, survey]
+    valid_modes: [dump, record, survey]
     # network port of CB00
     network_port_start: 5000
     # output directory of stokes I data
@@ -35,8 +35,6 @@ general: &general
     amber_dir: "{home}/observations/amber/{date}/{datetimesource}"
     # log prefix
     log_dir: "{home}/observations/log/{date}/{datetimesource}"
-    # master output dir
-    master_dir: "{home}/observations/results/{date}/{datetimesource}"
     # output of everything in debug mode
     debug_dir : "{home}/debug"
     # fits templates dir
@@ -58,8 +56,8 @@ sc4:
     # ringbuffer page size, is nr of samples per 1.024s
     page_size: 12500
 
-# Stokes I + Tied Array Beam
-i+tab:
+# Tied Array Beam mode
+tab:
     # number of tied-array beams
     ntabs: 12
     # number of synthesized beams
@@ -67,15 +65,8 @@ i+tab:
     # dadafilterbank mode
     science_mode: 0
 
-# Stokes IQUV + Tied Array Beam
-iquv+tab:
-    # number of tied-array beams
-    ntabs: 12
-    # dadafilterbank mode
-    science_mode: 1
-
-# Stokes I + Incoherent Array Beam
-i+iab:
+#Incoherent Array Beam mode
+iab:
     # number of tied-array beams
     ntabs: 1
     # number of synthesized beams
@@ -83,28 +74,14 @@ i+iab:
     # dadafilterbank mode
     science_mode: 2
     
-# Stokes IQUV + Incoherent Array Beam
-iquv+iab:
-    # number of tied-array beams
-    ntabs: 1
-    # dadafilterbank mode
-    science_mode: 3
-
 # core affinities
 # the HDDs and GPU 0,1 are on NUMA node 0 = cpu 0-9,20-29
 # the 40Gbit link and GPU 2,3 are on NUMA node 1 = cpu 10-19,30-39
 affinity:
     fill_ringbuffer_i: 11
-    fill_ringbuffer_iquv: 12
     dada_db_i: 13
-    dada_db_iquv: 14
     dadafilterbank: 1
     dadafits: 2
     dada_dbdisk_i: 3
-    dada_dbdisk_iquv: 4
     # note: one cpu for each AMBER instance, corresponding to GPU 1,2,3
     amber: [3, 15, 16]
-
-# Emailer settings
-emailer:
-    to: [arts-alerts@astron.nl]
