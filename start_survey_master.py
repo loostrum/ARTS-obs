@@ -24,35 +24,12 @@ NODEHEADER = "nodes/CB{:02d}_header.txt"
 TEMPLATE = "header_template.txt"
 AMBERCONFIG = "amber.yaml"
 AMBERCONFDIR = "amber_conf"
-COORD = "coordinates.txt"
-INFO = "info.yaml"
-CHECKBSN = "utilities/get_init_bsn.sh"
-
 
 def run_on_node(node, command, background=False):
-    """Run command on an ARTS node. Assumes ssh keys have been set up
-        node: nr of node (string or int)
-        command: command to run
-        background: whether to run ssh in the background
     """
-    if isinstance(node, str):
-        if len(node) == 1:
-            # assume a leading 0 is missing
-            node = '0'+node
-        elif len(node) > 2:
-            # wrong, should only have 2 digits. Assume extra leading zeros
-            node = node[-3:]
-        hostname = "arts0{}".format(node)
-    else:
-        hostname = "arts0{:02d}".format(node)
-
-    if background:
-        ssh_cmd = "ssh {} {} &".format(hostname, command)
-    else:
-        ssh_cmd = "ssh {} {}".format(hostname, command)
-    log("Executing '{}'".format(ssh_cmd))
-    os.system(ssh_cmd)
-
+    Should run command on a given arts node
+    """
+    print "Would execute {} on node {}".format(command, node)
 
 def log(message):
     """
@@ -60,158 +37,18 @@ def log(message):
     """
     print "Master: {}".format(message)
 
-
-def pointing_to_CB_pos(CB, coords, pol='X'):
-    """
-    Convert dish pointing to RA and DEC of specified CB
-    CB: number of CB to get position of
-    coords: astropy.coordinates.SkyCoord object with dish pointing
-    pol: polarization to use: X, Y, or average. Default: X
-    returns: SkyCoord object with shifted coordinates
-    """
-
-    # PAF layout is based on generic elements (gels):
-    # generic element (gel) layout:
-    #
-    #  0-----55------110
-    #  |      |      |
-    #  |      |      |
-    #  5-----60------115
-    #  |      |      |
-    #  |      |      |
-    #  10----65------120
-    #
-    # +DEC = North = down, +HA is West = right
-    # +RA = east = left
-
-    # 11*11 grid of elements
-    nrows = 11
-    ncols = 11
-    # gel offsets
-    # Found in calc_beam_dirs.py in Apertif software:
-    # From Marc Verheijen:
-    #  Vivaldi elements are separated by 10cm in the PAF.
-    #  The horizontal and vertical seperation of the Vivaldi's is thus
-    #  10/sqrt(2)=7.071 cm, which corresponds to a geometric angle of
-    #  atan(7.071/875) = 0.4630 degrees for a F/0.35 dish.
-    #
-    #  Because of the fast focal ratio, the focal plane is strongly curved.
-    #  This leads to a Beam Deviation Factor of 0.7845. Therefore, the
-    #  effective horizontal and vertical separation of the elements is
-    #  actually dA = 0.7845*0.4630 = 0.3632 deg on the sky.
-    #  Note that a SKA White Paper (SD-FPA_system_tradeoffs_V2.doc)
-    #  describes how to calculate the BFD.
-    #
-    #  The planar PAF can be considered as a plane that is tangential to
-    #  the celestial sphere, so the sky maps with a TAN projection onto the
-    #  PAF.
-    #
-    offset_to_RADEC = 0.7845*0.4630  # degrees
-
-    # 32-beam IAB layout
-    # shift = 0.075  # degrees, extra shift needed for some rows/cols to match Apertif layout
-    shift = 0.0  # degrees, extra shift needed for some rows/cols to match Apertif layout
-    # gel for each CB, -1 means gel is not used
-    # because gels use fortran ordering, this looks like the transpose of the beam layout on-sky
-    gel_to_CB = [-1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,
-                 -1,  -1,   0,  -1,  12,  -1,  26,  -1,  23,  -1,  -1,
-                 -1,   3,   0,   6,  12,  20,  26,  32,  23,  -1,  -1,
-                 -1,   3,   1,   6,  15,  20,  27,  32,  28,  -1,  -1,
-                 -1,   8,   1,   7,  15,  21,  27,  35,  28,  -1,  -1,
-                 -1,   8,   2,   7,  16,  21,  30,  35,  33,  -1,  -1,
-                 -1,  13,   2,  10,  16,  22,  30,  36,  33,  -1,  -1,
-                 -1,  13,   5,  10,  17,  22,  31,  36,  38,  -1,  -1,
-                 -1,  18,   5,  11,  17,  25,  31,  37,  38,  -1,  -1,
-                 -1,  18,  -1,  11,  -1,  25,  -1,  37,  -1,  -1,  -1,
-                 -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1]
-
-    # 37-beam apertif hex (so no CB37,CB38)
-    # shift = 0
-    # gel_to_CB = [ -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,
-    #              -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,
-    #              -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,
-    #              -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,
-    #              -1,  -1,  -1,  -1,  -1,   0,  -1,  -1,  -1,  -1,  -1,
-    #              -1,  -1,  -1,  -1,  -1,   0,  -1,  -1,  -1,  -1,  -1,
-    #              -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,
-    #              -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,
-    #              -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,
-    #              -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,
-    #              -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1]
-    # create CB -> gel mapping
-    CB_to_gel_X = {}
-    CB_to_gel_Y = {}
-    for gel, cb in enumerate(gel_to_CB):
-        if gel % 2:
-            CB_to_gel_Y[cb] = gel
-        else:
-            CB_to_gel_X[cb] = gel
-
-    # get the gel numbers of the requested CB
-    try:
-        gel = [CB_to_gel_X[CB], CB_to_gel_Y[CB]]
-    except KeyError:
-        # CB is not in IAB selection
-        log("Could not get gel of CB{:02d}, returning input coordinates".format(CB))
-        return coords
-
-    # get row and column of gel
-    # loop over X and Y element
-    tmpshift = []
-    for ele in gel:
-        # Negative offsets are up and left with respect to central element. 
-        # That corresponds to a negative offset in DEC and a positive offset in RA
-        # gels use fortran ordering: row = RA, col = DEC
-        # rows: negative offset = left = positive RA: multiply by -1
-        # cols: negative ofset = up = negative DEC: correct
-        row = -1 * (np.floor(ele/ncols) - nrows//2)
-        col = (ele % nrows - nrows//2)
-
-        dRA = row * offset_to_RADEC 
-        dDEC = col * offset_to_RADEC
-        # apply shifts (do not understand yet why these are needed to match Apertif layout)
-        # RA (only row 3 and -3 from center, maybe more?)
-        if row % 3 == 0:
-            dRA -= shift * np.sign(dRA)
-        # DEC (every odd row from center)
-        if col % 2 == 1:
-            # odd row, shift DEC
-            dDEC -= shift * np.sign(dDEC)
-        # save
-        tmpshift.append([dRA, dDEC])
-    # choose RA DEC shift to apply
-    if pol.upper() == 'X':
-        radec_shift = tmpshift[0]
-    elif pol.upper() == 'Y':
-        radec_shift = tmpshift[1]
-    else:
-        radec_shift = np.average(tmpshift, axis=0)
-
-    # apply offset
-    newdec = coords.dec.degree + radec_shift[1]
-    newra = coords.ra.degree + radec_shift[0] / np.cos(newdec * np.pi/180)
-    newcoord = SkyCoord(newra, newdec, unit=[u.degree, u.degree])
-    return newcoord
-
-
 def start_survey(args):
     """Sets up a survey mode observation from the master node
     """
 
     # initialize parameters
     pars = {}
-    # initialize coordinate overview
-    coordinates = []
     # Load static configuration
     filename = os.path.join(os.path.dirname(os.path.realpath(__file__)), CONFIG)
     with open(filename, 'r') as f:
         config = yaml.load(f)
     conf_sc = 'sc{:.0f}'.format(args.science_case)  # sc3 or sc4
-    conf_mode = args.science_mode.lower()  # i+tab, iquv+tab, i+iab, iquv+iab
-    # IQUV not yet supported
-    if 'iquv' in conf_mode:
-        log("ERROR: IQUV modes not yet supported")
-        exit()
+    conf_mode = args.science_mode.lower()  # tab, iab
     # save user home dir
     pars['home'] = os.path.expanduser('~')
     # science case specific
@@ -228,7 +65,7 @@ def start_survey(args):
         log("WARNING: {cb} not present in dada_dir")
     pars['dada_dir'] = args.dada_dir
     if args.mac:
-        # could have non-zero starting subband
+        # calculate central freq from first subband
         pars['freq'] = config[conf_sc]['freq'] - .5*(config[conf_sc]['bw_rf'] - config[conf_sc]['bw']) +\
                        config[conf_sc]['first_subband'] * pars['time_unit'] * 1E-6
     else:
@@ -251,14 +88,20 @@ def start_survey(args):
     # derived values
     pars['chan_width'] = float(pars['bw']) / pars['nchan']
     pars['min_freq'] = pars['freq'] - pars['bw'] / 2 + pars['chan_width'] / 2
+    # observing mode
+    if args.obs_mode not in pars['valid_modes']:
+        log("ERROR: observation mode not valid: {}".format(args.obs_mode))
+        exit()
+    else:
+        pars['obs_mode'] = args.obs_mode
     if args.obs_mode == 'survey':
         # filterbank + fits + 3x AMBER
         pars['nreader'] = 5
-    elif args.obs_mode == 'amber':
-        # 3x AMBER
-        pars['nreader'] = 3
-    else:
-        # filterbank or fits or dbdisk or dbscrubber
+    elif args.obs_mode == 'record':
+        # filterbank + fits
+        pars['nreader'] = 2
+    elif args.obs_mode == 'dump':
+        # dbdisk
         pars['nreader'] = 1
 
     # load observation specific arguments
@@ -314,19 +157,11 @@ def start_survey(args):
         config[conf_sc]['output_dir'] = '{debug_dir}/output/'.format(**pars)
         config[conf_sc]['amber_dir'] = '{debug_dir}/output/amber'.format(**pars)
         config[conf_sc]['log_dir'] = '{debug_dir}/output/log'.format(**pars)
-        config[conf_sc]['master_dir'] = '{debug_dir}/output/results'.format(**pars)
     # output directories
-    pars['master_dir'] = config[conf_sc]['master_dir'].format(**pars)
     pars['output_dir'] = config[conf_sc]['output_dir'].format(**pars)
     pars['log_dir'] = config[conf_sc]['log_dir'].format(**pars)
     pars['amber_dir'] = config[conf_sc]['amber_dir'].format(**pars)
     
-    # observing mode
-    if args.obs_mode not in pars['valid_modes']:
-        log("ERROR: observation mode not valid: {}".format(args.obs_mode))
-        exit()
-    else:
-        pars['obs_mode'] = args.obs_mode
     # beams
     if args.beams is not None:
         pars['beams'] = [int(beam) for beam in args.beams.split(',')]
@@ -359,12 +194,6 @@ def start_survey(args):
             # beam was not in list of beams anyway
             continue
 
-    # we have all parameters now
-    # create output dir on master node
-    cmd = "mkdir -p {master_dir}/".format(**pars)
-    os.system(cmd)
-    log(cmd)
-
     # create psrdada header and config file for each beam
     # config file
     cfg = {}
@@ -382,7 +211,6 @@ def start_survey(args):
     cfg['amber_config'] = os.path.join(os.path.dirname(os.path.realpath(__file__)), AMBERCONFIG)
     cfg['amber_dir'] = pars['amber_dir']
     cfg['log_dir'] = pars['log_dir']
-    cfg['master_dir'] = pars['master_dir']
     cfg['snrmin'] = pars['snrmin']
     cfg['proctrigger'] = pars['proctrigger']
     cfg['amber_mode'] = pars['amber_mode']
@@ -463,31 +291,6 @@ def start_survey(args):
         with open(os.path.join(os.path.dirname(os.path.realpath(__file__)), NODEHEADER.format(beam)), 'w') as f:
             f.write(header)
 
-    # save coordinate overview to disk
-    filename = os.path.join(pars['master_dir'], COORD)
-    with open(filename, 'w') as f:
-        for line in coordinates:
-            f.write(' '.join(line)+'\n')
-
-    # save obs info to disk
-    info = {}
-    for key in ['utc_start', 'source', 'tobs']:
-        info[key] = pars[key]
-    # get MW DMs
-    # YMW16
-    # mode, Gl, Gb, dist(pc), dist->DM. 1E6 pc should cover entire MW
-    cmd = "ymw16 Gal {} {} 1E6 2 | awk '{{print $8}}'".format(*coord.galactic.to_string(precision=8).split(' '))
-    log(cmd)
-    ymw16_dm = subprocess.check_output(cmd, shell=True)
-    try:
-        ymw16_dm = str(float(ymw16_dm))
-    except ValueError:
-        ymw16_dm = "-"
-    info['ymw16'] = ymw16_dm
-    filename = os.path.join(pars['master_dir'], INFO)
-    with open(filename, 'w') as f:
-        yaml.dump(info, f, default_flow_style=False)
-
     # Start the node scripts
     script_path = os.path.realpath(os.path.dirname(__file__))
     for beam in pars['beams']:
@@ -499,14 +302,6 @@ def start_survey(args):
     sleep(1)
     # done
     log("All nodes started for observation")
-
-    # start the trigger listener + emailer NOTE: this is the only command
-    # that keeps running in the foreground during the obs
-    if pars['proctrigger']:
-        email_script = os.path.join(script_path, "emailer.py")
-        cmd = "sleep {tobs}; python {email_script} {master_dir} '{beams}'".format(email_script=email_script, **pars)
-        log(cmd)
-        os.system(cmd)
 
 
 if __name__ == '__main__':
@@ -542,8 +337,8 @@ if __name__ == '__main__':
                         "(Default: fil)", default="fil")
     parser.add_argument("--science_case", type=int, help="Science case "
                         "(Default: 4)", default=4)
-    parser.add_argument("--science_mode", type=str, help="Science mode. Can be I+TAB, IQUV+TAB, I+IAB, IQUV+IAB "
-                        "(Default: I+IAB)", default="I+IAB")
+    parser.add_argument("--science_mode", type=str, help="Science mode. Can be TAB or IAB "
+                        "(Default: IAB)", default="IAB")
     # amber and trigger processing
     parser.add_argument("--amber_mode", type=str, help="AMBER dedispersion mode, can be bruteforce or suband "
                         "(Default: subband)", default="subband")
@@ -552,7 +347,7 @@ if __name__ == '__main__':
     parser.add_argument("--proctrigger", help="Process and email triggers. "
                         "(Default: False)", action="store_true")
     # MAC
-    parser.add_argument("--mac", help="Using MAC. Enables beamlet reordering and non-zero starting subband "
+    parser.add_argument("--mac", help="Using MAC. Enables beamlet reordering and adaptive starting subband "
                         "(Default: False)", action="store_true")
     # Parset
     parser.add_argument("--parset", type=str, help="Path to parset of this observation "
