@@ -7,7 +7,6 @@
 import os
 import sys
 import argparse
-import datetime
 import socket
 import subprocess
 import warnings
@@ -109,38 +108,36 @@ def pointing_to_CB_pos(CB, coords, pol='X'):
     #
     offset_to_RADEC = 0.7845*0.4630  # degrees
 
-    ### 32-beam IAB layout
-    #shift = 0.075  # degrees, extra shift needed for some rows/cols to match Apertif layout
+    # 32-beam IAB layout
+    # shift = 0.075  # degrees, extra shift needed for some rows/cols to match Apertif layout
     shift = 0.0  # degrees, extra shift needed for some rows/cols to match Apertif layout
     # gel for each CB, -1 means gel is not used
     # because gels use fortran ordering, this looks like the transpose of the beam layout on-sky
-    gel_to_CB = [ -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1, \
-                  -1,  -1,   0,  -1,  12,  -1,  26,  -1,  23,  -1,  -1, \
-                  -1,   3,   0,   6,  12,  20,  26,  32,  23,  -1,  -1, \
-                  -1,   3,   1,   6,  15,  20,  27,  32,  28,  -1,  -1, \
-                  -1,   8,   1,   7,  15,  21,  27,  35,  28,  -1,  -1, \
-                  -1,   8,   2,   7,  16,  21,  30,  35,  33,  -1,  -1, \
-                  -1,  13,   2,  10,  16,  22,  30,  36,  33,  -1,  -1, \
-                  -1,  13,   5,  10,  17,  22,  31,  36,  38,  -1,  -1, \
-                  -1,  18,   5,  11,  17,  25,  31,  37,  38,  -1,  -1, \
-                  -1,  18,  -1,  11,  -1,  25,  -1,  37,  -1,  -1,  -1, \
-                  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1]
+    gel_to_CB = [-1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,
+                 -1,  -1,   0,  -1,  12,  -1,  26,  -1,  23,  -1,  -1,
+                 -1,   3,   0,   6,  12,  20,  26,  32,  23,  -1,  -1,
+                 -1,   3,   1,   6,  15,  20,  27,  32,  28,  -1,  -1,
+                 -1,   8,   1,   7,  15,  21,  27,  35,  28,  -1,  -1,
+                 -1,   8,   2,   7,  16,  21,  30,  35,  33,  -1,  -1,
+                 -1,  13,   2,  10,  16,  22,  30,  36,  33,  -1,  -1,
+                 -1,  13,   5,  10,  17,  22,  31,  36,  38,  -1,  -1,
+                 -1,  18,   5,  11,  17,  25,  31,  37,  38,  -1,  -1,
+                 -1,  18,  -1,  11,  -1,  25,  -1,  37,  -1,  -1,  -1,
+                 -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1]
 
-    ### 37-beam apertif hex (so no CB37,CB38)
-    #shift = 0 
-    #gel_to_CB = [ -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1, \
-    #              -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1, \
-    #              -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1, \
-    #              -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1, \
-    #              -1,  -1,  -1,  -1,  -1,   0,  -1,  -1,  -1,  -1,  -1, \
-    #              -1,  -1,  -1,  -1,  -1,   0,  -1,  -1,  -1,  -1,  -1, \
-    #              -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1, \
-    #              -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1, \
-    #              -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1, \
-    #              -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1, \
+    # 37-beam apertif hex (so no CB37,CB38)
+    # shift = 0
+    # gel_to_CB = [ -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,
+    #              -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,
+    #              -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,
+    #              -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,
+    #              -1,  -1,  -1,  -1,  -1,   0,  -1,  -1,  -1,  -1,  -1,
+    #              -1,  -1,  -1,  -1,  -1,   0,  -1,  -1,  -1,  -1,  -1,
+    #              -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,
+    #              -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,
+    #              -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,
+    #              -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,
     #              -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1]
-
-
     # create CB -> gel mapping
     CB_to_gel_X = {}
     CB_to_gel_Y = {}
@@ -197,7 +194,6 @@ def pointing_to_CB_pos(CB, coords, pol='X'):
     return newcoord
 
 
-
 def start_survey(args):
     """Sets up a survey mode observation from the master node
     """
@@ -233,7 +229,8 @@ def start_survey(args):
     pars['dada_dir'] = args.dada_dir
     if args.mac:
         # could have non-zero starting subband
-        pars['freq'] = config[conf_sc]['freq'] - .5*(config[conf_sc]['bw_rf'] - config[conf_sc]['bw']) + config[conf_sc]['first_subband'] * pars['time_unit'] * 1E-6
+        pars['freq'] = config[conf_sc]['freq'] - .5*(config[conf_sc]['bw_rf'] - config[conf_sc]['bw']) +\
+                       config[conf_sc]['first_subband'] * pars['time_unit'] * 1E-6
     else:
         pars['freq'] = config[conf_sc]['freq']
     pars['bw'] = config[conf_sc]['bw']
@@ -249,7 +246,8 @@ def start_survey(args):
     # pol and beam specific
     pars['ntabs'] = config[conf_mode]['ntabs']
     pars['nsynbeams'] = config[conf_mode]['nsynbeams']
-    pars['science_mode']  = config[conf_mode]['science_mode']
+    pars['science_mode'] = config[conf_mode]['science_mode']
+
     # derived values
     pars['chan_width'] = float(pars['bw']) / pars['nchan']
     pars['min_freq'] = pars['freq'] - pars['bw'] / 2 + pars['chan_width'] / 2
@@ -283,7 +281,7 @@ def start_survey(args):
             log("ERROR: start time should be at least 30 seconds in the future, got {}".format(starttime))
             exit()  
 
-    #Time(pars['utc_start'], format='iso', scale='utc')
+    # Time(pars['utc_start'], format='iso', scale='utc')
     # round to multiple of 1.024 s since sync time (=init bsn)
     # note: init bsn is multiple of 781250
     # then increases by 80000 every 1.024s
@@ -292,7 +290,7 @@ def start_survey(args):
         cmd = os.path.join(os.path.dirname(os.path.realpath(__file__)), CHECKBSN)
         try:
             init_bsn = float(subprocess.check_output(cmd).strip())
-        except:
+        except Exception:
             log("ERROR: Could not get init bsn from ccu-corr")
             exit()
         init_unix = init_bsn / pars['time_unit']
@@ -302,7 +300,6 @@ def start_survey(args):
     else:
         unixstart = starttime.unix
         pars['startpacket'] = "{:.0f}".format(unixstart * pars['time_unit'])
-
     starttime = Time(unixstart, format='unix')
     # delta=0 means slightly less accurate (~10arcsec), but no need for internet
     starttime.delta_ut1_utc = 0
@@ -331,7 +328,7 @@ def start_survey(args):
     else:
         pars['obs_mode'] = args.obs_mode
     # beams
-    if not args.beams is None:
+    if args.beams is not None:
         pars['beams'] = [int(beam) for beam in args.beams.split(',')]
         # make sure each beam is present only once
         pars['beams'] = list(set(pars['beams']))
@@ -368,7 +365,7 @@ def start_survey(args):
     os.system(cmd)
     log(cmd)
 
-    #create psrdada header and config file for each beam
+    # create psrdada header and config file for each beam
     # config file
     cfg = {}
     cfg['buffersize'] = pars['ntabs'] * pars['nchan'] * pars['page_size']
@@ -454,7 +451,7 @@ def start_survey(args):
         temppars['az_start'] = az
         temppars['za_start'] = za
         temppars['resolution'] = pars['page_size'] * pars['nchan'] * pars['ntabs']
-        temppars['file_size'] = pars['page_size'] * pars['nchan'] * pars['ntabs'] * 10  #10 pages per file
+        temppars['file_size'] = pars['page_size'] * pars['nchan'] * pars['ntabs'] * 10  # 10 pages per file
         temppars['bps'] = int(pars['page_size'] * pars['nchan'] * pars['ntabs'] / 1.024)
         temppars['beam'] = beam
         temppars['parset'] = parset
@@ -503,15 +500,14 @@ def start_survey(args):
     # done
     log("All nodes started for observation")
 
-    # start the trigger listener + emailer NOTE: this is the only command that keeps running in the foreground during the obs
+    # start the trigger listener + emailer NOTE: this is the only command
+    # that keeps running in the foreground during the obs
     if pars['proctrigger']:
         email_script = os.path.join(script_path, "emailer.py")
         cmd = "sleep {tobs}; python {email_script} {master_dir} '{beams}'".format(email_script=email_script, **pars)
         log(cmd)
         os.system(cmd)
 
-
-        
 
 if __name__ == '__main__':
     warnings.filterwarnings('ignore', category=UnicodeWarning)
@@ -523,46 +519,46 @@ if __name__ == '__main__':
 
     parser = argparse.ArgumentParser(description="Start a survey mode observation on ARTS")
     # source info
-    parser.add_argument("--source", type=str, help="Source name " \
-                            "(Default: None)", default="None")
-    parser.add_argument("--ra", type=str, help="J2000 RA in hh:mm:ss.s format " \
-                            "(Default: 00:00:00)", default="00:00:00")
-    parser.add_argument("--dec", type=str, help="J2000 DEC in dd:mm:ss.s format " \
-                            "(Default: 00:00:00)", default="00:00:00")
+    parser.add_argument("--source", type=str, help="Source name "
+                        "(Default: None)", default="None")
+    parser.add_argument("--ra", type=str, help="J2000 RA in hh:mm:ss.s format "
+                        "(Default: 00:00:00)", default="00:00:00")
+    parser.add_argument("--dec", type=str, help="J2000 DEC in dd:mm:ss.s format "
+                        "(Default: 00:00:00)", default="00:00:00")
     # time related
-    parser.add_argument("--duration", type=float, help="Observation duration in seconds " \
-                            "(Default: 10.24)", default=10.24)
-    parser.add_argument("--tstart", type=str, help="Start time (UTC), e.g. 2017-01-01 00:00:00 " \
-                            "(Default: now + 30 seconds)", default="default")
+    parser.add_argument("--duration", type=float, help="Observation duration in seconds "
+                        "(Default: 10.24)", default=10.24)
+    parser.add_argument("--tstart", type=str, help="Start time (UTC), e.g. 2017-01-01 00:00:00 "
+                        "(Default: now + 30 seconds)", default="default")
     # either start and end beam or list of beams: make beams and sbeam mutually exclusive
     beamgroup = parser.add_mutually_exclusive_group()
-    beamgroup.add_argument("--sbeam", type=int, help="No of first CB to record " \
-                            "(Default: 21)", default=21)
+    beamgroup.add_argument("--sbeam", type=int, help="No of first CB to record "
+                           "(Default: 21)", default=21)
     beamgroup.add_argument("--beams", type=str, help="List of beams to process. Use instead of sbeam and ebeam")
-    parser.add_argument("--ebeam", type=int, help="No of last CB to record " \
-                            "(Default: same as sbeam)", default=0)
+    parser.add_argument("--ebeam", type=int, help="No of last CB to record "
+                        "(Default: same as sbeam)", default=0)
     # observing modes
-    parser.add_argument("--obs_mode", type=str, help="Observation mode. Can be dump, scrub, fil, fits, amber, survey " \
-                            "(Default: fil)", default="fil")
-    parser.add_argument("--science_case", type=int, help="Science case " \
-                            "(Default: 4)", default=4)
-    parser.add_argument("--science_mode", type=str, help="Science mode. Can be I+TAB, IQUV+TAB, I+IAB, IQUV+IAB " \
-                            "(Default: I+IAB)", default="I+IAB")
+    parser.add_argument("--obs_mode", type=str, help="Observation mode. Can be dump, scrub, fil, fits, amber, survey "
+                        "(Default: fil)", default="fil")
+    parser.add_argument("--science_case", type=int, help="Science case "
+                        "(Default: 4)", default=4)
+    parser.add_argument("--science_mode", type=str, help="Science mode. Can be I+TAB, IQUV+TAB, I+IAB, IQUV+IAB "
+                        "(Default: I+IAB)", default="I+IAB")
     # amber and trigger processing
-    parser.add_argument("--amber_mode", type=str, help="AMBER dedispersion mode, can be bruteforce or suband " \
-                            "(Default: subband)", default="subband")
-    parser.add_argument("--snrmin", type=float, help="AMBER minimum S/N " \
-                            "(Default: 10)", default=10)
-    parser.add_argument("--proctrigger", help="Process and email triggers. " \
-                            "(Default: False)", action="store_true")
+    parser.add_argument("--amber_mode", type=str, help="AMBER dedispersion mode, can be bruteforce or suband "
+                        "(Default: subband)", default="subband")
+    parser.add_argument("--snrmin", type=float, help="AMBER minimum S/N "
+                        "(Default: 10)", default=10)
+    parser.add_argument("--proctrigger", help="Process and email triggers. "
+                        "(Default: False)", action="store_true")
     # MAC
-    parser.add_argument("--mac", help="Using MAC. Enables beamlet reordering and non-zero starting subband " \
-                            "(Default: False)", action="store_true")
+    parser.add_argument("--mac", help="Using MAC. Enables beamlet reordering and non-zero starting subband "
+                        "(Default: False)", action="store_true")
     # Parset
-    parser.add_argument("--parset", type=str, help="Path to parset of this observation " \
+    parser.add_argument("--parset", type=str, help="Path to parset of this observation "
                             "(Default: no parset)", default='')
     # debug mode; read from disk instead of network
-    parser.add_argument("--debug", help="Debug mode: read from disk intead of network " \
+    parser.add_argument("--debug", help="Debug mode: read from disk intead of network "
                             "(Default: False)", action="store_true")
     parser.add_argument("--dada_dir", type=str, help="Path to dada files to read in debug mode with {cb} for CB number, e.g. /home/arts/debugfiles/CB{cb}/dada", default='')
 
