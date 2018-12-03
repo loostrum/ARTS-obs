@@ -11,8 +11,6 @@ from time import sleep
 
 import yaml
 
-NUMTHREADS = 40
-
 
 class Survey(object):
     """Start a survey mode observation on ARTS. This class runs the relevant commands on the current node
@@ -45,16 +43,10 @@ class Survey(object):
         self.ringbuffer()
         sleep(waittime)
         # start readers depending on observing mode
-        if self.config['obs_mode'] == 'scrub':
-            self.scrub()
-        elif self.config['obs_mode'] == 'dump':
+        if self.config['obs_mode'] == 'dump':
             self.dump()
-        elif self.config['obs_mode'] == 'fil':
-            self.dadafilterbank()
-        elif self.config['obs_mode'] == 'fits':
-            self.dadafits()
-        elif self.config['obs_mode'] == 'amber':
-            self.amber()
+        elif self.config['obs_mode'] == 'record':
+            self.record()
         elif self.config['obs_mode'] == 'survey':
             self.survey()
         sleep(waittime)
@@ -72,22 +64,7 @@ class Survey(object):
         sys.stdout.flush()
         # proc trigger command
         if self.config['proctrigger']:
-            cmd = "mkdir -p {output_dir}/triggers".format(**self.config)
-            os.system(cmd)
-            self.log("Waiting for finish, then processing triggers")
-            if self.config['debug']:
-                prog = 'dada_diskdb'
-            else:
-                prog = 'fill_ringbuffer'
-            cmd = "sleep 1; pid=$(pgrep {prog}); tail --pid=$pid -f /dev/null; sleep 5; " \
-                  "{script_dir}/process_triggers.sh {output_dir}/triggers {output_dir}/filterbank/CB{beam:02d}.fil " \
-                  "{amber_dir}/CB{beam:02d} {master_dir} " \
-                  "{snrmin} {beam:02d} {duration}".format(prog=prog, 
-                                                          script_dir=os.path.dirname(os.path.realpath(__file__)),
-                                                          **self.config)
-            self.log(cmd)
-            sys.stdout.flush()
-            os.system(cmd)
+            pass
 
     def log(self, message):
         """
@@ -133,12 +110,6 @@ class Survey(object):
         self.log(cmd)
         os.system(cmd)
 
-    def scrub(self):
-        self.log("Starting dada_dbscrubber")
-        cmd = "dada_dbscrubber -k {dadakey} > {log_dir}/dada_dbscrubber.{beam:02d} &".format(**self.config)
-        self.log(cmd)
-        os.system(cmd)
-
     def dump(self):
         self.log("Starting dada_dbdisk")
         cpu = self.config['affinity']['dada_dbdisk_i']
@@ -155,9 +126,9 @@ class Survey(object):
         output_dir = os.path.join(self.config['output_dir'], 'filterbank')
         os.system("mkdir -p {}".format(output_dir))
         output_prefix = os.path.join(output_dir, 'CB{:02d}'.format(self.config['beam']))
-        cmd = "export OMP_NUM_THREADS={threads}; taskset -c {cpu} dadafilterbank -k {dadakey} -n {output_prefix} " \
+        cmd = "taskset -c {cpu} dadafilterbank -k {dadakey} -n {output_prefix} " \
               "-l {log_dir}/dadafilterbank.{beam:02d} &".format(cpu=cpu, output_prefix=output_prefix,
-                                                                threads=NUMTHREADS, **self.config)
+                                                                **self.config)
         self.log(cmd)
         os.system(cmd)
 
@@ -227,6 +198,10 @@ class Survey(object):
                        " 2>&1 > {log_dir}/amber_{ind}.{beam:02d} &").format(cpu=cpu, ind=ind+1, **fullconfig)
                 self.log(cmd)
                 os.system(cmd)
+
+    def record(self):
+        self.dadafilterbank()
+        self.dadafits()
 
     def survey(self):
         self.amber()
