@@ -104,3 +104,7 @@ affinity:
     dada_dbdisk_iquv: 4
     # note: one cpu for each AMBER instance, corresponding to GPU 1,2,3
     amber: [3, 15, 16]
+
+# Emailer settings
+emailer:
+    to: [arts-alerts@astron.nl]
