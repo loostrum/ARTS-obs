@@ -20,7 +20,7 @@ fmt=concat
 dmmin=40
 dmmax=5000
 modeldir=$HOME/keras_models
-pthresh=0.0
+pthresh=0.1
 ML_GPUs=0
 snrmin_local=7
 
