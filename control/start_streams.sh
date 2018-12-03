@@ -53,7 +53,7 @@ ssh -t arts@ccu-corr.apertif python /home/arts/SVN/RadioHDL/trunk/applications/a
 
 # only set gain for science mode (i.e. IAB)
 if [ "$app" == "arts_sc4" ]; then
-    single_dish_gain=5000
+    single_dish_gain=500
 
     ndish=$(grep -o "," <<< $tels, | wc -l)
     gain=$(echo "$single_dish_gain / $ndish" | bc)
