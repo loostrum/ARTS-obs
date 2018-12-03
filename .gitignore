@@ -1,7 +1,4 @@
 *.pyc
-nodes/*yaml
-nodes/*txt
-auto_gain/header.txt
 *.log
 *.fil
 *.pdf

@@ -1,0 +1,42 @@
+affinity:
+  amber:
+  - 3
+  - 15
+  - 16
+  dada_db_i: 13
+  dada_db_iquv: 14
+  dada_dbdisk_i: 3
+  dada_dbdisk_iquv: 4
+  dadafilterbank: 1
+  dadafits: 2
+  fill_ringbuffer_i: 11
+  fill_ringbuffer_iquv: 12
+amber_conf_dir: /home/oostrum/ARTS-obs/amber_conf
+amber_config: /home/oostrum/ARTS-obs/amber.yaml
+amber_dir: /home/oostrum/debug/output/amber
+amber_mode: subband
+beam: 21
+buffersize: 230400000
+dada_dir: /data2/output/20181203/2018-12-03-12:52:39.B1933+16/dada
+dadakey: 5021
+debug: true
+duration: 60.416000000000004
+fits_templates: /home/oostrum/software/dadafits/templates
+hdr_size: 40960
+header: /home/oostrum/ARTS-obs/nodes/CB21_header.txt
+log_dir: /home/oostrum/debug/output/log
+max_freq: 1519.90234375
+min_freq: 1220.09765625
+nbatch: 59
+nbuffer: 5
+network_port: 5021
+nreader: 5
+nsynbeams: 12
+ntabs: 12
+obs_mode: survey
+output_dir: /home/oostrum/debug/output/
+page_size: 12500
+proctrigger: true
+snrmin: 10
+startpacket: '1206126217968750'
+usemac: false
