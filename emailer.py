@@ -17,6 +17,7 @@ from email.mime.text import MIMEText
 import numpy as np
 import yaml
 
+CONFIG = "config.yaml"
 
 def log(message):
     """
@@ -29,6 +30,13 @@ if __name__ == '__main__':
     master_dir = sys.argv[1]
     expected_beams = np.array(ast.literal_eval(sys.argv[2]), dtype=int)
     nbeam = len(expected_beams)
+
+    # load config file
+    config_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), CONFIG)
+    with open(config_file, 'r') as f:
+        config = yaml.load(f)['emailer']
+    # message recipients
+    to = ", ".join(config['to'])
 
     # load coordinate file
     coord_file = os.path.join(master_dir, 'coordinates.txt')
@@ -101,13 +109,11 @@ if __name__ == '__main__':
     # add obs info
     kwargs.update(obsinfo)
     frm = "ARTS FRB Alert System <arts@{}.apertif>".format(socket.gethostname())
-    #to = ["oostrum@astron.nl"]
-    to = ["arts-alerts@astron.nl"]
 
     msg = MIMEMultipart('alternative')
     msg['Subject'] = "ARTS FRB Alert System @ {}".format(datetime.utcnow())
     msg['From'] = frm
-    msg['To'] = ", ".join(to)
+    msg['To'] = to
 
     txt="""<html>
     <head><title>FRB Alert System</title></head>
@@ -187,7 +193,7 @@ if __name__ == '__main__':
         part['Content-Disposition'] = 'attachment; filename="{}"'.format(os.path.basename(fname).replace('_candidates_summary', ''))
         msg.attach(part)
 
-    log("Sending email to: {}".format(", ".join(to)))
+    log("Sending email to: {}".format(to))
     smtp = smtplib.SMTP()
     smtp.connect()
     try:

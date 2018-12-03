@@ -222,6 +222,11 @@ def start_survey(args):
     pars['time_unit'] = config[conf_sc]['time_unit']
     pars['nbit'] = config[conf_sc]['nbit']
     pars['nchan'] = config[conf_sc]['nchan']
+    # debug options
+    pars['debug'] = args.debug
+    if args.debug and not '{cb}' in args.dada_dir:
+        log("WARNING: {cb} not present in dada_dir")
+    pars['dada_dir'] = args.dada_dir
     if args.mac:
         # could have non-zero starting subband
         pars['freq'] = config[conf_sc]['freq'] - .5*(config[conf_sc]['bw_rf'] - config[conf_sc]['bw']) +\
@@ -240,7 +245,9 @@ def start_survey(args):
     pars['fits_templates'] = config[conf_sc]['fits_templates'].format(**pars)
     # pol and beam specific
     pars['ntabs'] = config[conf_mode]['ntabs']
+    pars['nsynbeams'] = config[conf_mode]['nsynbeams']
     pars['science_mode'] = config[conf_mode]['science_mode']
+
     # derived values
     pars['chan_width'] = float(pars['bw']) / pars['nchan']
     pars['min_freq'] = pars['freq'] - pars['bw'] / 2 + pars['chan_width'] / 2
@@ -270,7 +277,7 @@ def start_survey(args):
         starttime = Time.now() + TimeDelta(30, format='sec')
     else:
         starttime = Time(args.tstart, scale='utc')
-        if (starttime - Time.now()).sec < 30:
+        if ((starttime - Time.now()).sec < 30) and not pars['debug']:
             log("ERROR: start time should be at least 30 seconds in the future, got {}".format(starttime))
             exit()  
 
@@ -278,15 +285,21 @@ def start_survey(args):
     # round to multiple of 1.024 s since sync time (=init bsn)
     # note: init bsn is multiple of 781250
     # then increases by 80000 every 1.024s
-    cmd = os.path.join(os.path.dirname(os.path.realpath(__file__)), CHECKBSN)
-    try:
-        init_bsn = float(subprocess.check_output(cmd).strip())
-    except Exception:  # This is probably to broad and in the end we'd like to throw an exception here anyway
-        log("ERROR: Could not get init bsn from ccu-corr")
-        exit()
-    init_unix = init_bsn / pars['time_unit']
-    unixstart = round((starttime.unix-init_unix) / 1.024) * 1.024 + init_unix
-    delta_bsn = (unixstart - init_unix) * pars['time_unit']
+    # simply use user-provided value in debug mode
+    if not pars['debug']:
+        cmd = os.path.join(os.path.dirname(os.path.realpath(__file__)), CHECKBSN)
+        try:
+            init_bsn = float(subprocess.check_output(cmd).strip())
+        except Exception:
+            log("ERROR: Could not get init bsn from ccu-corr")
+            exit()
+        init_unix = init_bsn / pars['time_unit']
+        unixstart = round((starttime.unix-init_unix) / 1.024) * 1.024 + init_unix
+        delta_bsn = (unixstart - init_unix) * pars['time_unit']
+        pars['startpacket'] = "{:.0f}".format(init_bsn + delta_bsn)
+    else:
+        unixstart = starttime.unix
+        pars['startpacket'] = "{:.0f}".format(unixstart * pars['time_unit'])
     starttime = Time(unixstart, format='unix')
     # delta=0 means slightly less accurate (~10arcsec), but no need for internet
     starttime.delta_ut1_utc = 0
@@ -295,12 +308,19 @@ def start_survey(args):
     pars['date'] = starttime.datetime.strftime("%Y%m%d")
     pars['datetimesource'] = "{}.{}".format(pars['utc_start'], pars['source'])
     pars['mjd_start'] = starttime.mjd
-    pars['startpacket'] = "{:.0f}".format(init_bsn + delta_bsn)
+    pars['debug_dir'] = config[conf_sc]['debug_dir']
+    # change output directories in debug mode
+    if args.debug:
+        config[conf_sc]['output_dir'] = '{debug_dir}/output/'.format(**pars)
+        config[conf_sc]['amber_dir'] = '{debug_dir}/output/amber'.format(**pars)
+        config[conf_sc]['log_dir'] = '{debug_dir}/output/log'.format(**pars)
+        config[conf_sc]['master_dir'] = '{debug_dir}/output/results'.format(**pars)
     # output directories
     pars['master_dir'] = config[conf_sc]['master_dir'].format(**pars)
     pars['output_dir'] = config[conf_sc]['output_dir'].format(**pars)
     pars['log_dir'] = config[conf_sc]['log_dir'].format(**pars)
     pars['amber_dir'] = config[conf_sc]['amber_dir'].format(**pars)
+    
     # observing mode
     if args.obs_mode not in pars['valid_modes']:
         log("ERROR: observation mode not valid: {}".format(args.obs_mode))
@@ -357,6 +377,7 @@ def start_survey(args):
     cfg['nbatch'] = pars['nbatch']
     cfg['output_dir'] = pars['output_dir']
     cfg['ntabs'] = pars['ntabs']
+    cfg['nsynbeams'] = pars['nsynbeams']
     cfg['amber_conf_dir'] = os.path.join(os.path.dirname(os.path.realpath(__file__)), AMBERCONFDIR)
     cfg['amber_config'] = os.path.join(os.path.dirname(os.path.realpath(__file__)), AMBERCONFIG)
     cfg['amber_dir'] = pars['amber_dir']
@@ -372,6 +393,7 @@ def start_survey(args):
     cfg['affinity'] = pars['affinity']
     cfg['page_size'] = pars['page_size']
     cfg['hdr_size'] = pars['hdr_size']
+    cfg['debug'] = pars['debug']
 
     # load PSRDADA header template
     with open(os.path.join(os.path.dirname(os.path.realpath(__file__)), TEMPLATE), 'r') as f:
@@ -399,6 +421,8 @@ def start_survey(args):
         cfg['dadakey'] = pars['network_port_start'] + beam
         cfg['network_port'] = pars['network_port_start'] + beam
         cfg['header'] = os.path.join(os.path.dirname(os.path.realpath(__file__)), NODEHEADER.format(beam))
+        if cfg['debug']:
+            cfg['dada_dir'] = pars['dada_dir'].replace('{cb}', '{:02d}'.format(beam))
 
         # save to file
         filename = os.path.join(os.path.dirname(os.path.realpath(__file__)), NODECONFIG.format(beam))
@@ -532,7 +556,11 @@ if __name__ == '__main__':
                         "(Default: False)", action="store_true")
     # Parset
     parser.add_argument("--parset", type=str, help="Path to parset of this observation "
-                        "(Default: no parset)", default='')
+                            "(Default: no parset)", default='')
+    # debug mode; read from disk instead of network
+    parser.add_argument("--debug", help="Debug mode: read from disk intead of network "
+                            "(Default: False)", action="store_true")
+    parser.add_argument("--dada_dir", type=str, help="Path to dada files to read in debug mode with {cb} for CB number, e.g. /home/arts/debugfiles/CB{cb}/dada", default='')
 
     # make sure dec does not start with -
     try:
@@ -556,5 +584,9 @@ if __name__ == '__main__':
     if args.proctrigger and not args.obs_mode == 'survey':
         print "ERROR: proctrigger can only be used in survey mode"
         exit()
+
+    # dada_dir is required in debug mode
+    if args.debug and not args.dada_dir:
+        print "ERROR: dada_dir is required in debug mode"
 
     start_survey(args)

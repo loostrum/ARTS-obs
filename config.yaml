@@ -26,7 +26,7 @@ general: &general
     # size of ringbuffer header
     hdr_size: 40960
     # observation modes
-    valid_modes: [scrub, dump, fil, fits, amber, survey, heimdall]
+    valid_modes: [scrub, dump, fil, fits, amber, survey]
     # network port of CB00
     network_port_start: 5000
     # output directory of stokes I data
@@ -37,6 +37,8 @@ general: &general
     log_dir: "{home}/observations/log/{date}/{datetimesource}"
     # master output dir
     master_dir: "{home}/observations/results/{date}/{datetimesource}"
+    # output of everything in debug mode
+    debug_dir : "{home}/debug"
     # fits templates dir
     fits_templates: "{home}/software/dadafits/templates"
 
@@ -52,14 +54,16 @@ sc3:
 sc4:
     <<: *general
     # sampling time
-    tsamp: 40.96E-6
+    tsamp: 81.92E-6
     # ringbuffer page size, is nr of samples per 1.024s
-    page_size: 25000
+    page_size: 12500
 
 # Stokes I + Tied Array Beam
 i+tab:
     # number of tied-array beams
     ntabs: 12
+    # number of synthesized beams
+    nsynbeams: 12
     # dadafilterbank mode
     science_mode: 0
 
@@ -74,6 +78,8 @@ iquv+tab:
 i+iab:
     # number of tied-array beams
     ntabs: 1
+    # number of synthesized beams
+    nsynbeams: 1
     # dadafilterbank mode
     science_mode: 2
     
@@ -98,3 +104,7 @@ affinity:
     dada_dbdisk_iquv: 4
     # note: one cpu for each AMBER instance, corresponding to GPU 1,2,3
     amber: [3, 15, 16]
+
+# Emailer settings
+emailer:
+    to: [arts-alerts@astron.nl]
