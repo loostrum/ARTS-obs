@@ -26,7 +26,7 @@ general: &general
     # size of ringbuffer header
     hdr_size: 40960
     # observation modes
-    valid_modes: [scrub, dump, fil, fits, amber, survey, heimdall]
+    valid_modes: [scrub, dump, fil, fits, amber, survey]
     # network port of CB00
     network_port_start: 5000
     # output directory of stokes I data
