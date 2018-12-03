@@ -248,6 +248,7 @@ def start_survey(args):
     pars['fits_templates'] = config[conf_sc]['fits_templates'].format(**pars)
     # pol and beam specific
     pars['ntabs'] = config[conf_mode]['ntabs']
+    pars['nsynbeams'] = config[conf_mode]['nsynbeams']
     pars['science_mode']  = config[conf_mode]['science_mode']
     # derived values
     pars['chan_width'] = float(pars['bw']) / pars['nchan']
@@ -379,6 +380,7 @@ def start_survey(args):
     cfg['nbatch'] = pars['nbatch']
     cfg['output_dir'] = pars['output_dir']
     cfg['ntabs'] = pars['ntabs']
+    cfg['nsynbeams'] = pars['nsynbeams']
     cfg['amber_conf_dir'] = os.path.join(os.path.dirname(os.path.realpath(__file__)), AMBERCONFDIR)
     cfg['amber_config'] = os.path.join(os.path.dirname(os.path.realpath(__file__)), AMBERCONFIG)
     cfg['amber_dir'] = pars['amber_dir']

@@ -214,7 +214,7 @@ class Survey(object):
                        " -mom_stepone_file {amber_conf_dir}/mom_stepone.conf"
                        " -mom_steptwo_file {amber_conf_dir}/mom_steptwo.conf -momad_file {amber_conf_dir}/momad.conf"
                        " {downsampling_cmd} -downsampling_configuration {amber_conf_dir}/downsampling.conf -downsampling_factor {downsamp}"
-                       " -threshold {snrmin} -output {output_prefix}_step{ind} -beams 1 -synthesized_beams 1"
+                       " -threshold {snrmin} -output {output_prefix}_step{ind} -beams {ntabs} -synthesized_beams {nsynbeams}"
                        " -dada -dada_key {dadakey} -batches {nbatch} -compact_results"
                        " 2>&1 > {log_dir}/amber_{ind}.{beam:02d} &").format(cpu=cpu, ind=ind+1, **fullconfig)
                 self.log(cmd)
