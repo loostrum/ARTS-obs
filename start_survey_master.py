@@ -229,8 +229,7 @@ def start_survey(args):
     # debug options
     pars['debug'] = args.debug
     if args.debug and not '{cb}' in args.dada_dir:
-        log("ERROR: {cb} not present in dada_dir")
-        exit()
+        log("WARNING: {cb} not present in dada_dir")
     pars['dada_dir'] = args.dada_dir
     if args.mac:
         # could have non-zero starting subband
