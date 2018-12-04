@@ -92,6 +92,13 @@ if __name__ == '__main__':
     alltriggers = np.array(alltriggers, dtype=dtypes)
     # sort by p, then SNR if equal
     alltriggers = np.sort(alltriggers, order=('p', 'SNR'))[::-1]
+    # remove all triggers with p < .1
+    try:
+        ind = alltriggers['p'].astype(float) < .1
+        alltriggers = alltriggers[~ind]
+        print "Removed {} trigger with p < 0.1".format(np.sum(ind))
+    except Exception as e:
+        print "Failed to remove triggers with error:", e
     
 
     # convert triggers to html
@@ -111,7 +118,7 @@ if __name__ == '__main__':
     frm = "ARTS FRB Alert System <arts@{}.apertif>".format(socket.gethostname())
 
     msg = MIMEMultipart('alternative')
-    msg['Subject'] = "ARTS FRB Alert System @ {}".format(datetime.utcnow())
+    msg['Subject'] = "ARTS FRB Alert System Date: {utc_start} UTC; Field: {source}".format(**kwargs)
     msg['From'] = frm
     msg['To'] = to
 
@@ -128,6 +135,8 @@ if __name__ == '__main__':
         <th style="text-align:left">Source</th><td colspan="4">{source}</td>
     </tr><tr>
         <th style="text-align:left">Observation duration</th><td colspan="4">{tobs}</td>
+    </tr><tr>
+        <th style="text-align:left">Classifier probability threshold</th><td colspan="4">0.1</td>
     </tr><tr>
         <th style="text-align:left">NE2001 DM (central beam)</th><td colspan="2">TBD</td>
     </tr><tr>
