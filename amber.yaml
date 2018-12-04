@@ -20,7 +20,7 @@ subband:
     # number of GPU to use
     opencl_device: [1, 2, 3]
     # name of device in config files
-    device_name: [ARTS_step1_81.92us, ARTS_step2_81.92us, ARTS_step3_81.92us]
+    device_name: [ARTS_step1_81.92us_1400MHz, ARTS_step2_81.92us_1400MHz, ARTS_step3_81.92us_1400MHz]
     # nr of subands (approx sqrt(nchan))
     subbands: [32, 32, 32]
     # first DM (global)
