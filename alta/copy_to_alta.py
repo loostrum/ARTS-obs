@@ -35,26 +35,30 @@ def write_commands(**kwargs):
 
     cmds = dedent("""    #!/bin/bash
     if ! [ -d {source_dir} ]; then
-        result="CB{cb}: FAIL - fits directory not present."
+        result="CB{cb}: FAILED - fits directory not present."
         echo $result > {result_file}
         exit
-    elif ! [ ls -A {source_dir} ]; then
-        result="CB{cb}: FAIL - fits directory is empty."
+    elif [ $(ls {source_dir} | wc -l) -eq 0 ]; then
+        result="CB{cb}: FAILED - fits directory is empty."
         echo $result > {result_file}
         exit
+    fi
+
+    files=$(ls {source_dir}/*fits)
 
     imkdir -p {dest_dir}
-    iput -IPr -X {status_file} --lfrestart {lfstatus_file} --retries 5 -N {nthreads} -R {resc} {source_dir} {dest_dir}
+    iput -IPr -X {status_file} --lfrestart {lfstatus_file} --retries 5 -N {nthreads} -R {resc} $files {dest_dir}
     failed=$(irsync -lsr {source_dir} i:{dest_dir} 2>&1)
     
     if [ "$failed" == "" ]; then
         result="CB{cb}: SUCCESS"
     else
         result="CB{cb}: FAILED - $failed"
+    fi
     echo $result > {result_file}
     exit""").format(**kwargs)
 
-    with open(kwargs['out_file'], 'rw') as f:
+    with open(kwargs['out_file'], 'w') as f:
         f.write(cmds)
 
 def get_resc(cb):
@@ -77,7 +81,7 @@ def main(args):
     kwargs = vars(args)
     
     # create directories
-    for directory in (args.source_dir, args_log_dir, args.script_dir):
+    for directory in (args.log_dir, args.script_dir):
         if not os.path.isdir(directory):
             os.makedirs(directory)
     
@@ -94,7 +98,7 @@ def main(args):
         nodekwargs['node'] = node
         nodekwargs['cb'] = "{:02d}".format(cb)
         nodekwargs['resc'] = get_resc(cb)
-        nodekwargs['source_dir'] = "/data2/output/{date}/{obs}/CB{cb}/fits".format(**nodekwargs)
+        nodekwargs['source_dir'] = "/data2/output/{date}/{obs}/fits/CB{cb}".format(**nodekwargs)
         nodekwargs['dest_dir'] = "/altaZone/home/arts_main/arts_sc4/{date}/{obs}/CB{cb}".format(**nodekwargs)
         nodekwargs['out_file'] = "{script_dir}/{node}.sh".format(**nodekwargs)
         nodekwargs['log_file'] = "{log_dir}/{node}.log".format(**nodekwargs)
@@ -126,7 +130,9 @@ def main(args):
     message = "ARTS transfer of {obs} completed:\n".format(**kwargs)
     result = []
     for fname in result_files.items():
-        with open(fname) as f:
+        print fname
+        exit()
+        with open(fname, 'r') as f:
             content = f.readlines()
         result.append(content)
     message += "\n".join(result)
