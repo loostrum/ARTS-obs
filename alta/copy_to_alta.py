@@ -76,7 +76,11 @@ def main(args):
     # convert args to dict
     kwargs = vars(args)
     
-    # format source directory
+    # create directories
+    for directory in (args.source_dir, args_log_dir, args.script_dir):
+        if not os.path.isdir(directory):
+            os.makedirs(directory)
+    
     # format list of compound beams
     cbs= np.array(ast.literal_eval(args.cbs), dtype=int)
     # get list of nodes
