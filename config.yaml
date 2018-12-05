@@ -8,9 +8,9 @@ general: &general
     # total nr of channels
     nchan: 1536
     # central frequency
-    freq: 1400
-    # first subband (usually 0, or 64 when using MAC)
-    first_subband: 64  # corresponds to central freq of 1370 MHz if LO1=4770
+    freq: 1399.609375
+    # first subband (usually 64, corresponding to 50 MHz)
+    first_subband: 64
     # bandwidth
     bw: 300
     # bandwidth digitized at frontend (only used to calculate freq in MAC mode)
