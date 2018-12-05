@@ -116,7 +116,7 @@ def main(args):
 
     # wait for all to be done -> check result files
     nbeam = len(cbs)
-    print "Expecting {} beams".format(nbeam)
+    print "Archiver: Expecting {} beams".format(nbeam)
     beams_done = 0
     while beams_done < nbeam:
         sleep(10)
@@ -124,10 +124,10 @@ def main(args):
         for node in nodelist:
             if os.path.isfile(result_files[node]):
                 beams_done += 1 
-        print "{} out of {} CBs transferred".format(beams_done, nbeam)
+        print "Archiver: {} out of {} CBs done".format(beams_done, nbeam)
 
     # Gather output into one message
-    message = "TEST: ARTS SC4 transfer of {obs} completed:\n".format(**kwargs)
+    message = "ARTS SC4 transfer of {obs} completed:\n".format(**kwargs)
     result = []
     nsuccessful = 0
     for fname in result_files.values():
@@ -139,7 +139,7 @@ def main(args):
     else:
         nsuccessful += 1
     if nsuccessful == nbeam:
-        message = "TEST: ARTS SC4 transfer of {obs} completed succesfully.".format(**kwargs)
+        message = "ARTS SC4 transfer of {obs} completed succesfully.".format(**kwargs)
         
 
     # Put message on slack

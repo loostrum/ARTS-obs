@@ -511,9 +511,9 @@ def start_survey(args):
     # start the archiver
     if pars['ingest_to_archive']:
         archiver_script = os.path.join(script_path, "utilities/copy_to_alta.py")
-        cmd = "(sleepuntil_utc {end_time}; sleep 10; {archiver_script} --date {date} --obs {datetimesource} --cbs {beams}) &".format(archiver_script=archiver_script, **pars)
+        cmd = "(sleepuntil_utc {endtime}; sleep 10; {archiver_script} --date {date} --obs {datetimesource} --cbs {beams}) &".format(archiver_script=archiver_script, **pars)
         log(cmd)
-        os.sytem(cmd)
+        os.system(cmd)
 
 if __name__ == '__main__':
     warnings.filterwarnings('ignore', category=UnicodeWarning)
