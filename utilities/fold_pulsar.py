@@ -15,7 +15,7 @@ def main(args):
     hostname = socket.gethostname()
     kwargs['cb'] = "{:02d}".format(int(hostname[5:7]) - 1)
     # Set up file name and dir
-    kwargs['data_dir'] = "/data2/output/{date}/{obs}/filterbank".format(**kwargs)
+    kwargs['data_dir'] = "{obs_dir}/filterbank".format(**kwargs)
     kwargs['fname'] = "{data_dir}/CB{cb}.fil".format(**kwargs)
 
     # check paths
@@ -27,7 +27,7 @@ def main(args):
         exit()
 
     # try to find par file, otherwise use psr option
-    psr =  kwargs['obs'].split('.')[-1]
+    psr =  kwargs['obs_dir'].strip('/').split('.')[-1]
     parfile = "{}/tzpar/{}.par".format(os.environ['TEMPO'], psr[1:])
     if not os.path.isfile(parfile):
         opt = "-psr {}".format(psr)
@@ -46,8 +46,7 @@ if __name__ == '__main__':
     home = os.path.expanduser('~')
 
     parser = ArgumentParser(formatter_class=RawTextHelpFormatter)
-    parser.add_argument('--date', type=str, help="Date of observation", required=True)
-    parser.add_argument('--obs', type=str, help="Observation ID", required=True)
+    parser.add_argument('--obs_dir', type=str, help="Output folder of observation", required=True)
 
     # print help if not arguments are supplied
     if len(sys.argv) == 1:
