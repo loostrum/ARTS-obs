@@ -222,6 +222,8 @@ def start_survey(args):
     pars['time_unit'] = config[conf_sc]['time_unit']
     pars['nbit'] = config[conf_sc]['nbit']
     pars['nchan'] = config[conf_sc]['nchan']
+    pars['pulsar'] = args.pulsar
+    pars['ingest_to_archive'] = args.ingest_to_archive
     # debug options
     pars['debug'] = args.debug
     if args.debug and not '{cb}' in args.dada_dir:
@@ -303,6 +305,7 @@ def start_survey(args):
     starttime = Time(unixstart, format='unix')
     # delta=0 means slightly less accurate (~10arcsec), but no need for internet
     starttime.delta_ut1_utc = 0
+    pars['end_time'] = starttime + TimeDelta(ddddd
 
     pars['utc_start'] = starttime.datetime.strftime('%Y-%m-%d-%H:%M:%S')
     pars['date'] = starttime.datetime.strftime("%Y%m%d")
@@ -393,6 +396,7 @@ def start_survey(args):
     cfg['affinity'] = pars['affinity']
     cfg['page_size'] = pars['page_size']
     cfg['hdr_size'] = pars['hdr_size']
+    cfg['pulsar'] = pars['pulsar']
     cfg['debug'] = pars['debug']
 
     # load PSRDADA header template
@@ -500,14 +504,19 @@ def start_survey(args):
     # done
     log("All nodes started for observation")
 
-    # start the trigger listener + emailer NOTE: this is the only command
-    # that keeps running in the foreground during the obs
+    # start the trigger listener + emailer
     if pars['proctrigger']:
         email_script = os.path.join(script_path, "emailer.py")
-        cmd = "sleep {tobs}; python {email_script} {master_dir} '{beams}'".format(email_script=email_script, **pars)
+        cmd = "(sleep {tobs}; python {email_script} {master_dir} '{beams}') &".format(email_script=email_script, **pars)
         log(cmd)
         os.system(cmd)
 
+    # start the archiver
+    if pars['ingest_to_archive']:
+        archiver_script = os.path.join(script_path, "utilities/copy_to_alta.py")
+        cmd = "(sleepuntil_utc {end_time}; sleep 10; {archiver_script} --date {date} --obs {datetimesource} --cbs {beams}) &".format(archiver_script=archiver_script, **pars)
+        log(cmd)
+        os.sytem(cmd)
 
 if __name__ == '__main__':
     warnings.filterwarnings('ignore', category=UnicodeWarning)
@@ -557,6 +566,12 @@ if __name__ == '__main__':
     # Parset
     parser.add_argument("--parset", type=str, help="Path to parset of this observation "
                             "(Default: no parset)", default='')
+    # test pulsar mode
+    parser.add_argument("--pulsar", help="Test pulsar mode. Creates prepfold plot after observation "
+                            "(Default: False)", action="store_true")
+    # ALTA
+    parser.add_argument("--ingest_to_archive", help="Ingest to ALTA "
+                            "(Default: False)", action="store_true")
     # debug mode; read from disk instead of network
     parser.add_argument("--debug", help="Debug mode: read from disk intead of network "
                             "(Default: False)", action="store_true")
