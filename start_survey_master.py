@@ -305,8 +305,9 @@ def start_survey(args):
     starttime = Time(unixstart, format='unix')
     # delta=0 means slightly less accurate (~10arcsec), but no need for internet
     starttime.delta_ut1_utc = 0
-    pars['end_time'] = starttime + TimeDelta(ddddd
+    endtime = starttime + TimeDelta(pars['tobs'], format='sec')
 
+    pars['endtime'] = endtime.datetime.strftime('%Y-%m-%d %H:%M:%S')
     pars['utc_start'] = starttime.datetime.strftime('%Y-%m-%d-%H:%M:%S')
     pars['date'] = starttime.datetime.strftime("%Y%m%d")
     pars['datetimesource'] = "{}.{}".format(pars['utc_start'], pars['source'])
@@ -376,6 +377,7 @@ def start_survey(args):
     cfg['nreader'] = pars['nreader']
     cfg['obs_mode'] = pars['obs_mode']
     cfg['startpacket'] = pars['startpacket']
+    cfg['endtime'] = pars['endtime']
     cfg['duration'] = pars['tobs']
     cfg['nbatch'] = pars['nbatch']
     cfg['output_dir'] = pars['output_dir']
