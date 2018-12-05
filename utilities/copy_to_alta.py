@@ -116,7 +116,7 @@ def main(args):
 
     # wait for all to be done -> check result files
     nbeam = len(cbs)
-    print "Archiver: Expecting {} beams".format(nbeam)
+    print "Master-archiver: Expecting {} beams".format(nbeam)
     beams_done = 0
     while beams_done < nbeam:
         sleep(10)
@@ -124,7 +124,7 @@ def main(args):
         for node in nodelist:
             if os.path.isfile(result_files[node]):
                 beams_done += 1 
-        print "Archiver: {} out of {} CBs done".format(beams_done, nbeam)
+        print "Master-archiver: {} out of {} CBs done".format(beams_done, nbeam)
 
     # Gather output into one message
     message = "ARTS SC4 transfer of {obs} completed:\n".format(**kwargs)
