@@ -6,7 +6,6 @@
 import os
 import sys
 import ast
-import subprocess
 from textwrap import dedent
 from time import sleep
 
@@ -44,19 +43,20 @@ def write_commands(**kwargs):
         exit
     fi
 
-    files=$(ls {source_dir}/*fits)
-
     imkdir -p {dest_dir}
-    iput -IPr -X {status_file} --lfrestart {lfstatus_file} --retries 5 -N {nthreads} -R {resc} $files {dest_dir}
-    failed=$(irsync -lsr {source_dir} i:{dest_dir} 2>&1)
+    iput -IPr -X {status_file} --lfrestart {lfstatus_file} --retries 5 -N {nthreads} -R {resc} {source_dir} {dest_dir} 2>&1
+    sleep 5
+    failed="$(irsync -lsr {source_dir} i:{dest_dir}/CB{cb} 2>&1)"
     
-    if [ "$failed" == "" ]; then
-        result="CB{cb}: SUCCESS"
+    if ! [ "$failed" == "" ]; then
+        result="CB{cb}: FAILED:
+        $failed"
+        echo "$result" > {result_file}
     else
-        result="CB{cb}: FAILED - $failed"
+        touch {result_file}
     fi
-    echo $result > {result_file}
-    exit""").format(**kwargs)
+    exit
+    """).format(**kwargs)
 
     with open(kwargs['out_file'], 'w') as f:
         f.write(cmds)
@@ -99,12 +99,12 @@ def main(args):
         nodekwargs['cb'] = "{:02d}".format(cb)
         nodekwargs['resc'] = get_resc(cb)
         nodekwargs['source_dir'] = "/data2/output/{date}/{obs}/fits/CB{cb}".format(**nodekwargs)
-        nodekwargs['dest_dir'] = "/altaZone/home/arts_main/arts_sc4/{date}/{obs}/CB{cb}".format(**nodekwargs)
-        nodekwargs['out_file'] = "{script_dir}/{node}.sh".format(**nodekwargs)
-        nodekwargs['log_file'] = "{log_dir}/{node}.log".format(**nodekwargs)
-        nodekwargs['result_file'] = "{script_dir}/{node}.result".format(**nodekwargs)
-        nodekwargs['status_file'] = "{source_dir}/altacopy.irods-status".format(**nodekwargs)
-        nodekwargs['lfstatus_file'] = "{source_dir}/altacopy.lf-irods-status".format(**nodekwargs)
+        nodekwargs['dest_dir'] = "/altaZone/home/arts_main/arts_sc4/{date}/{obs}/".format(**nodekwargs)
+        nodekwargs['out_file'] = "{script_dir}/{obs}_{node}.sh".format(**nodekwargs)
+        nodekwargs['log_file'] = "{log_dir}/{obs}_{node}.log".format(**nodekwargs)
+        nodekwargs['result_file'] = "{log_dir}/{obs}_{node}.result".format(**nodekwargs)
+        nodekwargs['status_file'] = "{log_dir}/{obs}_{node}.irods-status".format(**nodekwargs)
+        nodekwargs['lfstatus_file'] = "{log_dir}/{obs}_{node}.lf-irods-status".format(**nodekwargs)
 
         write_commands(**nodekwargs)
         result_files[node] = nodekwargs['result_file']
@@ -127,19 +127,25 @@ def main(args):
         print "{} out of {} CBs transferred".format(beams_done, nbeam)
 
     # Gather output into one message
-    message = "ARTS transfer of {obs} completed:\n".format(**kwargs)
+    message = "TEST: ARTS SC4 transfer of {obs} completed:\n".format(**kwargs)
     result = []
-    for fname in result_files.items():
-        print fname
-        exit()
+    nsuccessful = 0
+    for fname in result_files.values():
         with open(fname, 'r') as f:
             content = f.readlines()
-        result.append(content)
-    message += "\n".join(result)
+        result.append(''.join(content))
+    if not (result == ['']):
+        message += ''.join(result)
+    else:
+        nsuccessful += 1
+    if nsuccessful == nbeam:
+        message = "TEST: ARTS SC4 transfer of {obs} completed succesfully.".format(**kwargs)
+        
 
-    # Put message on slack: todo
-    print "Message:"
-    print message
+    # Put message on slack
+    cmd = "curl -X POST --data-urlencode 'payload={{\"text\":\"{}\"}}' " \
+          "https://hooks.slack.com/services/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".format(message)
+    os.system(cmd)
     
 if __name__ == '__main__':
     home = os.path.expanduser('~')
@@ -150,7 +156,7 @@ if __name__ == '__main__':
     parser.add_argument('--cbs', type=str, help="List of CBs", required=True)
     parser.add_argument('--nthreads', type=int, default=5, 
                         help="Number of threads per iput, default: %(default)s")
-    parser.add_argument('--script_dir', type=str, default="{}/alta".format(home),
+    parser.add_argument('--script_dir', type=str, default="{}/alta/scripts".format(home),
                         help="Script directory, default: %(default)s")
     parser.add_argument('--log_dir', type=str, default="{}/alta/log".format(home), 
                         help="Log directory, default: %(default)s")
