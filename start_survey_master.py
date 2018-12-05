@@ -229,12 +229,6 @@ def start_survey(args):
     if args.debug and not '{cb}' in args.dada_dir:
         log("WARNING: {cb} not present in dada_dir")
     pars['dada_dir'] = args.dada_dir
-    if args.mac:
-        # could have non-zero starting subband
-        pars['freq'] = config[conf_sc]['freq'] - .5*(config[conf_sc]['bw_rf'] - config[conf_sc]['bw']) +\
-                       config[conf_sc]['first_subband'] * pars['time_unit'] * 1E-6
-    else:
-        pars['freq'] = config[conf_sc]['freq']
     pars['bw'] = config[conf_sc]['bw']
     pars['nbeams'] = config[conf_sc]['nbeams']
     pars['missing_beams'] = config[conf_sc]['missing_beams']
@@ -252,7 +246,8 @@ def start_survey(args):
 
     # derived values
     pars['chan_width'] = float(pars['bw']) / pars['nchan']
-    pars['min_freq'] = pars['freq'] - pars['bw'] / 2 + pars['chan_width'] / 2
+    pars['min_freq'] = config[conf_sc]['freq_low'] + config[conf_sc]['first_subband'] * pars['time_unit'] * 1E-6
+    pars['freq'] = pars['min_freq'] - .5*pars['time_unit']*1E-6 + 0.5*pars['bw']
     if args.obs_mode == 'survey':
         # filterbank + fits + 3x AMBER
         pars['nreader'] = 5

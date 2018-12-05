@@ -7,14 +7,12 @@ general: &general
     nbit: 8
     # total nr of channels
     nchan: 1536
-    # central frequency
-    freq: 1399.609375
+    # minimum frequency (center of lowest subband)
+    freq_low: 1200
     # first subband (usually 64, corresponding to 50 MHz)
     first_subband: 64
     # bandwidth
     bw: 300
-    # bandwidth digitized at frontend (only used to calculate freq in MAC mode)
-    bw_rf: 400
     # seconds to timestamp conversion
     time_unit: 781250
     # total nr of beams
