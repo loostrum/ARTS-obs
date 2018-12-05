@@ -74,7 +74,7 @@ class Survey(object):
         if self.config['pulsar']:
             # MAC: CB00 = central beam
             # no MAC: CB21 = central beam
-            if (self.config['mac'] and self.config['beam'] == "00") or ((not self.config['mac']) and self.config['beam'] == "21"):
+            if (self.config['usemac'] and self.config['beam'] == "00") or ((not self.config['usemac']) and self.config['beam'] == "21"):
                 # this is the central beam
                 fold_script = "{script_dir}/utilities/fold_pulsar.py".format(**self.config)
                 cmd = "(sleepuntil_utc {endtime}; {fold_scrip} --date {date} --obs {datetimesource}) &".format(**self.config)
