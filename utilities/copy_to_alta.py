@@ -127,7 +127,7 @@ def main(args):
         print "Master-archiver: {} out of {} CBs done".format(beams_done, nbeam)
 
     # Gather output into one message
-    message = "ARTS SC4 transfer of {obs} completed with errors:\n".format(**kwargs)
+    message = "ARTS SC4 transfer of {obs} completed.\n".format(**kwargs)
     result = []
     nsuccessful = 0
     for fname in result_files.values():
@@ -139,7 +139,7 @@ def main(args):
     else:
         nsuccessful += 1
     if nsuccessful == nbeam:
-        message = "ARTS SC4 transfer of {obs} completed succesfully.".format(**kwargs)
+        message = "ARTS SC4 transfer of {obs} completed.".format(**kwargs)
         
 
     # Put message on slack
