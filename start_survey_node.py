@@ -40,7 +40,7 @@ class Survey(object):
         # start the programmes
         # remove running ringbuffers, AMBER, etc.
         self.clean()
-        sleep(waittime)
+        sleep(2*waittime)
         # create ringbuffer
         self.ringbuffer()
         sleep(waittime)
@@ -110,7 +110,7 @@ class Survey(object):
 
     def clean(self):
         self.log("Removing old ringbuffers")
-        cmd = "dada_db -d -k {dadakey} 2>/dev/null; pkill fill_ringbuffer".format(**self.config)
+        cmd = "dada_db -d -k {dadakey} 2>/dev/null; pkill fill_ringbuffer; pkill amber".format(**self.config)
         self.log(cmd)
         os.system(cmd)
 
