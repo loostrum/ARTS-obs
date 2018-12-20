@@ -45,7 +45,9 @@ rm -f $outputdir/data/*
 rm -f $outputdir/plots/*pdf
 cd $outputdir
 # process the triggers without making plots
+trig_start=$(date)
 python $triggerscript --sig_thresh_local $snrmin_local --time_limit $time_limit --descending_snr --beamno $CB --mk_plot --dm_min $dmmin --dm_max $dmmax --sig_thresh $snrmin --ndm $ndm --save_data $fmt --nfreq_plot $nfreq_plot --ntime_plot $ntime_plot --cmap $cmap --outdir=$outputdir $filfile ${prefix}.trigger
+trig_end=$(date)
 
 # get number of triggers after grouping
 if [ ! -f grouped_pulses.singlepulse ]; then
@@ -67,3 +69,6 @@ else
 fi
 # copy results to masternode
 python $trigger_to_master ranked_CB${CB}_freq_time.hdf5 $ncand_raw $ncand_grouped $master_dir
+
+echo "Start of triggers.py: $trig_start"
+echo "End of triggers.py: $trig_end"
