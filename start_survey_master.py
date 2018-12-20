@@ -263,6 +263,7 @@ def start_survey(args):
     pars['amber_mode'] = args.amber_mode
     pars['snrmin_amber'] = args.snrmin_amber
     pars['snrmin_processing'] = args.snrmin_processing
+    pars['snrmin_processing_local'] = args.snrmin_processing_local
     pars['dmmin'] = args.dmmin
     pars['dmmax'] = args.dmmax
     pars['source'] = args.source
@@ -388,6 +389,7 @@ def start_survey(args):
     cfg['master_dir'] = pars['master_dir']
     cfg['snrmin_amber'] = pars['snrmin_amber']
     cfg['snrmin_processing'] = pars['snrmin_processing']
+    cfg['snrmin_processing_local'] = pars['snrmin_processing_local']
     cfg['dmmin'] = pars['dmmin']
     cfg['dmmax'] = pars['dmmax']
     cfg['proctrigger'] = pars['proctrigger']
@@ -565,6 +567,8 @@ if __name__ == '__main__':
                         "(Default: False)", action="store_true")
     parser.add_argument("--snrmin_processing", type=float, help="Trigger processing minimum S/N "
                         "(Default: 10)", default=10)
+    parser.add_argument("--snrmin_processing_local", type=float, help="Trigger processing local minimum S/N after clustering"
+                        "(Default: 7)", default=7)
     parser.add_argument("--dmmin", type=float, help="Trigger processing minimum DM "
                         "(Default: 20)", default=20)
     parser.add_argument("--dmmax", type=float, help="Trigger processing maximum DM "

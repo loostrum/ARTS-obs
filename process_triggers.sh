@@ -20,17 +20,17 @@ fmt=concat
 modeldir=$HOME/keras_models
 pthresh=0.1
 ML_GPUs=0
-snrmin_local=7
 
 outputdir=$1
 filfile=$2
 prefix=$3
 master_dir=$4
 snrmin=$5
-dmmin=$6
-dmmax=$7
-CB=$8
-time_limit=$9
+snrmin_local=$6
+dmmin=$7
+dmmax=$8
+CB=$9
+time_limit=$10
 
 # Set GPUs visible to the classifier
 export CUDA_VISIBLE_DEVICES=$ML_GPUs

@@ -95,7 +95,7 @@ class Survey(object):
             cmd = "sleep 1; pid=$(pgrep {prog}); tail --pid=$pid -f /dev/null; sleep 5; " \
                   "{script_dir}/process_triggers.sh {output_dir}/triggers {output_dir}/filterbank/CB{beam:02d}.fil " \
                   "{amber_dir}/CB{beam:02d} {master_dir} " \
-                  "{snrmin_processing} {dmmin} {dmmax} {beam:02d} {duration}".format(prog=prog, 
+                  "{snrmin_processing} {snrmin_processing_local} {dmmin} {dmmax} {beam:02d} {duration}".format(prog=prog, 
                                                           script_dir=os.path.dirname(os.path.realpath(__file__)),
                                                           **self.config)
             self.log(cmd)
