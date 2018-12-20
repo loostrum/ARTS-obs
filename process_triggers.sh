@@ -17,8 +17,6 @@ ntime_plot=64
 nfreq_plot=32
 ndm=64
 fmt=concat
-dmmin=40
-dmmax=5000
 modeldir=$HOME/keras_models
 pthresh=0.1
 ML_GPUs=0
@@ -29,8 +27,10 @@ filfile=$2
 prefix=$3
 master_dir=$4
 snrmin=$5
-CB=$6
-time_limit=$7
+dmmin=$6
+dmmax=$7
+CB=$8
+time_limit=$9
 
 # Set GPUs visible to the classifier
 export CUDA_VISIBLE_DEVICES=$ML_GPUs
