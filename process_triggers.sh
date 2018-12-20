@@ -30,7 +30,7 @@ snrmin_local=$6
 dmmin=$7
 dmmax=$8
 CB=$9
-time_limit=$10
+time_limit=${10}
 
 # Set GPUs visible to the classifier
 export CUDA_VISIBLE_DEVICES=$ML_GPUs
