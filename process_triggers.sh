@@ -15,7 +15,7 @@ venv_dir=$HOME/python34
 cmap=viridis
 ntime_plot=64
 nfreq_plot=32
-ndm=64
+ndm=1
 fmt=concat
 modeldir=$HOME/keras_models
 pthresh=0.1
@@ -56,8 +56,8 @@ else
     ncand_grouped=$(wc -l grouped_pulses.singlepulse | awk '{print $1}')
     # run the classifier
     source $venv_dir/bin/activate
-    #python $classifier combined.hdf5
-    python $classifier --fn_model_dm $modeldir/heimdall_dm_time.hdf5 --fn_model_time $modeldir/heimdall_b0329_mix_147411d_time.hdf5 --pthresh $pthresh --save_ranked --plot_ranked --fnout=ranked_CB$CB $outputdir/data/data_full.hdf5 $modeldir/heimdall_b0329_mix_14741freq_time.hdf5
+    # to add DM model: --fn_model_dm $modeldir/heimdall_dm_time.hdf5
+    python $classifier --fn_model_time $modeldir/heimdall_b0329_mix_147411d_time.hdf5 --pthresh $pthresh --save_ranked --plot_ranked --fnout=ranked_CB$CB $outputdir/data/data_full.hdf5 $modeldir/heimdall_b0329_mix_14741freq_time.hdf5
     deactivate
     # merge classifier summary figs
     nMLfigs=$(ls $outputdir/*pdf | wc -l)
