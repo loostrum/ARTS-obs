@@ -95,7 +95,7 @@ class Survey(object):
             cmd = "sleep 1; pid=$(pgrep {prog}); tail --pid=$pid -f /dev/null; sleep 5; " \
                   "{script_dir}/process_triggers.sh {output_dir}/triggers {output_dir}/filterbank/CB{beam:02d}.fil " \
                   "{amber_dir}/CB{beam:02d} {master_dir} " \
-                  "{snrmin} {beam:02d} {duration}".format(prog=prog, 
+                  "{snrmin_processing} {snrmin_processing_local} {dmmin} {dmmax} {beam:02d} {duration}".format(prog=prog, 
                                                           script_dir=os.path.dirname(os.path.realpath(__file__)),
                                                           **self.config)
             self.log(cmd)
@@ -235,7 +235,7 @@ class Survey(object):
                        " -mom_stepone_file {amber_conf_dir}/mom_stepone.conf"
                        " -mom_steptwo_file {amber_conf_dir}/mom_steptwo.conf -momad_file {amber_conf_dir}/momad.conf"
                        " {downsampling_cmd} -downsampling_configuration {amber_conf_dir}/downsampling.conf -downsampling_factor {downsamp}"
-                       " -threshold {snrmin} -output {output_prefix}_step{ind} -beams {ntabs} -synthesized_beams {nsynbeams}"
+                       " -threshold {snrmin_amber} -output {output_prefix}_step{ind} -beams {ntabs} -synthesized_beams {nsynbeams}"
                        " -dada -dada_key {dadakey} -batches {nbatch} -compact_results"
                        " 2>&1 > {log_dir}/amber_{ind}.{beam:02d} &").format(cpu=cpu, ind=ind+1, **fullconfig)
                 self.log(cmd)

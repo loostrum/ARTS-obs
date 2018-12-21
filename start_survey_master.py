@@ -261,7 +261,11 @@ def start_survey(args):
     # load observation specific arguments
     pars['proctrigger'] = args.proctrigger
     pars['amber_mode'] = args.amber_mode
-    pars['snrmin'] = args.snrmin
+    pars['snrmin_amber'] = args.snrmin_amber
+    pars['snrmin_processing'] = args.snrmin_processing
+    pars['snrmin_processing_local'] = args.snrmin_processing_local
+    pars['dmmin'] = args.dmmin
+    pars['dmmax'] = args.dmmax
     pars['source'] = args.source
     pars['ra'] = args.ra
     pars['dec'] = args.dec.replace('m', '-')
@@ -383,7 +387,11 @@ def start_survey(args):
     cfg['amber_dir'] = pars['amber_dir']
     cfg['log_dir'] = pars['log_dir']
     cfg['master_dir'] = pars['master_dir']
-    cfg['snrmin'] = pars['snrmin']
+    cfg['snrmin_amber'] = pars['snrmin_amber']
+    cfg['snrmin_processing'] = pars['snrmin_processing']
+    cfg['snrmin_processing_local'] = pars['snrmin_processing_local']
+    cfg['dmmin'] = pars['dmmin']
+    cfg['dmmax'] = pars['dmmax']
     cfg['proctrigger'] = pars['proctrigger']
     cfg['amber_mode'] = pars['amber_mode']
     cfg['fits_templates'] = pars['fits_templates']
@@ -553,10 +561,18 @@ if __name__ == '__main__':
     # amber and trigger processing
     parser.add_argument("--amber_mode", type=str, help="AMBER dedispersion mode, can be bruteforce or suband "
                         "(Default: subband)", default="subband")
-    parser.add_argument("--snrmin", type=float, help="AMBER minimum S/N "
+    parser.add_argument("--snrmin_amber", type=float, help="AMBER minimum S/N "
                         "(Default: 10)", default=10)
     parser.add_argument("--proctrigger", help="Process and email triggers. "
                         "(Default: False)", action="store_true")
+    parser.add_argument("--snrmin_processing", type=float, help="Trigger processing minimum S/N "
+                        "(Default: 10)", default=10)
+    parser.add_argument("--snrmin_processing_local", type=float, help="Trigger processing local minimum S/N after clustering"
+                        "(Default: 7)", default=7)
+    parser.add_argument("--dmmin", type=float, help="Trigger processing minimum DM "
+                        "(Default: 20)", default=20)
+    parser.add_argument("--dmmax", type=float, help="Trigger processing maximum DM "
+                        "(Default: 5000)", default=5000)
     # MAC
     parser.add_argument("--mac", help="Using MAC. Enables beamlet reordering and non-zero starting subband "
                         "(Default: False)", action="store_true")
