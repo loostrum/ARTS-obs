@@ -70,6 +70,9 @@ class Survey(object):
         self.log("Everything started")
         # flush stdout
         sys.stdout.flush()
+        # Add dataproducts to atdb
+        if self.config['atdb'] and self.config['obs_mode'] in ('survey', 'fits'):
+            self.add_dataproducts()
         # test pulsar command
         if self.config['pulsar']:
             # MAC: CB00 = central beam
@@ -107,6 +110,40 @@ class Survey(object):
         Log a message. Prints the hostname, then the message
         """
         print "{}: {}".format(self.hostname, message)
+
+    def add_dataproducts(self):
+        """
+        Add dataproducts to ATDB
+        """
+        fits_dir = "{output_dir}/fits/CB{beam:02d}".format(**self.config)
+        # IAB mode: one dataproduct
+        if self.config['ntabs'] == 1:
+            fname = "ARTS{taskid}_CB{beam:02d}.fits".format(**self.config)
+            # symlink the fits file
+            os.symlink("{fits_dir}/tabA.fits".format(fits_dir=fits_dir), "{fits_dir}/{fname}".format(fits_dir=fits_dir, fname=fname))
+            # add the data products
+            cmd = "source /home/arts/atdb_client/env2/bin/activate; atdb_service -o add_dataproduct --taskid {taskid} " \
+                  " --node {hostname} --data_dir {fits_dir} --filename {fname}" \
+                  " --atdb_host prod".format(hostname=self.hostname, fname=fname, fits_dir=fits_dir, **self.config)
+            self.log(cmd)
+            sys.stdout.flush()
+            #os.system(cmd)
+
+        # TAB mode: multiple dataproducts
+        else:
+            mapping = {1:'A', 2:'B', 3:'C', 4:'D', 5:'E', 6:'F', 7:'G', 8:'H', 9:'I', 10:'J', 11:'K', 12:'L'}
+            for tab in range(1, self.config['ntabs']+1):
+                fname = "ARTS{taskid}_CB{beam:02d}_TAB{tab:02d}.fits".format(tab=tab, **self.config)
+                # symlink the fits file
+                os.symlink("{fits_dir}/tab{letter}.fits".format(fits_dir=fits_dir, letter=mapping[tab]), 
+                            "{fits_dir}/{fname}".format(fits_dir=fits_dir, fname=fname))
+                # add the data products
+                cmd = "source /home/arts/atdb_client/env2/bin/activate; atdb_service -o add_dataproduct --taskid {taskid} " \
+                      " --node {hostname} --data_dir {fits_dir} --filename {fname}" \
+                      " --atdb_host prod".format(hostname=self.hostname, fname=fname, fits_dir=fits_dir, **self.config)
+                self.log(cmd)
+                sys.stdout.flush()
+                #os.system(cmd)
 
     def clean(self):
         self.log("Removing old ringbuffers")
