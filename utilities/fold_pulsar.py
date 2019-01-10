@@ -36,8 +36,13 @@ def main(args):
 
     # run fold in data directory
     os.chdir(kwargs['data_dir'])
+    rfifind_cmd = "rfifind -time 1 -timesig 5 -freqsig 3 -o CB{cb}" \
+                  " CB{cb}.fil".format(**kwargs)
+    print "Running rfifind command: {}".format(rfifind_cmd)
+    os.system(rfifind_cmd)
     prepfold_cmd = "prepfold -n 64 -nsub 128 -nodmsearch -nopdsearch {opt}" \
-                   " -noxwin -filterbank {fname}".format(opt=opt, **kwargs)
+                   " -noxwin -mask CB{cb}_rfifind.mask -filterbank" \
+                   " {fname}".format(opt=opt, **kwargs)
     print "Running prepfold command: {}".format(prepfold_cmd)
     os.system(prepfold_cmd)
     print "Done"
