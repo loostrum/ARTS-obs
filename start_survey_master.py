@@ -627,9 +627,11 @@ if __name__ == '__main__':
     # dada_dir is required in debug mode
     if args.debug and not args.dada_dir:
         print "ERROR: dada_dir is required in debug mode"
+        exit()
 
     # taskid is required if ATDB is enabled
     if args.atdb and args.taskid == "None":
         print "ERROR: taskid is required if ATDB is enabled"
+        exit()
 
     start_survey(args)
