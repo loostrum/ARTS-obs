@@ -228,6 +228,9 @@ def start_survey(args):
     pars['debug'] = args.debug
     if args.debug and not '{cb}' in args.dada_dir:
         log("WARNING: {cb} not present in dada_dir")
+    pars['atdb'] = args.atdb
+    if args.atdb:
+        pars['taskid'] = args.taskid
     pars['dada_dir'] = args.dada_dir
     pars['bw'] = config[conf_sc]['bw']
     pars['nbeams'] = config[conf_sc]['nbeams']
@@ -403,6 +406,9 @@ def start_survey(args):
     cfg['hdr_size'] = pars['hdr_size']
     cfg['pulsar'] = pars['pulsar']
     cfg['debug'] = pars['debug']
+    cfg['atdb'] = pars['atdb']
+    if pars['atdb']:
+        cfg['taskid'] = pars['taskid']
 
     # load PSRDADA header template
     with open(os.path.join(os.path.dirname(os.path.realpath(__file__)), TEMPLATE), 'r') as f:
@@ -585,6 +591,11 @@ if __name__ == '__main__':
     # ALTA
     parser.add_argument("--ingest_to_archive", help="Ingest to ALTA "
                             "(Default: False)", action="store_true")
+    # ATDB connection to add dataproducts
+    parser.add_argument("--atdb", help="Enable connection to ATDB "
+                            "(Default: False)", action="store_true")
+    parser.add_argument("--taskid", type=str, help="Task ID "
+                            "(Default: None)", default="None")
     # debug mode; read from disk instead of network
     parser.add_argument("--debug", help="Debug mode: read from disk intead of network "
                             "(Default: False)", action="store_true")
@@ -616,5 +627,11 @@ if __name__ == '__main__':
     # dada_dir is required in debug mode
     if args.debug and not args.dada_dir:
         print "ERROR: dada_dir is required in debug mode"
+        exit()
+
+    # taskid is required if ATDB is enabled
+    if args.atdb and args.taskid == "None":
+        print "ERROR: taskid is required if ATDB is enabled"
+        exit()
 
     start_survey(args)
