@@ -18,7 +18,7 @@ nfreq_plot=32
 ndm=1
 fmt=concat
 modeldir=$HOME/keras_models
-pthresh=0.1
+pthresh=0.5
 ML_GPUs=0
 
 outputdir=$1
