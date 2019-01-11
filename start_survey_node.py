@@ -127,7 +127,7 @@ class Survey(object):
                   " --atdb_host prod".format(hostname=self.hostname, fname=fname, fits_dir=fits_dir, **self.config)
             self.log(cmd)
             sys.stdout.flush()
-            #os.system(cmd)
+            os.system(cmd)
 
         # TAB mode: multiple dataproducts
         else:
@@ -143,7 +143,7 @@ class Survey(object):
                       " --atdb_host prod".format(hostname=self.hostname, fname=fname, fits_dir=fits_dir, **self.config)
                 self.log(cmd)
                 sys.stdout.flush()
-                #os.system(cmd)
+                os.system(cmd)
 
     def clean(self):
         self.log("Removing old ringbuffers")
