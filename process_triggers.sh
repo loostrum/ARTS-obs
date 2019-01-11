@@ -46,7 +46,7 @@ rm -f $outputdir/plots/*pdf
 cd $outputdir
 # process the triggers without making plots
 trig_start=$(date)
-python $triggerscript --sig_thresh_local $snrmin_local --time_limit $time_limit --descending_snr --beamno $CB --mk_plot --dm_min $dmmin --dm_max $dmmax --sig_thresh $snrmin --ndm $ndm --save_data $fmt --nfreq_plot $nfreq_plot --ntime_plot $ntime_plot --cmap $cmap --outdir=$outputdir $filfile ${prefix}.trigger
+python $triggerscript --rficlean --sig_thresh_local $snrmin_local --time_limit $time_limit --descending_snr --beamno $CB --mk_plot --dm_min $dmmin --dm_max $dmmax --sig_thresh $snrmin --ndm $ndm --save_data $fmt --nfreq_plot $nfreq_plot --ntime_plot $ntime_plot --cmap $cmap --outdir=$outputdir $filfile ${prefix}.trigger
 trig_end=$(date)
 
 # get number of triggers after grouping
