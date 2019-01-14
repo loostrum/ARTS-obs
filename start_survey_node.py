@@ -55,6 +55,9 @@ class Survey(object):
             self.dadafits()
         elif self.config['obs_mode'] == 'amber':
             self.amber()
+        elif self.config['obs_mode'] == 'record':
+            self.dadafilterbank()
+            self.dadafits()
         elif self.config['obs_mode'] == 'survey':
             self.survey()
         sleep(waittime)

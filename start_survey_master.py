@@ -257,6 +257,9 @@ def start_survey(args):
     elif args.obs_mode == 'amber':
         # 3x AMBER
         pars['nreader'] = 3
+    elif args.obs_mode == 'record':
+        # dadailfterbank + dadafits
+        pars['nreader'] = 2
     else:
         # filterbank or fits or dbdisk or dbscrubber
         pars['nreader'] = 1
