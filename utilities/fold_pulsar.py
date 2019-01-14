@@ -36,13 +36,19 @@ def main(args):
 
     # run fold in data directory
     os.chdir(kwargs['data_dir'])
-    rfifind_cmd = "rfifind -time 1 -timesig 5 -freqsig 3 -o CB{cb}" \
-                  " CB{cb}.fil".format(**kwargs)
-    print "Running rfifind command: {}".format(rfifind_cmd)
-    os.system(rfifind_cmd)
-    prepfold_cmd = "prepfold -n 64 -nsub 128 -nodmsearch -nopdsearch {opt}" \
-                   " -noxwin -mask CB{cb}_rfifind.mask -filterbank" \
-                   " {fname}".format(opt=opt, **kwargs)
+    if kwargs['rfifind']:
+        rfifind_cmd = "rfifind -time 1 -timesig 5 -freqsig 3 -o CB{cb}" \
+                      " CB{cb}.fil".format(**kwargs)
+        print "Running rfifind command: {}".format(rfifind_cmd)
+        os.system(rfifind_cmd)
+        prepfold_cmd = "prepfold -n 64 -nsub 128 -nodmsearch -nopdsearch {opt}" \
+                       " -noxwin -mask CB{cb}_rfifind.mask -filterbank" \
+                       " {fname}".format(opt=opt, **kwargs)
+    else:
+        prepfold_cmd = "prepfold -n 64 -nsub 128 -nodmsearch -nopdsearch {opt}" \
+                       " -noxwin -filterbank" \
+                       " {fname}".format(opt=opt, **kwargs)
+
     print "Running prepfold command: {}".format(prepfold_cmd)
     os.system(prepfold_cmd)
     print "Done"
@@ -52,6 +58,8 @@ if __name__ == '__main__':
 
     parser = ArgumentParser(formatter_class=RawTextHelpFormatter)
     parser.add_argument('--obs_dir', type=str, help="Output folder of observation", required=True)
+    parser.add_argument('--rfifind', action="store_true", help="Enable cleaning of data with rfifind "
+                            "(Default: False)")
 
     # print help if not arguments are supplied
     if len(sys.argv) == 1:

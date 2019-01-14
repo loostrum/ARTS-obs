@@ -94,9 +94,9 @@ if __name__ == '__main__':
     alltriggers = np.sort(alltriggers, order=('p', 'SNR'))[::-1]
     # remove all triggers with p < .1
     try:
-        ind = alltriggers['p'].astype(float) < .1
+        ind = alltriggers['p'].astype(float) < .5
         alltriggers = alltriggers[~ind]
-        print "Removed {} trigger with p < 0.1".format(np.sum(ind))
+        print "Removed {} trigger with p < 0.5".format(np.sum(ind))
     except Exception as e:
         print "Failed to remove triggers with error:", e
     
@@ -106,8 +106,13 @@ if __name__ == '__main__':
     # order in email: p SNR DM T0 Width beam
     # nrs: 4 0 1 3 2 5
     triggerinfo = ""
+    ntrig_email = 0
     for line in alltriggers:
         triggerinfo += "<tr><td>{4}</td><td>{0}</td><td>{1}</td><td>{3}</td><td>{2}</td><td>{5}</td></tr>".format(*line)
+        ntrig_email += 1
+        if ntrig_email >= 250:
+            triggerinfo += "<tr><td>truncated</td><td>truncated</td><td>truncated</td><td>truncated</td><td>truncated</td><td>truncated</td></tr>"
+            break
     
         
     # create email
@@ -207,10 +212,11 @@ if __name__ == '__main__':
     smtp.connect()
     try:
         smtp.sendmail(frm, to, msg.as_string())
-    except smtplib.SMTPSenderRefused:
+    except smtplib.SMTPSenderRefused as e:
         # assume attachments are too large
         # resend without attachments
         # first element of payload is main text, rest are attachments
+        log('Could not send email, trying again without attachments')
         msg.set_payload(msg.get_payload()[0])
         smtp.sendmail(frm, to, msg.as_string())
         

@@ -7,7 +7,7 @@ fi
 
 key=dada
 nchan=1536
-pagesize=25000
+pagesize=12500
 nbuf=5
 sc=4
 #mode=0 # I+TAB
