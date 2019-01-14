@@ -74,8 +74,9 @@ class Survey(object):
         # flush stdout
         sys.stdout.flush()
         # Add dataproducts to atdb
-        if self.config['atdb'] and self.config['obs_mode'] in ('survey', 'fits'):
+        if self.config['atdb'] and self.config['obs_mode'] in ('survey', 'fits', 'record'):
             self.add_dataproducts()
+
         # test pulsar command
         if self.config['pulsar']:
             # MAC: CB00 = central beam
