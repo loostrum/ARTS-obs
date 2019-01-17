@@ -141,7 +141,7 @@ if __name__ == '__main__':
     </tr><tr>
         <th style="text-align:left">Observation duration</th><td colspan="4">{tobs}</td>
     </tr><tr>
-        <th style="text-align:left">Classifier probability threshold</th><td colspan="4">0.1</td>
+        <th style="text-align:left">Classifier probability threshold</th><td colspan="4">0.5</td>
     </tr><tr>
         <th style="text-align:left">NE2001 DM (central beam)</th><td colspan="2">TBD</td>
     </tr><tr>
