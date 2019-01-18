@@ -16,7 +16,12 @@ def main(args):
     kwargs['cb'] = "{:02d}".format(int(hostname[5:7]) - 1)
     # Set up file name and dir
     kwargs['data_dir'] = "{obs_dir}/filterbank".format(**kwargs)
-    kwargs['fname'] = "{data_dir}/CB{cb}.fil".format(**kwargs)
+    fname_IAB = "{data_dir}/CB{cb}.fil".format(**kwargs)
+    fname_TAB = "{data_dir}/CB{cb}_01.fil".format(**kwargs)
+    if os.path.isfile(fname_IAB):
+        kwargs['fname'] = fname_IAB
+    else:
+        kwargs['fname'] = fname_TAB
 
     # check paths
     if not os.path.isdir(kwargs['data_dir']):
