@@ -46,7 +46,7 @@ def write_commands(**kwargs):
     imkdir -p {dest_dir}
     iput -IPr -X {status_file} --lfrestart {lfstatus_file} --retries 5 -N {nthreads} -R {resc} {source_dir} {dest_dir} 2>&1
     sleep 5
-    failed="$(irsync -lsr {source_dir} i:{dest_dir}/CB{cb} 2>&1)"
+    failed="$(irsync --link -lsr {source_dir} i:{dest_dir}/CB{cb} 2>&1)"
     
     if ! [ "$failed" == "" ]; then
         result="CB{cb}: FAILED:
