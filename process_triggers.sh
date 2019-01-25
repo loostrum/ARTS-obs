@@ -57,7 +57,7 @@ else
     # run the classifier
     source $venv_dir/bin/activate
     # to add DM model: --fn_model_dm $modeldir/heimdall_dm_time.hdf5
-    python $classifier --fn_model_time $modeldir/heimdall_b0329_mix_147411d_time.hdf5 --pthresh $pthresh --save_ranked --plot_ranked --fnout=ranked_CB$CB $outputdir/data/data_full.hdf5 $modeldir/heimdall_b0329_mix_14741freq_time.hdf5
+    python $classifier --fn_model_time $modeldir/heimdall_b0329_mix_147411d_time.hdf5 --pthresh $pthresh --save_ranked --plot_ranked --fnout=ranked_CB$CB $outputdir/data/data_full.hdf5 $modeldir/20190125-17114-freqtimefreq_time_model.hdf5
     deactivate
     # merge classifier summary figs
     nMLfigs=$(ls $outputdir/*pdf | wc -l)
