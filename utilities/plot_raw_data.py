@@ -61,7 +61,7 @@ def plot_histogram(obs_config):
     obs = obs_config['output_dir'].split('/')[-1]
     time_of_data = "{:.1f}".format((nspec-0.5*nsamp) * dt)
     ax.set_title("CB{} - {} @ {}s".format(beam, obs, time_of_data))
-    fig_name = "{webdir}/{hostname}.pdf".format(**obs_config)
+    fig_name = "{webdir}/{hostname}_histogram.pdf".format(**obs_config)
     try:
         fig.savefig(fig_name, bbox_inches='tight')
     except IOError:
@@ -82,6 +82,8 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
     config = vars(args)
+
+    print "{}: Starting noise plotter".format(Time.now())
 
     # create output dir
     try:
