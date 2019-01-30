@@ -6,7 +6,6 @@ import socket
 import argparse
 import errno
 import signal
-from time import sleep
 from astropy.time import Time, TimeDelta
 
 import matplotlib as mpl
@@ -77,10 +76,6 @@ if __name__ == '__main__':
                         required=True)
     parser.add_argument('--nbatch', type=int, default=5, help="Number of batch to generate stats from "
                         "(Default: %(default)s)")
-    parser.add_argument('--interval', type=float, default=10, help="Seconds between creating plots "
-                        "(Default: %(default)s)")
-    parser.add_argument('--obsinterval', type=float, default=60, help="Seconds between checking for new observations "
-                        "(Default: %(default)s)")
     parser.add_argument('--webdir', type=str, default='/home/arts/public_html/monitoring/',
                         help="Directory to store plots in "
                         "(Default: %(default)s)")
@@ -109,112 +104,36 @@ if __name__ == '__main__':
     # Exit on sigterm
     signal.signal(signal.SIGTERM, clean_exit)
 
-    while True:
-        # find obs config
-        if not os.path.isfile(conf_file):
-            # wait for next obs
-            if DEBUG:
-                print "Config file not found: {}".format(conf_file)
-            sleep(args.obsinterval)
-            continue
-        # load obs config
-        with open(conf_file, 'r') as f:
-            obs_config = yaml.load(f)
-        # add general config
-        obs_config.update(config)
-        # check end time
-        obs_end = Time(obs_config['endtime'], scale='utc')
-        if Time.now() >= obs_end:
-            # Obs is already over
-            if DEBUG:
-                print "End time has passed, waiting for new obs"
-            sleep(args.obsinterval)
-            continue
-        # check start time (at least 5s after start time so we have some data)
-        obs_start = Time(float(obs_config['startpacket'])/781250., format='unix')
-        if Time.now() < obs_start + TimeDelta(5, format='sec'):
-            # New obs hasn't started yet
-            if DEBUG:
-                print "Observation not yet running"
-                sleep(args.interval)
-                continue
-
-        # Checks done - at this point an observation should be running
+    # find obs config
+    if not os.path.isfile(conf_file):
+        # wait for next obs
         if DEBUG:
-            print "Observation running - calling plot_histogram"
-        plot_histogram(obs_config)
-        # sleep until next iteration
-        sleep(args.interval)
+            print "Config file not found: {}".format(conf_file)
+        sys.exit()
 
-    
+    # load obs config
+    with open(conf_file, 'r') as f:
+        obs_config = yaml.load(f)
+    # add general config
+    obs_config.update(config)
+    # check end time
+    obs_end = Time(obs_config['endtime'], scale='utc')
+    if Time.now() >= obs_end:
+        # Obs is already over
+        if DEBUG:
+            print "End time has passed, waiting for new obs"
+        sys.exit()
 
-    fil_obj = filterbank.FilterbankFile(fname)
-    nspec = fil_obj.nspec
-    header = fil_obj.header
-    dt = header['tsamp'] # delta_t in seconds
-    fch1 = header['fch1']
-    nchans = header['nchans']
-    foff = header['foff']
+    # check start time (at least 5s after start time so we have some data)
+    obs_start = Time(float(obs_config['startpacket'])/781250., format='unix')
+    if Time.now() < obs_start + TimeDelta(5, format='sec'):
+        # New obs hasn't started yet
+        if DEBUG:
+            print "Observation not yet running"
+        sys.exit()
 
-    samp_per_block = int(1.024/dt)
-    nsamp = 10 * samp_per_block
+    # Checks done - at this point an observation should be running
+    if DEBUG:
+        print "Observation running - calling plot_histogram"
+    plot_histogram(obs_config)
 
-    downsamp = max(int(desired_dt // dt), 1)
-
-    # read first 10 blocks
-    data = fil_obj.get_spectra(0, nsamp)
-    data.dedisperse(dm=dm)
-    # subband to 1 per beamlet
-    data.subband(nsub=nsub)
-    data.downsample(downsamp)
-
-    timeseries = data.data.sum(axis=0)
-
-    foff *= nchans/nsub
-    fch_f = fch1 + foff * nsub
-    freq = np.linspace(fch1, fch_f, nsub)
-    times = np.arange(0, len(timeseries)) * dt * downsamp
-
-    print "Time resolution: ", dt*downsamp
-    print "Freq resolution: ", abs(foff)
-
-    # Fig
-    fig, (ax1, ax2) = plt.subplots(nrows=2, gridspec_kw=dict(height_ratios=[1, 2]), sharex=True)
-    #ax1.plot(times, timeseries, c='k')
-    ax1.plot(range(len(timeseries)), timeseries, c='k')
-    #extent = [times[0], times[-1], freq[-1], freq[0]]
-    extent = [0, len(times), 0, len(freq)]
-    ax2.imshow(data.data, extent=extent, origin='upper', cmap='viridis', interpolation=None, aspect='auto')
-
-    ax1.set_ylabel('Intensity (a.u.)')
-    #ax2.set_xlabel('Time (s)')
-    #ax2.set_ylabel('Frequency (MHz)')
-    ax2.set_xlabel('Sample ({})'.format(dt*downsamp))
-    ax2.set_ylabel('Channel ({})'.format(abs(foff)))
-
-    plt.show()
-    exit()
-
-    # full timeseries
-    downsamp = int((1.024//dt))
-    full_ts = []
-    chunksize = samp_per_block * 10
-    imax = int(nspec // chunksize) + 1
-    i = 0
-    for i in tqdm(range(imax+1)):
-        data = fil_obj.get_spectra(i*chunksize, chunksize)
-        if len(data.data[0]) == 0:
-            print "Breaking at iteration", i
-            break
-        data.downsample(downsamp)
-        ts = data.data.sum(axis=0)
-        full_ts.append(ts)
-        i += 1
-
-    full_ts = np.concatenate(full_ts, axis=-1)
-    times = np.arange(0, len(full_ts)) * dt * downsamp
-    
-    plt.figure()
-    plt.plot(times, full_ts, c='k')
-
-    plt.show()
