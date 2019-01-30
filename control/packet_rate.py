@@ -8,7 +8,8 @@ import time
 # of packets received per second.
 ########################################################################
 
-NICS = ['eno1', 'ens21']
+#NICS = ['eno1', 'ens21']
+NICS = ['ens21']
 
 for nic in NICS:
 
@@ -46,10 +47,10 @@ for nic in NICS:
     rx_gigabits_per_second = (float(rx_bytes[1]-rx_bytes[0])*8)/1000000000
     tx_packets_per_second = tx_packets[1]-tx_packets[0]
     tx_gigabits_per_second = (float(tx_bytes[1]-tx_bytes[0])*8)/1000000000
-    print '\n', nic, 'RX'
+    print '\n', nic, 'Receiving:'
     print rx_packets_per_second, 'packets per second'
     print rx_gigabits_per_second, 'Gbps\n'
-    print nic, 'TX'
+    print nic, 'Sending:'
     print tx_packets_per_second, 'packets per second'
     print tx_gigabits_per_second, 'Gbps\n'
 
