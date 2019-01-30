@@ -79,7 +79,7 @@ class Survey(object):
             # rename fits files
             print "Will rename fits files"
             cmd = "(sleepuntil_utc {endtime}; sleep 10; {script_dir}/utilities/rename_fits.py --output_dir {output_dir} --beam {beam} " \
-                  " --taskid {taskid} ---ntabs {ntabs}) &".format(script_dir=os.path.dirname(os.path.realpath(__file__)), **self.config)
+                  " --taskid {taskid} --ntabs {ntabs}) &".format(script_dir=os.path.dirname(os.path.realpath(__file__)), **self.config)
             self.log(cmd)
             sys.stdout.flush()
             os.system(cmd)
