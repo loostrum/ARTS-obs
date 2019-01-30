@@ -73,9 +73,16 @@ class Survey(object):
         self.log("Everything started")
         # flush stdout
         sys.stdout.flush()
-        # Add dataproducts to atdb
+        # Add dataproducts to atdb and rename fits files
         if self.config['atdb'] and self.config['obs_mode'] in ('survey', 'fits', 'record'):
             self.add_dataproducts()
+            # rename fits files
+            print "Will rename fits files"
+            cmd = "(sleepuntil_utc {endtime}; sleep 10; {script_dir}/utilities/rename_fits.py --output_dir {output_dir} --beam {beam} " \
+                  " --taskid {taskid} ---ntabs {ntabs}) &".format(script_dir=os.path.dirname(os.path.realpath(__file__)), **self.config)
+            self.log(cmd)
+            sys.stdout.flush()
+            os.system(cmd)
 
         # test pulsar command
         if self.config['pulsar']:
@@ -123,8 +130,6 @@ class Survey(object):
         # IAB mode: one dataproduct
         if self.config['ntabs'] == 1:
             fname = "ARTS{taskid}_CB{beam:02d}.fits".format(**self.config)
-            # symlink the fits file
-            os.symlink("{fits_dir}/tabA.fits".format(fits_dir=fits_dir), "{fits_dir}/{fname}".format(fits_dir=fits_dir, fname=fname))
             # add the data products
             cmd = "source /home/arts/atdb_client/env2/bin/activate; atdb_service -o add_dataproduct --taskid {taskid} " \
                   " --node {hostname} --data_dir {fits_dir} --filename {fname}" \
@@ -138,9 +143,6 @@ class Survey(object):
             mapping = {1:'A', 2:'B', 3:'C', 4:'D', 5:'E', 6:'F', 7:'G', 8:'H', 9:'I', 10:'J', 11:'K', 12:'L'}
             for tab in range(1, self.config['ntabs']+1):
                 fname = "ARTS{taskid}_CB{beam:02d}_TAB{tab:02d}.fits".format(tab=tab, **self.config)
-                # symlink the fits file
-                os.symlink("{fits_dir}/tab{letter}.fits".format(fits_dir=fits_dir, letter=mapping[tab]), 
-                            "{fits_dir}/{fname}".format(fits_dir=fits_dir, fname=fname))
                 # add the data products
                 cmd = "source /home/arts/atdb_client/env2/bin/activate; atdb_service -o add_dataproduct --taskid {taskid} " \
                       " --node {hostname} --data_dir {fits_dir} --filename {fname}" \
