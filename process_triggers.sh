@@ -36,7 +36,7 @@ time_limit=${10}
 export CUDA_VISIBLE_DEVICES=$ML_GPUs
 
 # create master trigger files
-cat ${prefix}_step*trigger > ${prefix}.trigger
+awk '(FNR==1 && NR!=1) || !/./{next;}{print}' ${prefix}_step*.trigger > ${prefix}.trigger
 # get number of raw candidates
 ncand_raw=$(grep -v \# ${prefix}.trigger | wc -l)
 
