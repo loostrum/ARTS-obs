@@ -9,7 +9,7 @@ import signal
 from astropy.time import Time, TimeDelta
 
 import matplotlib as mpl
-mpl.use('png')
+mpl.use('agg')
 import matplotlib.pyplot as plt
 import numpy as np
 import yaml
