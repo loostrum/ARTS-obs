@@ -521,7 +521,14 @@ def start_survey(args):
     # start the trigger listener + emailer
     if pars['proctrigger']:
         email_script = os.path.join(script_path, "emailer.py")
-        cmd = "(sleep {tobs}; python {email_script} {master_dir} '{beams}') &".format(email_script=email_script, **pars)
+        cmd = "(sleepuntil_utc {endtime}; python {email_script} {master_dir} '{beams}') &".format(email_script=email_script, **pars)
+        log(cmd)
+        os.system(cmd)
+
+    # start the completion checker for ATDB
+    if pars['atdb']:
+        check_complete_script = os.path.join(script_path, "utilities/check_obs_complete.py")
+        cmd = "(sleepuntil_utc {endtime}; sleep 10; python {check_complete_script} --cbs '{beams}' --taskid {taskid}".format(check_complete_script=check_complete_script, **pars)
         log(cmd)
         os.system(cmd)
 
