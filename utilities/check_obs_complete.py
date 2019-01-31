@@ -69,5 +69,6 @@ if __name__ == '__main__':
     cmd = "source /home/arts/atdb_client/env2/bin/activate; atdb_service -o change_status " \
           " --resource observations --search_key taskid:{taskid} --status completing " \
           " --atdb_host prod".format(taskid=args.taskid)
-    print cmd
+    log(cmd)
+    os.sytem(cmd)
 

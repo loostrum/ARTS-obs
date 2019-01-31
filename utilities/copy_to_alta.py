@@ -77,6 +77,9 @@ def get_resc(cb):
     return resc
     
 def main(args):
+    print "Ingest is now taken care of by ATDB/ALTA, the manual copy script is obsolete and will now exit"
+    sys.exit()
+
     # convert args to dict
     kwargs = vars(args)
     
@@ -161,7 +164,7 @@ if __name__ == '__main__':
     parser.add_argument('--log_dir', type=str, default="{}/alta/log".format(home), 
                         help="Log directory, default: %(default)s")
 
-    # print help if not arguments are supplied
+    # print help if no arguments are supplied
     if len(sys.argv) == 1:
         parser.print_help()
         exit()
