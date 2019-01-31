@@ -9,7 +9,7 @@ import signal
 from astropy.time import Time, TimeDelta
 
 import matplotlib as mpl
-mpl.use('pdf')
+mpl.use('png')
 import matplotlib.pyplot as plt
 import numpy as np
 import yaml
@@ -57,11 +57,12 @@ def plot_histogram(obs_config):
     ax.hist(data.data.flatten(), bins=bins, color='k')
     ax.set_xlabel('Sample value')
     ax.set_ylabel('Count')
+    ax.set_yscale('log')
     beam = "{beam:02d}".format(**obs_config)
     obs = obs_config['output_dir'].split('/')[-1]
-    time_of_data = "{:.1f}".format((nspec-0.5*nsamp) * dt)
+    time_of_data = "{:.0f}".format((nspec-0.5*nsamp) * dt)
     ax.set_title("CB{} - {} @ {}s".format(beam, obs, time_of_data))
-    fig_name = "{webdir}/{hostname}_histogram.pdf".format(**obs_config)
+    fig_name = "{webdir}/{hostname}_histogram.png".format(**obs_config)
     try:
         fig.savefig(fig_name, bbox_inches='tight')
     except IOError:
