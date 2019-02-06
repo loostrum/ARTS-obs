@@ -13,25 +13,36 @@ import yaml
 
 if __name__ == '__main__':
     success = True
-    # input hdf5 file = output of clasifier
-    fname = sys.argv[1]
+    # input hdf5 file 1 = output of triggers.py
+    fname_clustered = sys.argv[1]
+    # input hdf5 file 2 = output of clasifier
+    fname_classifier = sys.argv[2]
     # number of candidates before grouping
-    ncand_raw = int(sys.argv[2])
+    ncand_raw = int(sys.argv[3])
     # number of candidates before ML
-    ncand_trigger = int(sys.argv[3])
+    ncand_trigger = int(sys.argv[4])
     # dir on master node
-    master_dir = sys.argv[4]
+    master_dir = sys.argv[5]
     # beam of this node
     beam = int(socket.gethostname()[5:7]) - 1
+    # read clustering output
+    try:
+        # read dataset
+        with h5py.File(fname_clustered, 'r') as f:
+            ncand_skipped = int(f['ntriggers_skipped'][0])
+    except IOError:
+        success = False
+        ncand_skipped = -1
+    # read classifier output
     try:
         # read dataset 
-        with h5py.File(fname, 'r') as f:
+        with h5py.File(fname_classifier, 'r') as f:
             data_frb_candidate = f['data_frb_candidate'][:]
             probability = f['probability'][:]
             params = f['params'][:]  # snr, DM, downsampling, arrival time, dt
     except IOError:
         success = False
-        ncand_classifier = 0
+        ncand_classifier = -1
     # else only gets executed if the try succeeds
     else:
         # convert widths to ms 
@@ -63,6 +74,7 @@ if __name__ == '__main__':
     summary['success'] = success
     summary['ncand_raw'] = ncand_raw
     summary['ncand_trigger'] = ncand_trigger
+    summary['ncand_skipped'] = ncand_skipped
     summary['ncand_classifier'] = ncand_classifier
     fname = "CB{:02d}_summary.yaml".format(beam)
     with open(fname, 'w') as f:

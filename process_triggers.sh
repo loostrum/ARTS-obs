@@ -68,7 +68,7 @@ else
     fi
 fi
 # copy results to masternode
-python $trigger_to_master ranked_CB${CB}_freq_time.hdf5 $ncand_raw $ncand_grouped $master_dir
+python $trigger_to_master $outputdir/data/data_full.hdf5 ranked_CB${CB}_freq_time.hdf5 $ncand_raw $ncand_grouped $master_dir
 
 echo "Start of triggers.py: $trig_start"
 echo "End of triggers.py: $trig_end"

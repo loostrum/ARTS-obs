@@ -76,7 +76,7 @@ if __name__ == '__main__':
         summary_file = os.path.join(master_dir, "CB{:02d}_summary.yaml".format(beam))
         with open(summary_file, 'r') as f:
             summary = yaml.load(f)
-        beamstats += "<tr><td>{:02d}</td><td>{}</td><td>{}</td><td>{}</td></tr>".format(beam, summary['ncand_raw'], summary['ncand_trigger'], summary['ncand_classifier'])
+        beamstats += "<tr><td>{:02d}</td><td>{}</td><td>{}</td><td>{}</td><td>{}</td></tr>".format(beam, summary['ncand_raw'], summary['ncand_trigger'], summary['ncand_skipped'], summary['ncand_classifier'])
         if summary['success']:
             trigger_file = os.path.join(master_dir, "CB{:02d}_triggers.txt".format(beam))
             triggers[beam] = np.loadtxt(trigger_file, dtype=str, ndmin=2)
@@ -175,6 +175,7 @@ if __name__ == '__main__':
         <th>CB</th>
         <th>Raw candidates</th>
         <th>Candidates after grouping</th>
+        <th>Candidates below local S/N threshold</th>
         <th>Candidates after classifier</th>
     </tr>
     {beamstats}
