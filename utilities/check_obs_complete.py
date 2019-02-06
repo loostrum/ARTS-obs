@@ -13,7 +13,7 @@ import numpy as np
 
 
 # Timeout in seconds in case of broken connection to a node
-TIMEOUT=120
+TIMEOUT=30
 
 
 def log(message):
@@ -61,8 +61,6 @@ if __name__ == '__main__':
             else:
                 # file does not exist yet
                 log("{} not ready".format(node))
-                # reset the timeout
-                end_time = time() + TIMEOUT
                 complete = False
 
     # set status to completing
