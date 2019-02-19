@@ -68,5 +68,5 @@ if __name__ == '__main__':
           " --resource observations --search_key taskid:{taskid} --status completing " \
           " --atdb_host prod".format(taskid=args.taskid)
     log(cmd)
-    os.sytem(cmd)
+    os.system(cmd)
 

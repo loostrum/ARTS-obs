@@ -51,7 +51,7 @@ def main(args):
                        " {fname}".format(opt=opt, **kwargs)
     else:
         prepfold_cmd = "prepfold -n 64 -nsub 128 -nodmsearch -nopdsearch {opt}" \
-                       " -noxwin -filterbank" \
+                       " -noxwin -ignorechan 1380:1535 -filterbank" \
                        " {fname}".format(opt=opt, **kwargs)
 
     print "Running prepfold command: {}".format(prepfold_cmd)

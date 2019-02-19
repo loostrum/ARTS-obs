@@ -428,7 +428,7 @@ def start_survey(args):
     # start the completion checker for ATDB
     if pars['atdb']:
         check_complete_script = os.path.join(script_path, "utilities/check_obs_complete.py")
-        cmd = "(sleepuntil_utc {endtime}; sleep 10; python {check_complete_script} --date {date} --obs {datetimesource} --cbs '{beams}' --taskid {taskid}) &".format(check_complete_script=check_complete_script, **pars)
+        cmd = "(sleepuntil_utc {endtime}; sleep 15; python {check_complete_script} --date {date} --obs {datetimesource} --cbs '{beams}' --taskid {taskid}) &".format(check_complete_script=check_complete_script, **pars)
         log(cmd)
         os.system(cmd)
 

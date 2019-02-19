@@ -42,7 +42,7 @@ if __name__ == '__main__':
             params = f['params'][:]  # snr, DM, downsampling, arrival time, dt
     except IOError:
         success = False
-        ncand_classifier = -1
+        ncand_classifier = 0
     # else only gets executed if the try succeeds
     else:
         # convert widths to ms 
@@ -75,6 +75,7 @@ if __name__ == '__main__':
     summary['ncand_raw'] = ncand_raw
     summary['ncand_trigger'] = ncand_trigger
     summary['ncand_skipped'] = ncand_skipped
+    summary['ncand_abovethresh'] = ncand_trigger - ncand_skipped
     summary['ncand_classifier'] = ncand_classifier
     fname = "CB{:02d}_summary.yaml".format(beam)
     with open(fname, 'w') as f:
