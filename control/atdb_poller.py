@@ -43,7 +43,7 @@ def query_database(obs_mode='sc4'):
     """
 
     # Define the URL for query
-    url = 'http://atdb.astron.nl/atdb/observations/?my_status__in=removed,scheduled,starting,running&observing_mode__icontains={}'.format(obs_mode)
+    url = 'http://atdb.astron.nl/atdb/observations/?my_status__in=scheduled,starting,running&observing_mode__icontains={}'.format(obs_mode)
 
     # First, determine how many results there are
     # Do the query
@@ -62,7 +62,7 @@ def query_database(obs_mode='sc4'):
     obs_list = []
 
     for page in range(1,pagenum+1):
-        url = 'http://atdb.astron.nl/atdb/observations/?my_status__in=removed,scheduled,starting,running&observing_mode__icontains={}&page={}'.format(obs_mode,page)
+        url = 'http://atdb.astron.nl/atdb/observations/?my_status__in=scheduled,starting,running&observing_mode__icontains={}&page={}'.format(obs_mode,page)
 
         # Do the query
         try: 
@@ -165,7 +165,7 @@ def check_and_start_obs():
             logging.error('Still failed to query ATDB, giving up')
             return
 
-    if obs_list == []:
+    if len(obs_list) == 0:
         logging.info("No new observations found")
         return 
 
@@ -181,7 +181,9 @@ def check_and_start_obs():
     now = Time.now()
     start_times = np.array([(Time(obs['starttime']) - now).sec for obs in obs_list])
     # Find next obs
-    next_obs_ind = np.argmin(start_times[start_times > 0])
+    # ignore past observations
+    start_times[start_times < 0] = 1E9
+    next_obs_ind = np.argmin(start_times)
     next_obs = obs_list[next_obs_ind]
 
     # Check if start time is within 2 minutes
@@ -253,11 +255,11 @@ if __name__ == '__main__':
 
     # setup logger
     logging.basicConfig(format='%(asctime)s - %(levelname)s: %(message)s', 
-                        level=logging.DEBUG) #, filename=LOGFILE)
+                        level=logging.DEBUG, filename=LOGFILE)
     # set to UTC
     logging.Formatter.converter = gmtime
 
-    # Register signal handler
+    # Register signal handlers
     signal.signal(signal.SIGINT, signal_handler)
     signal.signal(signal.SIGTERM, signal_handler)
 
