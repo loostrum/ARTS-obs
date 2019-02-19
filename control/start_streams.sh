@@ -2,7 +2,7 @@
 # Adapted for any science case + bands + telescopes by Leon Oostrum
 
 if [ "$#" -ne 2 ] && [ "$#" -ne 3 ] && [ "$#" -ne 4 ]; then
-    echo "Usage: $0 [dev] bands, telescopes, pol (optional), opts (optional)"
+    echo "Usage: $0 [iab] bands, telescopes, pol (optional), opts (optional)"
     echo "E.g. for starting 14 bands on RT4 and RT7:"
     echo "$0 2:15 4,7"
     echo "Or"
@@ -11,13 +11,17 @@ if [ "$#" -ne 2 ] && [ "$#" -ne 3 ] && [ "$#" -ne 4 ]; then
     exit
 fi
 
-if [ "$1" == "dev" ]; then
-    echo "ERROR: dev option not implemented yet on ccu-corr"
-    exit
-    app=arts_sc4-dev
+if [ "$1" == "IAB" ]; then
+    echo "Starting IAB firmware"
+    app=arts_sc4-iab
+    shift
+elif [ "$1" == "TAB" ]; then
+    echo "Starting IAB firmware"
+    app=arts_sc4
     shift
 else
-    app=arts_sc4
+    echo "Set IAB or TAB as first argument"
+    exit 1
 fi
 
 unbs="$1"
@@ -52,13 +56,13 @@ fi
 ssh -t arts@ccu-corr.apertif python /home/arts/SVN/RadioHDL/trunk/applications/apertif/commissioning/main.py --app $app --tel $tels --unb $unbs $opts $pol
 
 # only set gain for science mode (i.e. IAB)
-if [ "$app" == "arts_sc4" ]; then
-    single_dish_gain=500
-
-    ndish=$(grep -o "," <<< $tels, | wc -l)
-    gain=$(echo "$single_dish_gain / $ndish" | bc)
-    echo "Found $ndish dishes, setting gain to $gain"
-    # setting gain sometimes fails: always try twice
-    ssh -t arts@ccu-corr.apertif  python /home/arts/SVN/UniBoard/trunk/Software/python/peripherals/util_dp_gain.py --unb $unbs --fn 0:3 --bn 0:3 -n 1 -r $gain,$gain,$gain,$gain
-    ssh -t arts@ccu-corr.apertif  python /home/arts/SVN/UniBoard/trunk/Software/python/peripherals/util_dp_gain.py --unb $unbs --fn 0:3 --bn 0:3 -n 1 -r $gain,$gain,$gain,$gain
-fi
+#if [ "$app" == "arts_sc4" ]; then
+#    single_dish_gain=500
+#
+#    ndish=$(grep -o "," <<< $tels, | wc -l)
+#    gain=$(echo "$single_dish_gain / $ndish" | bc)
+#    echo "Found $ndish dishes, setting gain to $gain"
+#    # setting gain sometimes fails: always try twice
+#    ssh -t arts@ccu-corr.apertif  python /home/arts/SVN/UniBoard/trunk/Software/python/peripherals/util_dp_gain.py --unb $unbs --fn 0:3 --bn 0:3 -n 1 -r $gain,$gain,$gain,$gain
+#    ssh -t arts@ccu-corr.apertif  python /home/arts/SVN/UniBoard/trunk/Software/python/peripherals/util_dp_gain.py --unb $unbs --fn 0:3 --bn 0:3 -n 1 -r $gain,$gain,$gain,$gain
+#fi
