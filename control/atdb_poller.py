@@ -112,9 +112,7 @@ def gen_obs_command(obs):
     """
     Generate ARTS cluster observation command
     """
-    for i,j in obs.items():
-        print i,j
-    template = "start_obs --source {src} --ra {ra} --dec {dec} --tstart {tstart} --sbeam 0 --ebeam 39 --atdb --taskid {taskid} --science_mode {science_mode} --obs_mode {obs_mode} {other}"
+    template = "start_obs --source {src} --ra {ra} --dec {dec} --tstart {tstart} --sbeam 0 --ebeam 39 --atdb --taskid {taskid} --science_mode {science_mode} --obs_mode {obs_mode} {other} 2>&1 > {taskid}.log &"
 
     # command options
     kwargs = {'src': obs['field_name'], 
@@ -211,14 +209,14 @@ def check_and_start_obs():
     started_obs = raw_obs.strip().split()
     next_obs_id = next_obs['taskID']
     if str(next_obs['taskID']) in started_obs:
-        logger.info("Observation {} was already started".format(next_obs['taskID']))
+        logging.info("Observation {} was already started".format(next_obs['taskID']))
         return
 
     # start the obs
     logging.info('Starting observation {}'.format(next_obs['taskID']))
     command = gen_obs_command(next_obs)
-    logging.info('Command: {}'.format(command))
-    # os.system(command)
+    logging.info('Running command: {}'.format(command))
+    os.system(command)
 
     # Add the taskid of the started obs to the obs file
     with open(OBSFILE, 'a') as f:
