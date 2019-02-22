@@ -86,9 +86,7 @@ class Survey(object):
 
         # test pulsar command
         if self.config['pulsar']:
-            # MAC: CB00 = central beam
-            # no MAC: CB21 = central beam
-            if (self.config['usemac'] and self.config['beam'] == 0) or ((not self.config['usemac']) and self.config['beam'] == 21):
+            if self.config['beam'] == 0):
                 # this is the central beam
                 print "Will fold pulsar on CB{:02d}".format(self.config['beam'])
                 fold_script = "{script_dir}/utilities/fold_pulsar.py".format(script_dir=os.path.dirname(os.path.realpath(__file__)), **self.config)
