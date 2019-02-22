@@ -56,7 +56,9 @@ def query_database(obs_mode='sc4'):
     # Can only do 100 per page
     result_num = json.loads(response.text)['count']
     logging.info('Total number of results found in ATDB for {}: {}'.format(obs_mode.upper(),result_num))
-    pagenum = result_num // 100 + 1
+    pagenum = result_num // 100
+    if pagenum % 100 != 0:
+        pagenum += 1
 
     # Define the observation list
     obs_list = []
