@@ -57,7 +57,7 @@ def query_database(obs_mode='sc4'):
     result_num = json.loads(response.text)['count']
     logging.info('Total number of results found in ATDB for {}: {}'.format(obs_mode.upper(),result_num))
     pagenum = result_num // 100
-    if pagenum % 100 != 0:
+    if result_num % 100 != 0:
         pagenum += 1
 
     # Define the observation list
@@ -114,7 +114,7 @@ def gen_obs_command(obs):
     """
     Generate ARTS cluster observation command
     """
-    template = "start_obs --source {src} --ra {ra} --dec {dec} --tstart {tstart} --sbeam 0 --ebeam 39 --atdb --taskid {taskid} --science_mode {science_mode} --obs_mode {obs_mode} {other} 2>&1 > {taskid}.log &"
+    template = ". $HOME/software/ARTS-obs/setup_env.sh; start_obs --source {src} --ra {ra} --dec {dec} --tstart {tstart} --duration {duration} --sbeam 0 --ebeam 39 --atdb --taskid {taskid} --science_mode {science_mode} --obs_mode {obs_mode} {other} 2>&1 > {taskid}.log &"
 
     # command options
     kwargs = {'src': obs['field_name'], 
@@ -129,8 +129,9 @@ def gen_obs_command(obs):
     kwargs['ra'] = coord.ra.to_string(unit=u.hourangle, sep=':', pad=True)
     kwargs['dec'] = coord.dec.to_string(unit=u.degree, sep=':', pad=True)
 
-    # Add start time
+    # Add start time and duration
     kwargs['tstart'] = obs['starttime'].replace(' ', 'T')
+    kwargs['duration'] = obs['duration']
 
     # Add modes
     kwargs['obs_mode'] = obs['observing_mode'].split('_')[-1]
