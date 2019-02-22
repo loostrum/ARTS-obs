@@ -114,7 +114,7 @@ def gen_obs_command(obs):
     """
     Generate ARTS cluster observation command
     """
-    template = "nohup . $HOME/software/ARTS-obs/setup_env.sh; start_obs --source {src} --ra {ra} --dec {dec} --tstart {tstart} --duration {duration} --sbeam 0 --ebeam 39 --atdb --taskid {taskid} --science_mode {science_mode} --obs_mode {obs_mode} {other} 2>&1 > {taskid}.log &"
+    template = ". $HOME/software/ARTS-obs/setup_env.sh; start_obs --source {src} --ra {ra} --dec {dec} --tstart {tstart} --duration {duration} --sbeam 0 --ebeam 39 --atdb --taskid {taskid} --science_mode {science_mode} --obs_mode {obs_mode} {other} 2>&1 > {taskid}.log &"
 
     # command options
     kwargs = {'src': obs['field_name'], 
