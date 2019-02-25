@@ -31,7 +31,10 @@ def plot_histogram(obs_config):
     Creates a histogram of sample values
     """
 
-    filfile = "{output_dir}/filterbank/CB{beam:02d}.fil".format(**obs_config)
+    if obs_config['ntabs'] == 1:
+        filfile = "{output_dir}/filterbank/CB{beam:02d}.fil".format(**obs_config)
+    else:
+        filfile = "{output_dir}/filterbank/CB{beam:02d}_TAB00.fil".format(**obs_config)
 
     fil_obj = filterbank.FilterbankFile(filfile)
     nspec = fil_obj.nspec
@@ -89,7 +92,7 @@ if __name__ == '__main__':
     # create output dir
     try:
         os.makedirs(args.webdir)
-    except OSError as e:
+    except OSError as e: 
         if e.errno != errno.EEXIST:
             print "Cannot access output directory: {}".format(args.webdir)
             sys.exit(1)
