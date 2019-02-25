@@ -329,7 +329,7 @@ def start_survey(args):
             parset = f.read().encode('bz2').encode('hex')
             if len(parset) > 24575:
                 log("Error: compressed parset is longer than maximum for header (24575 characters)")
-                exit()
+                parset = 'no parset'
     else:
         parset = 'no parset'
 
@@ -484,7 +484,7 @@ if __name__ == '__main__':
     parser.add_argument("--snrmin_processing", type=float, help="Trigger processing minimum S/N "
                         "(Default: 10)", default=10)
     parser.add_argument("--snrmin_processing_local", type=float, help="Trigger processing local minimum S/N after clustering"
-                        "(Default: 7)", default=7)
+                        "(Default: 6)", default=6)
     parser.add_argument("--dmmin", type=float, help="Trigger processing minimum DM "
                         "(Default: 20)", default=20)
     parser.add_argument("--dmmax", type=float, help="Trigger processing maximum DM "
