@@ -10,6 +10,7 @@ import json
 import logging
 import signal
 import errno
+import subprocess
 from time import sleep, gmtime
 
 import numpy as np
@@ -27,6 +28,8 @@ ROOTDIR = '{home}/observations/atdb_poller'.format(home=os.path.expanduser('~'))
 LOGFILE = '{}/atdb_poller.log'.format(ROOTDIR)
 # file with taskids
 OBSFILE = '{}/observations.txt'.format(ROOTDIR)
+# folder for parsets
+PARSETDIR = '{}/parsets'.format(ROOTDIR)
 # lock to ensure only one instance is running
 LOCKFILE = '{}/.lock'.format(ROOTDIR)
 
@@ -145,6 +148,24 @@ def gen_obs_command(obs):
     if kwargs['obs_mode'] == 'survey' and kwargs['science_mode'] == 'i+iab':
         kwargs['other'] += ' --proctrigger'
 
+    # Try getting the parset
+    parset_source_path = 'ccu-corr.apertif:/opt/apertif/share/parsets/{taskid}.parset'.format(**kwargs)
+    parset_target_path = os.path.join(PARSETDIR, '{taskid}.parset'.format(**kwargs))
+    cmd = ['scp', parset_source_path, parset_target_path]
+    have_parset = True
+    try:
+        subprocess.check_output(cmd)
+    except subprocess.CalledProcessError as e:
+        logging.warning("Failed to get parset from ccu-corr: {}".format(e))
+        have_parset = False
+    # Check if the parset is really there
+    if not os.path.isfile(parset_target_path):
+        have_parset = False
+
+    # Add the parset option
+    if have_parset:
+        kwargs['other'] += ' --parset {}'.format(parset_target_path)
+
     return template.format(**kwargs)
 
 
@@ -224,12 +245,21 @@ def check_and_start_obs():
 
 
 if __name__ == '__main__':
-    # Creat root dir
+    # Create root dir
     try:
         os.makedirs(ROOTDIR)
     except OSError as e:
         if e.errno != errno.EEXIST:
             sys.stderr.write('Cannot create root directory: {}\n'.format(e))
+            logging.info('Exiting')
+            sys.exit(1)
+
+    # Create parset dir
+    try:
+        os.makedirs(PARSETDIR)
+    except OSError as e:
+        if e.errno != errno.EEXIST:
+            sys.stderr.write('Cannot create parset directory: {}\n'.format(e))
             logging.info('Exiting')
             sys.exit(1)
 
