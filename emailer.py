@@ -92,6 +92,7 @@ if __name__ == '__main__':
     alltriggers = np.array(alltriggers, dtype=dtypes)
     # sort by p, then SNR if equal
     alltriggers = np.sort(alltriggers, order=('p', 'SNR'))[::-1]
+    total_triggers = len(alltriggers)
     
 
     # convert triggers to html
@@ -110,7 +111,7 @@ if __name__ == '__main__':
         
     # create email
     # kwarg for tables
-    kwargs = dict(beamstats=beamstats, coordinfo=coordinfo, triggerinfo=triggerinfo)
+    kwargs = dict(beamstats=beamstats, coordinfo=coordinfo, triggerinfo=triggerinfo, total_triggers=total_triggers)
     # add obs info
     kwargs.update(obsinfo)
     frm = "ARTS FRB Alert System <arts@{}.apertif>".format(socket.gethostname())
@@ -139,6 +140,8 @@ if __name__ == '__main__':
         <th style="text-align:left">NE2001 DM (central beam)</th><td colspan="2">TBD</td>
     </tr><tr>
         <th style="text-align:left">YMW16 DM (central beam)</th><td colspan="2">{ymw16}</td>
+    </tr><tr>
+        <th style="text-align:left">Total number of candidates</th><td colspan="2">{total_triggers}</td>
     </tr>
     </table>
     </p>
