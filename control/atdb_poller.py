@@ -145,11 +145,6 @@ def gen_obs_command(obs):
     if kwargs['obs_mode'] == 'survey' and kwargs['science_mode'] == 'i+iab':
         kwargs['other'] += ' --proctrigger'
 
-    # Add MAC option based on end_band hack in ATDB
-    end_band = obs.get('end_band', 16)
-    if end_band == 24:
-        kwargs['other'] += ' --mac'
-
     return template.format(**kwargs)
 
 
