@@ -92,13 +92,6 @@ if __name__ == '__main__':
     alltriggers = np.array(alltriggers, dtype=dtypes)
     # sort by p, then SNR if equal
     alltriggers = np.sort(alltriggers, order=('p', 'SNR'))[::-1]
-    # remove all triggers with p < .1
-    try:
-        ind = alltriggers['p'].astype(float) < .5
-        alltriggers = alltriggers[~ind]
-        print "Removed {} trigger with p < 0.5".format(np.sum(ind))
-    except Exception as e:
-        print "Failed to remove triggers with error:", e
     
 
     # convert triggers to html

@@ -37,9 +37,10 @@ if __name__ == '__main__':
     try:
         # read dataset 
         with h5py.File(fname_classifier, 'r') as f:
+            frb_index = f['frb_index'][:]
             data_frb_candidate = f['data_frb_candidate'][:]
-            probability = f['probability'][:]
-            params = f['params'][:]  # snr, DM, downsampling, arrival time, dt
+            probability = f['probability'][frb_index]
+            params = f['params'][frb_index]  # snr, DM, downsampling, arrival time, dt
     except IOError:
         success = False
         ncand_classifier = 0
