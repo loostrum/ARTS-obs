@@ -37,18 +37,18 @@ class DisableDish(object):
         self.args = args
 
     def disable(self):
-        fpga = self.dish_to_node[self.args.rt.upper()]
-        link = self.dish_to_link[self.args.rt.upper()]
+        fpga = self.dish_to_node[self.args.rt]
+        link = self.dish_to_link[self.args.rt]
 
-        if self.args.pol.upper() == 'X':
+        if self.args.pol == 'X':
             nodes = "--fn {}".format(fpga)
-        elif self.args.pol.upper() == 'Y':
+        elif self.args.pol == 'Y':
             nodes = "--bn {}".format(fpga)
-        elif self.args.pol.upper() == 'XY':
+        elif self.args.pol == 'XY':
             nodes = "--fn {0} --bn {0}".format(fpga)
 
-        cmd = "'python $UPE/peripherals/util_bsn_monitor.py --unb 0:15 {nodes} -n 2 -r {link} -s INPUT'".format(
-              nodes=nodes, link=link)
+        cmd = "'python $UPE/peripherals/util_bsn_monitor.py --unb {unb} {nodes} -n 2 -r {link} -s INPUT'".format(
+              unb=self.args.unb, nodes=nodes, link=link)
         full_command = ['ssh', 'arts@ccu-corr.apertif', cmd]
         print full_command
         subprocess.check_output(full_command)
@@ -57,9 +57,15 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--rt', type=str, help="Dish to disable", required=True)
     parser.add_argument('--pol', type=str, default='XY', 
-                        help="Polarization to disable (Default: %(defaults)s")
+                        help="Polarization to disable (Default: %(default)s)")
+    parser.add_argument('--unb', type=str, default='0:15',
+                        help="Central uniboards to use (Default: %(default)s)")
 
     args = parser.parse_args()
+
+    # ensure upper case
+    args.rt = args.rt.upper()
+    args.pol = args.pol.upper()
 
     # check pol
     valid_pol = ('X', 'Y', 'XY')
