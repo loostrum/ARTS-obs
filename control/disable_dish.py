@@ -47,11 +47,10 @@ class DisableDish(object):
         elif self.args.pol == 'XY':
             nodes = "--fn {0} --bn {0}".format(fpga)
 
-        cmd = "'python $UPE/peripherals/util_bsn_monitor.py --unb {unb} {nodes} -n 2 -r {link} -s INPUT'".format(
+        cmd = "ssh arts@ccu-corr 'python $UPE/peripherals/util_bsn_monitor.py --unb {unb} {nodes} -n 2 -r {link} -s INPUT'".format(
               unb=self.args.unb, nodes=nodes, link=link)
-        full_command = ['ssh', 'arts@ccu-corr.apertif', cmd]
-        print full_command
-        subprocess.check_output(full_command)
+        print cmd
+        os.system(cmd)
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
