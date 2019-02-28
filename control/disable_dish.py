@@ -47,7 +47,7 @@ class DisableDish(object):
         elif self.args.pol == 'XY':
             nodes = "--fn {0} --bn {0}".format(fpga)
 
-        cmd = "ssh arts@ccu-corr 'python $UPE/peripherals/util_bsn_monitor.py --unb {unb} {nodes} -n 2 -r {link} -s INPUT'".format(
+        cmd = "ssh -t arts@ccu-corr 'python $UPE/peripherals/util_dp_bsn_aligner.py --unb {unb} {nodes} -r {link} -n 2 -s INPUT'".format(
               unb=self.args.unb, nodes=nodes, link=link)
         print cmd
         os.system(cmd)
