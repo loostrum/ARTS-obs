@@ -17,7 +17,7 @@ def main(args):
     # Set up file name and dir
     kwargs['data_dir'] = "{obs_dir}/filterbank".format(**kwargs)
     fname_IAB = "{data_dir}/CB{cb}.fil".format(**kwargs)
-    fname_TAB = "{data_dir}/CB{cb}_01.fil".format(**kwargs)
+    fname_TAB = "{data_dir}/CB{cb}_00.fil".format(**kwargs)
     if os.path.isfile(fname_IAB):
         kwargs['fname'] = fname_IAB
     else:
@@ -54,8 +54,14 @@ def main(args):
                        " -noxwin -ignorechan 1380:1535 -filterbank" \
                        " {fname}".format(opt=opt, **kwargs)
 
-    print "Running prepfold command: {}".format(prepfold_cmd)
-    os.system(prepfold_cmd)
+    # convert to pdf command
+    figname = kwargs['fname'].replace('.fil', '_PSR_{}.pfd.ps'.format(psr[1:]))
+    convert_cmd = "ps2pdf {}".format(figname)
+    
+
+    full_cmd = prepfold_cmd + " && " + convert_cmd
+    print "Running command: {}".format(full_cmd)
+    os.system(full_cmd)
     print "Done"
 
 if __name__ == '__main__':
