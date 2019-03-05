@@ -21,7 +21,7 @@ import subprocess
 
 class DisableDish(object):
 
-    def __init__(self, args):
+    def __init__(self, unb, dish, pol):
         # Define dish to central FPGA mapping
         self.dish_to_node = {'2': 0, '3': 0, '4': 0,
                              '5': 1, '6': 1, '7': 1,
@@ -34,22 +34,24 @@ class DisableDish(object):
                              '8': 0, '9': 1, 'A': 2,
                              'B': 0, 'C': 1, 'D': 2}
 
-        self.args = args
+        self.unb = unb
+        self.dish = dish
+        self.pol = pol
 
     def disable(self):
-        fpga = self.dish_to_node[self.args.rt]
-        link = self.dish_to_link[self.args.rt]
+        fpga = self.dish_to_node[self.dish]
+        link = self.dish_to_link[self.dish]
 
-        if self.args.pol == 'X':
+        if self.pol == 'X':
             nodes = "--fn {}".format(fpga)
-        elif self.args.pol == 'Y':
+        elif self.pol == 'Y':
             nodes = "--bn {}".format(fpga)
-        elif self.args.pol == 'XY':
+        elif self.pol == 'XY':
             nodes = "--fn {0} --bn {0}".format(fpga)
 
         cmd = "ssh -t arts@ccu-corr 'python $UPE/peripherals/util_dp_bsn_aligner.py --unb {unb} {nodes} -r {link} -n 2 -s INPUT'".format(
-              unb=self.args.unb, nodes=nodes, link=link)
-        print cmd
+              unb=self.unb, nodes=nodes, link=link)
+        print "Running \"{}\"".format(cmd)
         os.system(cmd)
 
 if __name__ == '__main__':
@@ -72,5 +74,7 @@ if __name__ == '__main__':
         print "--pol should be on of {}".format(valid_pol)
         sys.exit(1)
 
-    dd = DisableDish(args)
-    dd.disable()
+    dishes = args.rt.split(',')
+    for dish in dishes:
+        dd = DisableDish(args.unb, dish, args.pol)
+        dd.disable()
