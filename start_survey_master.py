@@ -267,6 +267,14 @@ def start_survey(args):
         except ValueError:
             # beam was not in list of beams anyway
             continue
+    # update nbeams
+    pars['nbeams'] = len(pars['beams'])
+    # get FoV
+    fov_CB = .2  # sq deg, approximately full moon
+    # FoV of full obs
+    pars['fov_obs'] = pars['nbeams'] * fov_CB
+    # FoV of single TAB / IAB
+    pars['fov_beam'] = fov_CB / pars['ntabs']
 
     # we have all parameters now
     # create output dir on master node
@@ -326,10 +334,15 @@ def start_survey(args):
     # load the parset
     if not pars['parset'] == '':
         with open(pars['parset']) as f:
-            parset = f.read().encode('bz2').encode('hex')
-            if len(parset) > 24575:
-                log("Error: compressed parset is longer than maximum for header (24575 characters)")
-                parset = 'no parset'
+            parset = f.read()
+        # add field of view
+        parset += "\n"
+        parset += "arts.survey.apertif_obs_fov = {:.6}\n".format(pars['fov_obs'])
+        parset += "arts.survey.apertif_beam_fov = {:.6f}\n".format(pars['fov_beam'])
+        parset = parset.encode('bz2').encode('hex')
+        if len(parset) > 24575:
+            log("Error: compressed parset is longer than maximum for header (24575 characters)")
+            parset = 'no parset'
     else:
         parset = 'no parset'
 
