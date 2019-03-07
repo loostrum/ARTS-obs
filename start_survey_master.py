@@ -26,6 +26,7 @@ AMBERCONFIG = "amber.yaml"
 AMBERCONFDIR = "amber_conf"
 COORD = "coordinates.txt"
 INFO = "info.yaml"
+MASTER = "master.yaml"
 CHECKBSN = "utilities/get_init_bsn.sh"
 CBOFFSETS = "square_39p1.cb_offsets"
 
@@ -281,6 +282,11 @@ def start_survey(args):
     cmd = "mkdir -p {master_dir}/".format(**pars)
     os.system(cmd)
     log(cmd)
+    # store the parameters
+    parameter_file = os.path.join(pars['master_dir'], MASTER)
+    with open(parameter_file, 'w') as f:
+        yaml.dump(pars, f, default_flow_style=False)
+    pars['parameter_file'] = parameter_file
 
     # create psrdada header and config file for each beam
     # config file
@@ -431,10 +437,9 @@ def start_survey(args):
     # done
     log("All nodes started for observation")
 
-    # start the trigger listener + emailer
+    # start the processing pipeline
     if pars['proctrigger']:
-        email_script = os.path.join(script_path, "emailer.py")
-        cmd = "(sleepuntil_utc {endtime}; python {email_script} {master_dir} '{beams}') &".format(email_script=email_script, **pars)
+        cmd = "darc start_observation --config {parameter_file}".format(**pars)
         log(cmd)
         os.system(cmd)
 
