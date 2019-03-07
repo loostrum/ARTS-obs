@@ -337,8 +337,8 @@ def start_survey(args):
             parset = f.read()
         # add field of view
         parset += "\n"
-        parset += "arts.survey.apertif_obs_fov = {:.6}\n".format(pars['fov_obs'])
-        parset += "arts.survey.apertif_beam_fov = {:.6f}\n".format(pars['fov_beam'])
+        parset += "arts.survey.obs_fov = {:.6}\n".format(pars['fov_obs'])
+        parset += "arts.survey.beam_fov = {:.6f}\n".format(pars['fov_beam'])
         parset = parset.encode('bz2').encode('hex')
         if len(parset) > 24575:
             log("Error: compressed parset is longer than maximum for header (24575 characters)")
