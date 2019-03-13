@@ -131,8 +131,7 @@ class Survey(object):
 
         # TAB mode: multiple dataproducts
         else:
-            mapping = {0:'A', 1:'B', 2:'C', 3:'D', 4:'E', 5:'F', 6:'G', 7:'H', 8:'I', 9:'J', 10:'K', 11:'L'}
-            for tab in range(1, self.config['ntabs']+1):
+            for tab in range(0, self.config['ntabs']):
                 fname = "ARTS{taskid}_CB{beam:02d}_TAB{tab:02d}.fits".format(tab=tab, **self.config)
                 # add the data products
                 cmd = "source /home/arts/atdb_client/env2/bin/activate; atdb_service -o add_dataproduct --taskid {taskid} " \
