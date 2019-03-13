@@ -46,7 +46,7 @@ def query_database(obs_mode='sc4'):
     """
 
     # Define the URL for query
-    url = 'http://atdb.astron.nl/atdb/observations/?my_status__in=scheduled,starting,running&observing_mode__icontains={}'.format(obs_mode)
+    url = 'http://atdb.astron.nl/atdb/observations/?my_status__in=defined,scheduled,starting,running&observing_mode__icontains={}'.format(obs_mode)
 
     # First, determine how many results there are
     # Do the query
@@ -58,7 +58,7 @@ def query_database(obs_mode='sc4'):
 
     # Can only do 100 per page
     result_num = json.loads(response.text)['count']
-    logging.info('Total number of results found in ATDB with status in [scheduled, starting, running] for {}: {}'.format(obs_mode.upper(),result_num))
+    logging.info('Total number of results found in ATDB with status in [defined, scheduled, starting, running] for {}: {}'.format(obs_mode.upper(),result_num))
     pagenum = result_num // 100
     if result_num % 100 != 0:
         pagenum += 1
@@ -67,7 +67,7 @@ def query_database(obs_mode='sc4'):
     obs_list = []
 
     for page in range(1,pagenum+1):
-        url = 'http://atdb.astron.nl/atdb/observations/?my_status__in=scheduled,starting,running&observing_mode__icontains={}&page={}'.format(obs_mode,page)
+        url = 'http://atdb.astron.nl/atdb/observations/?my_status__in=defined,scheduled,starting,running&observing_mode__icontains={}&page={}'.format(obs_mode,page)
 
         # Do the query
         try: 
@@ -145,7 +145,7 @@ def gen_obs_command(obs):
         kwargs['other'] += ' --pulsar'
 
     # Add processing option
-    if kwargs['obs_mode'] == 'survey' and kwargs['science_mode'] == 'i+iab':
+    if kwargs['obs_mode'] == 'survey': #and kwargs['science_mode'] == 'i+iab':
         kwargs['other'] += ' --proctrigger'
 
     # Try getting the parset
@@ -193,6 +193,16 @@ def check_and_start_obs():
     taskids = np.array([obs['taskID'] for obs in obs_list], dtype=int)
     order = np.argsort(taskids)
     obs_list = obs_list[order]
+
+    # "defined" observations are only ok for drift scan mode, i.e. "drift" has to be in name"
+    sources = np.array([obs['field_name'] for obs in obs_list])
+    states = np.array([obs['my_status'] for obs in obs_list])
+    # check for drift in name and state is defined
+    is_driftscan = np.array(['drift' in source.lower() for source in sources])
+    is_defined = np.array([state == 'defined' for state in states])
+    # remove observations that are defined but not drift scan
+    to_keep = is_defined & ~is_driftscan
+    obs_list = obs_list[to_keep]
 
     # Find start time relative to now in seconds
     now = Time.now()
