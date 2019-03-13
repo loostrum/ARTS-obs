@@ -17,7 +17,7 @@ def main(args):
     # Set up file name and dir
     kwargs['data_dir'] = "{obs_dir}/filterbank".format(**kwargs)
     fname_IAB = "{data_dir}/CB{cb}.fil".format(**kwargs)
-    fname_TAB = "{data_dir}/CB{cb}_00.fil".format(**kwargs)
+    fname_TAB = "{data_dir}/CB{cb}_01.fil".format(**kwargs)
     if os.path.isfile(fname_IAB):
         kwargs['fname'] = fname_IAB
     else:
