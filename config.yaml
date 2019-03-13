@@ -18,9 +18,9 @@ general: &general
     # total nr of beams
     nbeams: 40
     # beams that are not present
-    # CB36 produces way too many candidates - unclear why
     # CB29,34,39 have broken 40g link
-    missing_beams: [29, 34, 36, 39]
+    #missing_beams: [29, 34, 36, 39]
+    missing_beams: [29, 34, 39]
     # nr of buffers for readers
     nbuffer: 5
     # size of ringbuffer header
