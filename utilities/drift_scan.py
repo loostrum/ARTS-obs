@@ -10,8 +10,8 @@ import astropy.units as u
 
 
 if __name__ == '__main__':
-    if not len(sys.argv) == 3:
-        print 'Provide RA (hh:mm:ss) and Dec (dd:mm:ss)'
+    if not len(sys.argv) == 4:
+        print 'Provide RA (hh:mm:ss) Dec (dd:mm:ss) startime ("yyyy-mm-dd hh:mm:ss")'
         exit()
 
     # don't complain about Unicode conversion warning
@@ -33,14 +33,38 @@ if __name__ == '__main__':
         print "DEC < -35 degrees, not observable with WSRT"
         exit()
 
-    # scan one CB = 30 arcmin + extra 10 arcmin on each side -> 25 arcmin radius
-    offset = 25*u.arcmin
+    # get start time
+    stime = Time(sys.argv[3], scale='utc')
+    stime.delta_ut1_utc = 0
+    # convert to LST
+    wsrt_lon = 6.60387*u.deg
+    LST = stime.sidereal_time('mean', wsrt_lon) # - one minute?
 
-    duration = (2*offset/np.cos(DEC.to(u.radian))).to(u.hourangle) * u.hour/u.hourangle
+    # scan one CB = 30 arcmin + extra 30 arcmin on each side -> 45 arcmin radius
+    offset = 45*u.arcmin
+    # one row of 6 beams = 180 arcmin + 30 extra on each side -> 120 arcmin radius
+    offset_6beam = 120*u.arcmin
+    # one row of 7 beams = 210 arcmin + 30 extra on each side -> 135 arcmin radius
+    offset_7beam = 135*u.arcmin
+
+    duration = (2*offset/np.cos(DEC.to(u.radian))).to(u.hourangle) * u.hour/u.hourangle + 1*u.minute
+    duration_6beam = (2*offset_6beam/np.cos(DEC.to(u.radian))).to(u.hourangle) * u.hour/u.hourangle + 1*u.minute
+    duration_7beam = (2*offset_7beam/np.cos(DEC.to(u.radian))).to(u.hourangle) * u.hour/u.hourangle + 1*u.minute
 
     # starting point
     start_RA = RA - offset/np.cos(DEC.to(u.radian))
 
+    # get HA at start time
+    HA = LST - start_RA
+    if HA < - 180*u.degree:
+        HA += 360*u.degree
+    if HA > 180*u.degree:
+        HA -= 360*u.degree
+
     print "Pointing RA:", start_RA.to_string(u.hourangle)
-    print "Duration: ", duration.to(u.second)
-    print "Decimal RA, Dec", start_RA.to_string(u.degree, decimal=True), DEC.to_string(u.degree, decimal=True)
+    print "Duration one beam: ", duration.to(u.second)
+    print "Duration six beams: ", duration_6beam.to(u.second)
+    print "Duration seven beams: ", duration_7beam.to(u.second)
+    #print "Pointing HA:", HA.to_string(u.hourangle, decimal=True, precision=8)
+    print "Pointing decimal HA, Dec", HA.to_string(u.degree, decimal=True, precision=8), DEC.to_string(u.degree, decimal=True, precision=8)
+    print "Source decimal RA, Dec", RA.to_string(u.degree, decimal=True, precision=8), DEC.to_string(u.degree, decimal=True, precision=8)
