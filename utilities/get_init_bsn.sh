@@ -2,6 +2,12 @@
 #
 # Get the init BSN as set by main.py on the dishes
 
-init_bsn_list=$(ssh ccu-corr 'grep init_bsn $COM_DESP/main.log' | awk '{print $21}' | uniq)
+last_known_bsn=1212870077231250
+init_bsn=$(ssh ccu-corr 'grep init_bsn $COM_DESP/main.log' | awk '{print $21}' | uniq | head -n 1)
 
-echo $init_bsn_list
+# use last known value if empty
+if [ -z $init_bsn ]; then
+    echo "WARNING: could not get init BSN. Using last known value" >&2
+    init_bsn=$last_known_bsn
+fi
+echo $init_bsn
