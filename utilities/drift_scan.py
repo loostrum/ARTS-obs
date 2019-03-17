@@ -62,9 +62,9 @@ if __name__ == '__main__':
         HA -= 360*u.degree
 
     print "Pointing RA:", start_RA.to_string(u.hourangle)
-    print "Duration one beam: ", duration.to(u.second)
-    print "Duration six beams: ", duration_6beam.to(u.second)
-    print "Duration seven beams: ", duration_7beam.to(u.second)
+    print "Duration one beam: ", int(duration.to(u.second).value), 's'
+    print "Duration six beams: ", int(duration_6beam.to(u.second).value), 's'
+    print "Duration seven beams: ", int(duration_7beam.to(u.second).value), 's'
     #print "Pointing HA:", HA.to_string(u.hourangle, decimal=True, precision=8)
     print "Pointing decimal HA, Dec", HA.to_string(u.degree, decimal=True, precision=8), DEC.to_string(u.degree, decimal=True, precision=8)
     print "Source decimal RA, Dec", RA.to_string(u.degree, decimal=True, precision=8), DEC.to_string(u.degree, decimal=True, precision=8)
