@@ -29,6 +29,11 @@ def log(message):
 if __name__ == '__main__':
     master_dir = sys.argv[1]
     expected_beams = np.array(ast.literal_eval(sys.argv[2]), dtype=int)
+    try:
+        ntab = int(sys.argv[3])
+    except IndexError:
+        # old IAB mode
+        ntab = 1
     nbeam = len(expected_beams)
 
     # load config file

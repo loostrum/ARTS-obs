@@ -31,6 +31,18 @@ dmmin=$7
 dmmax=$8
 CB=$9
 time_limit=${10}
+tab=${11}
+
+# set filenames
+if [ "$tab" == "00" ]; then
+    grouped_pulses=grouped_pulses.singlepulse
+    data_full=data_full.hdf5
+    ml_out=ranked_CB$CB
+else
+    grouped_pulses=grouped_pulses_${tab}.singlepulse
+    data_full=data_${tab}_full.hdf5
+    ml_out=ranked_CB${CB}_TAB${tab}
+fi
 
 # Set GPUs visible to the classifier
 export CUDA_VISIBLE_DEVICES=$ML_GPUs
@@ -46,18 +58,20 @@ rm -f $outputdir/plots/*pdf
 cd $outputdir
 # process the triggers without making plots
 trig_start=$(date)
-python $triggerscript --rficlean --sig_thresh_local $snrmin_local --time_limit $time_limit --descending_snr --beamno $CB --mk_plot --dm_min $dmmin --dm_max $dmmax --sig_thresh $snrmin --ndm $ndm --save_data $fmt --nfreq_plot $nfreq_plot --ntime_plot $ntime_plot --cmap $cmap --outdir=$outputdir $filfile ${prefix}.trigger
+python $triggerscript --rficlean --sig_thresh_local $snrmin_local --time_limit $time_limit --descending_snr --beamno $CB --mk_plot --dm_min $dmmin --dm_max $dmmax --sig_thresh $snrmin --ndm $ndm --save_data $fmt --nfreq_plot $nfreq_plot --ntime_plot $ntime_plot --cmap $cmap --outdir=$outputdir $filfile ${prefix}.trigger --tab ${tab}
 trig_end=$(date)
 
+
+## TO FIX: TRIGGER MERGING AND PDF
 # get number of triggers after grouping
-if [ ! -f grouped_pulses.singlepulse ]; then
+if [ ! -f $grouped_pulses ]; then
     ncand_grouped=0
 else
-    ncand_grouped=$(wc -l grouped_pulses.singlepulse | awk '{print $1}')
+    ncand_grouped=$(wc -l $grouped_pulses | awk '{print $1}')
     # run the classifier
     source $venv_dir/bin/activate
     # to add DM model: --fn_model_dm $modeldir/heimdall_dm_time.hdf5
-    python $classifier --fn_model_time $modeldir/heimdall_b0329_mix_147411d_time.hdf5 --pthresh $pthresh --save_ranked --plot_ranked --fnout=ranked_CB$CB $outputdir/data/data_full.hdf5 $modeldir/20190125-17114-freqtimefreq_time_model.hdf5
+    python $classifier --fn_model_time $modeldir/heimdall_b0329_mix_147411d_time.hdf5 --pthresh $pthresh --save_ranked --plot_ranked --fnout=$ml_out $outputdir/data/$data_full $modeldir/20190125-17114-freqtimefreq_time_model.hdf5
     deactivate
     # merge classifier summary figs
     nMLfigs=$(ls $outputdir/*pdf | wc -l)
@@ -68,7 +82,7 @@ else
     fi
 fi
 # copy results to masternode
-python $trigger_to_master $outputdir/data/data_full.hdf5 ranked_CB${CB}_freq_time.hdf5 $ncand_raw $ncand_grouped $master_dir
+python $trigger_to_master $outputdir/data/$data_full ${ml_out}_freq_time.hdf5 $ncand_raw $ncand_grouped $master_dir $tab
 
 echo "Start of triggers.py: $trig_start"
 echo "End of triggers.py: $trig_end"

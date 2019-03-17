@@ -23,6 +23,12 @@ if __name__ == '__main__':
     ncand_trigger = int(sys.argv[4])
     # dir on master node
     master_dir = sys.argv[5]
+    # tab
+    try:
+        tab = int(sys.argv[6])
+    except IndexError:
+        # set to IAB
+        tab = 0
     # beam of this node
     beam = int(socket.gethostname()[5:7]) - 1
     # read clustering output
