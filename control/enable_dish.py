@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 #
-# Disable dish data path for ARTS beamformer
+# Enable dish data path for ARTS beamformer
 # Based on dish-to-fpga mapping:
 # X-pol connect to central UNB-FN:
 # . Central UNB-0:15, FN 0, link 0,1,2 connects to X-pol, FN-0:15 on dish UNB-0:3 of RT 2,3,4"
@@ -19,7 +19,7 @@ import argparse
 import subprocess
 
 
-class DisableDish(object):
+class EnableDish(object):
 
     def __init__(self, unb, dish, pol):
         # Define dish to central FPGA mapping
@@ -38,7 +38,7 @@ class DisableDish(object):
         self.dish = dish
         self.pol = pol
 
-    def disable(self):
+    def enable(self):
         fpga = self.dish_to_node[self.dish]
         link = self.dish_to_link[self.dish]
 
@@ -49,16 +49,16 @@ class DisableDish(object):
         elif self.pol == 'XY':
             nodes = "--fn {0} --bn {0}".format(fpga)
 
-        cmd = "ssh -t apertif@ccu-corr 'python $UPE/peripherals/util_dp_bsn_aligner.py --unb {unb} {nodes} -r {link} -n 2 -s INPUT'".format(
+        cmd = "ssh -t apertif@ccu-corr 'python $UPE/peripherals/util_dp_bsn_aligner.py --unb {unb} {nodes} -r {link} -n 1 -s INPUT'".format(
               unb=self.unb, nodes=nodes, link=link)
         print "Running \"{}\"".format(cmd)
         os.system(cmd)
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--rt', type=str, help="Dish to disable", required=True)
+    parser.add_argument('--rt', type=str, help="Dish to enable", required=True)
     parser.add_argument('--pol', type=str, default='XY', 
-                        help="Polarization to disable (Default: %(default)s)")
+                        help="Polarization to enable (Default: %(default)s)")
     parser.add_argument('--unb', type=str, default='0:15',
                         help="Central uniboards to use (Default: %(default)s)")
 
@@ -76,5 +76,5 @@ if __name__ == '__main__':
 
     dishes = args.rt.split(',')
     for dish in dishes:
-        dd = DisableDish(args.unb, dish, args.pol)
-        dd.disable()
+        dd = EnableDish(args.unb, dish, args.pol)
+        dd.enable()
