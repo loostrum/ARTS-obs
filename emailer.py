@@ -110,10 +110,17 @@ if __name__ == '__main__':
         for trigger in triggers[beam]:
             trigger = np.concatenate([trigger, np.array(["{:02d}".format(beam)])])
             alltriggers.append(tuple(trigger))
-    dtypes = [('SNR', 'S10'), ('DM', 'S10'), ('Width', 'S10'), ('T0', 'S10'), ('p', 'S10'), ('beam', 'S10')]
+    dtypes = [('SNR', float), ('DM', 'S10'), ('Width', 'S10'), ('T0', 'S10'), ('p', float), ('beam', 'S10')]
     alltriggers = np.array(alltriggers, dtype=dtypes)
     # sort by p, then SNR if equal
     alltriggers = np.sort(alltriggers, order=('p', 'SNR'))[::-1]
+    # convert SNR and p back to string
+    dtypes = [('SNR', 'S10'), ('DM', 'S10'), ('Width', 'S10'), ('T0', 'S10'), ('p', 'S10'), ('beam', 'S10')]
+    plist = ["{:.2f}".format(p) for p in alltriggers['p']]
+    snrlist = ["{:.2f}".format(snr) for snr in alltriggers['SNR']]
+    alltriggers = np.array(alltriggers, dtype=dtypes)
+    alltriggers['p'] = np.array(plist, dtype='S10')
+    alltriggers['SNR'] = np.array(snrlist, dtype='S10')
     total_triggers = len(alltriggers)
     
 
