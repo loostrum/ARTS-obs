@@ -83,7 +83,7 @@ class ApertifBeamSources(object):
         result = QueryATNF(params=params, condition=condition)
         time_taken = time.time() - tstart
         sys.stderr.write("Query took {:.1f} seconds\n".format(time_taken))
-        sys.stderr.write("Found {} results for {}\n".format(len(result.table), condition))
+        sys.stderr.write("Found {} results for {}\n\n".format(len(result.table), condition))
         self.ATNFtable = result.table
         # store coordinates as SkyCoord
         self.ATNFtable['coordinates'] = SkyCoord(self.ATNFtable['RAJ'], self.ATNFtable['DECJ'], unit=(u.hourangle, u.deg))
@@ -108,7 +108,7 @@ class ApertifBeamSources(object):
         for ind, obs in enumerate(self.schedule):
             pointing = self.pointings[ind]
             pulsars = self.pulsars[ind]
-            print "Observation: Source: {}\t RA: {}\t DEC:{}".format(obs['source'], obs['ra'], obs['dec'])
+            print "Survey pointing: {}\t RA: {}\t DEC: {}".format(obs['source'], obs['ra'], obs['dec'])
             print "Number of pulsars within field: {}".format(len(pulsars))
             if len(pulsars) > 0:
                 print "Pulsars:"
