@@ -4,12 +4,14 @@
 # Author: L.C. Oostrum
 
 import os
+import shutil
 import sys
 import ast
 import socket
 import smtplib
 from time import sleep
 from datetime import datetime
+import errno
 from email.mime.application import MIMEApplication
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
@@ -18,6 +20,7 @@ import numpy as np
 import yaml
 
 CONFIG = "config.yaml"
+WEBDIR='/home/arts/public_html/triggers'
 
 def log(message):
     """
@@ -42,6 +45,20 @@ if __name__ == '__main__':
         config = yaml.load(f)['emailer']
     # message recipients
     to = ", ".join(config['to'])
+
+    # get obs date and name from master dir
+    obsdate, obsname = master_dir.split('/')[-2:]
+    # get full path for web dir
+    web_path = os.path.join(WEBDIR, obsdate, obsname)
+    http_link = 'http://arts041.apertif/~arts/triggers/{}/{}'.format(obsdate, obsname)
+    # create the directory
+    upload = True
+    try:
+        os.makedirs(web_path)
+    except OSError as e:
+        if e.errno != errno.EEXIST:
+            log("Failed to create web path, will not upload triggers. ({})".format(e))
+            upload = False
 
     # load coordinate file
     coord_file = os.path.join(master_dir, 'coordinates.txt')
@@ -112,13 +129,20 @@ if __name__ == '__main__':
         if ntrig_email >= 250:
             triggerinfo += "<tr><td>truncated</td><td>truncated</td><td>truncated</td><td>truncated</td><td>truncated</td><td>truncated</td></tr>"
             break
+
+    # full info for html page
+    triggerinfo_full = ""
+    for line in alltriggers:
+        triggerinfo_full += "<tr><td>{4}</td><td>{0}</td><td>{1}</td><td>{3}</td><td>{2}</td><td>{5}</td></tr>".format(*line)
     
         
     # create email
     # kwarg for tables
-    kwargs = dict(beamstats=beamstats, coordinfo=coordinfo, triggerinfo=triggerinfo, total_triggers=total_triggers)
+    kwargs = dict(beamstats=beamstats, coordinfo=coordinfo, triggerinfo=triggerinfo, total_triggers=total_triggers, http_link=http_link)
+    webkwargs = dict(beamstats=beamstats, coordinfo=coordinfo, triggerinfo=triggerinfo_full, total_triggers=total_triggers, http_link=http_link)
     # add obs info
     kwargs.update(obsinfo)
+    webkwargs.update(obsinfo)
     frm = "ARTS FRB Alert System <arts@{}.apertif>".format(socket.gethostname())
 
     msg = MIMEMultipart('alternative')
@@ -126,7 +150,7 @@ if __name__ == '__main__':
     msg['From'] = frm
     msg['To'] = to
 
-    txt="""<html>
+    template = """<html>
     <head><title>FRB Alert System</title></head>
     <body>
 
@@ -147,6 +171,8 @@ if __name__ == '__main__':
         <th style="text-align:left">YMW16 DM (central beam)</th><td colspan="2">{ymw16}</td>
     </tr><tr>
         <th style="text-align:left">Total number of candidates</th><td colspan="2">{total_triggers}</td>
+    </tr><tr>
+        <th style="text-align:left">Trigger web link</th><td colspan="2">{http_link}</td>
     </tr>
     </table>
     </p>
@@ -199,15 +225,32 @@ if __name__ == '__main__':
     </p>
 
     </body>
-    </html>""".format(**kwargs)
+    </html>"""
 
-    msg.attach(MIMEText(txt, 'html'))
+    emailtxt = template.format(**kwargs)
+    webtxt = template.format(**webkwargs)
 
+
+    msg.attach(MIMEText(emailtxt, 'html'))
+
+    # Add files to website
+    for fname in attachments or ():
+        outname = os.path.join(web_path, os.path.basename(fname).replace('_candidates_summary', ''))
+        shutil.copyfile(fname, outname)
+    # add info html to website
+    info_html = os.path.join(web_path, 'info.html')
+    with open(info_html, 'w') as f:
+        f.writelines(webtxt)
+        
+
+    # Add files to email
     for fname in attachments or ():
         with open(fname, 'rb') as f:
             part = MIMEApplication(f.read(), 'pdf', Name=os.path.basename(fname))
         part['Content-Disposition'] = 'attachment; filename="{}"'.format(os.path.basename(fname).replace('_candidates_summary', ''))
         msg.attach(part)
+    
+            
 
     log("Sending email to: {}".format(to))
     smtp = smtplib.SMTP()
