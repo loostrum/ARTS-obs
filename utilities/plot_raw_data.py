@@ -34,7 +34,8 @@ def plot_histogram(obs_config):
     if obs_config['ntabs'] == 1:
         filfile = "{output_dir}/filterbank/CB{beam:02d}.fil".format(**obs_config)
     else:
-        filfile = "{output_dir}/filterbank/CB{beam:02d}_TAB00.fil".format(**obs_config)
+        #filfile = "{output_dir}/filterbank/CB{beam:02d}_TAB00.fil".format(**obs_config)
+        filfile = "{output_dir}/filterbank/CB{beam:02d}_01.fil".format(**obs_config)
 
     fil_obj = filterbank.FilterbankFile(filfile)
     nspec = fil_obj.nspec
