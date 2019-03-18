@@ -176,23 +176,6 @@ if __name__ == '__main__':
     </tr>
     </table>
     </p>
-    
-
-    <hr align="left" width="50%" />
-
-    <p><h2>FRB Detections</h2><br />
-    <table style="width:50%">
-    <tr style="text-align:left">
-        <th>Probability</th>
-        <th>S/N</th>
-        <th>DM (pc/cc)</th>
-        <th>Arrival time (s)</th>
-        <th>Width (ms)</th>
-        <th>CB</th>
-    </tr>
-    {triggerinfo}
-    </table>
-    </p>
 
     <hr align="left" width="50%" />
 
@@ -221,6 +204,22 @@ if __name__ == '__main__':
         <th>Gb</th>
     </tr>
     {coordinfo}
+    </table>
+    </p>
+
+    <hr align="left" width="50%" />
+
+    <p><h2>FRB Detections</h2><br />
+    <table style="width:50%">
+    <tr style="text-align:left">
+        <th>Probability</th>
+        <th>S/N</th>
+        <th>DM (pc/cc)</th>
+        <th>Arrival time (s)</th>
+        <th>Width (ms)</th>
+        <th>CB</th>
+    </tr>
+    {triggerinfo}
     </table>
     </p>
 
