@@ -35,10 +35,12 @@ tab=${11}
 
 # set filenames
 if [ "$tab" == "00" ]; then
+    # IAB
     grouped_pulses=grouped_pulses.singlepulse
     data_full=data_full.hdf5
     ml_out=ranked_CB$CB
 else
+    # TAB
     grouped_pulses=grouped_pulses_${tab}.singlepulse
     data_full=data_${tab}_full.hdf5
     ml_out=ranked_CB${CB}_TAB${tab}
@@ -62,27 +64,30 @@ python $triggerscript --rficlean --sig_thresh_local $snrmin_local --time_limit $
 trig_end=$(date)
 
 
-## TO FIX: TRIGGER MERGING AND PDF
-# get number of triggers after grouping
 if [ ! -f $grouped_pulses ]; then
     ncand_grouped=0
 else
     ncand_grouped=$(wc -l $grouped_pulses | awk '{print $1}')
-    # run the classifier
-    source $venv_dir/bin/activate
-    # to add DM model: --fn_model_dm $modeldir/heimdall_dm_time.hdf5
-    python $classifier --fn_model_time $modeldir/heimdall_b0329_mix_147411d_time.hdf5 --pthresh $pthresh --save_ranked --plot_ranked --fnout=$ml_out $outputdir/data/$data_full $modeldir/20190125-17114-freqtimefreq_time_model.hdf5
-    deactivate
-    # merge classifier summary figs
-    nMLfigs=$(ls $outputdir/*pdf | wc -l)
-    merged=candidates_summary.pdf
-    if [ $nMLfigs -ne 0 ]; then
-        # create merged pdf
-        gs -dBATCH -dNOPAUSE -q -sDEVICE=pdfwrite -sOutputFile=$merged $outputdir/*pdf
-    fi
 fi
-# copy results to masternode
-python $trigger_to_master $outputdir/data/$data_full ${ml_out}_freq_time.hdf5 $ncand_raw $ncand_grouped $master_dir $tab
-
+# run classifier and copy to master dir here for backwards compatibility
+# taken care of through DARC for TAB mode
+if [ "$tab" == "00"]
+    if [ "$ncand_grouped" != 0 ]; then
+        # run the classifier
+        source $venv_dir/bin/activate
+        # to add DM model: --fn_model_dm $modeldir/heimdall_dm_time.hdf5
+        python $classifier --fn_model_time $modeldir/heimdall_b0329_mix_147411d_time.hdf5 --pthresh $pthresh --save_ranked --plot_ranked --fnout=$ml_out $outputdir/data/$data_full $modeldir/20190125-17114-freqtimefreq_time_model.hdf5
+        deactivate
+        # merge classifier summary figs
+        nMLfigs=$(ls $outputdir/*pdf | wc -l)
+        merged=candidates_summary.pdf
+        if [ $nMLfigs -ne 0 ]; then
+            # create merged pdf
+            gs -dBATCH -dNOPAUSE -q -sDEVICE=pdfwrite -sOutputFile=$merged $outputdir/*pdf
+        fi
+    fi
+    # copy results to masternode
+    python $trigger_to_master $outputdir/data/$data_full ${ml_out}_freq_time.hdf5 $ncand_raw $ncand_grouped $master_dir $tab
+fi
 echo "Start of triggers.py: $trig_start"
 echo "End of triggers.py: $trig_end"
