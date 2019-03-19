@@ -41,7 +41,8 @@ if __name__ == '__main__':
         # check if fits file exists for each node
         complete = True
         #for cb in set(cbs):
-        for cb in cbs[0]:
+        if True:
+            cb = cbs[0]
             node = "arts0{:02d}".format(cb+1)
             log("Checking status of {}".format(node))
 
