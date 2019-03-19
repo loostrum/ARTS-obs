@@ -28,7 +28,7 @@ if __name__ == '__main__':
     wait_time = TimeDelta(180, format='sec')
 
     # rows of PAF
-    cb_sets = [(0,), range(1, 8), range(9, 15), range(15, 21), range(21, 27), range(27, 33), range(33, 40)]
+    cb_sets = [(0,), range(1, 8), range(8, 15), range(15, 21), range(21, 27), range(27, 33), range(33, 40)]
 
     # 3C286
     src = '3C286'
