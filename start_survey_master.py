@@ -150,8 +150,12 @@ def start_survey(args):
 
     # derived values
     pars['chan_width'] = float(pars['bw']) / pars['nchan']
-    pars['min_freq'] = config[conf_sc]['freq_low'] + config[conf_sc]['first_subband'] * pars['time_unit'] * 1E-6
-    pars['freq'] = pars['min_freq'] - .5*pars['time_unit']*1E-6 + 0.5*pars['bw']
+    # get center freq of lowest subband
+    f_low_sub = config[conf_sc]['freq_low'] + config[conf_sc]['first_subband'] * pars['time_unit'] * 1E-6
+    # get center freq of lowest channel
+    pars['min_freq'] = f_low_sub - 24.5 * pars['chan_width'] / config[conf_sc]['nchan_fine']
+    pars['freq'] = pars['min_freq'] - .5*pars['chan_width'] + 0.5*pars['bw']
+
     if args.obs_mode == 'survey':
         # filterbank + fits + 3x AMBER
         pars['nreader'] = 5
