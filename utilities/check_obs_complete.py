@@ -40,7 +40,8 @@ if __name__ == '__main__':
     while not complete and time() < end_time:
         # check if fits file exists for each node
         complete = True
-        for cb in set(cbs):
+        #for cb in set(cbs):
+        for cb in cbs[0]:
             node = "arts0{:02d}".format(cb+1)
             log("Checking status of {}".format(node))
 
