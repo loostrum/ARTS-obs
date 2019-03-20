@@ -7,6 +7,8 @@ general: &general
     nbit: 8
     # total nr of channels
     nchan: 1536
+    # fine channels per channel
+    nchan_fine: 16
     # minimum frequency (center of lowest subband)
     freq_low: 1200
     # first subband (usually 64, corresponding to 50 MHz)
