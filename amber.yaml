@@ -39,4 +39,4 @@ subband:
     # downsampling factors before dedispersion
     downsamp: [1, 1, 5]
     # integration steps to use for each step
-    integration_file: [integration_steps_81.92us_x1.conf, integration_steps_81.92us_x1.conf, integration_steps_81.92us_x5.conf]
+    integration_file: [integration_steps_x1.conf, integration_steps_x1.conf, integration_steps_x5.conf]
