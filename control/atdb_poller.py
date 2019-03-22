@@ -217,8 +217,8 @@ def check_and_start_obs():
         prev_obs = obs_list[next_obs_ind - 1]
         # check if endtime is in the future
         if Time(prev_obs['endtime']) > Time.now():
-            logging.info("Previous observation not yet finished")
-            return
+            #logging.info("Previous observation not yet finished")
+            logging.warning("Previous observation not yet finished")
     else:
         logging.info('No previous observation found')
 
