@@ -20,23 +20,23 @@ subband:
     # number of GPU to use
     opencl_device: [1, 2, 3]
     # name of device in config files
-    device_name: [ARTS_step1_81.92us_1400MHz, ARTS_step2_81.92us_1400MHz, ARTS_step3_81.92us_1400MHz]
+    device_name: [ARTS_step1_81.92us_1400MHz, ARTS_step2_81.92us_1400MHz, ARTS_step3_nodownsamp_81.92us_1400MHz]
     # nr of subands (approx sqrt(nchan))
     subbands: [32, 32, 32]
     # first DM (global)
     subbanding_dm_first: [0, 409.6, 819.2]
     # DM step size outside of subband
-    subbanding_dm_step: [6.4, 6.4, 16]
+    subbanding_dm_step: [6.4, 6.4, 40]
     # number of DMs (outside of subbands)
-    subbanding_dms: [64, 64, 128]
+    subbanding_dms: [64, 64, 64]
     # first DM within a subband step
     dm_first: [0, 0, 0]
     # DM step size with a subband step
-    dm_step: [.2, .2, .5]
+    dm_step: [.2, .2, 2.5]
     # total nr of DM within a subband step (approx nr of subbands, 
     # if following DDplan.py)
-    num_dm: [32, 32, 32]
+    num_dm: [32, 32, 16]
     # downsampling factors before dedispersion
-    downsamp: [1, 1, 5]
+    downsamp: [1, 1, 1]
     # integration steps to use for each step
-    integration_file: [integration_steps_x1.conf, integration_steps_x1.conf, integration_steps_x5.conf]
+    integration_file: [integration_steps_x1.conf, integration_steps_x1.conf, integration_steps_x1.conf]
