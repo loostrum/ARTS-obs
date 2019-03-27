@@ -502,7 +502,7 @@ if __name__ == '__main__':
     parser.add_argument("--snrmin_processing", type=float, help="Trigger processing minimum S/N "
                         "(Default: 10)", default=10)
     parser.add_argument("--snrmin_processing_local", type=float, help="Trigger processing local minimum S/N after clustering"
-                        "(Default: 6)", default=6)
+                        "(Default: 5)", default=5)
     parser.add_argument("--dmmin", type=float, help="Trigger processing minimum DM "
                         "(Default: 20)", default=20)
     parser.add_argument("--dmmax", type=float, help="Trigger processing maximum DM "
