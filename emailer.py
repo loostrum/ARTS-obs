@@ -20,7 +20,7 @@ import numpy as np
 import yaml
 
 CONFIG = "config.yaml"
-WEBDIR='/home/arts/public_html/triggers'
+WEBDIR='{home}/public_html/triggers'.format(home=os.path.expanduser('~'))
 
 def log(message):
     """
