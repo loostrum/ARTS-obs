@@ -110,12 +110,20 @@ if __name__ == '__main__':
         for trigger in triggers[beam]:
             trigger = np.concatenate([trigger, np.array(["{:02d}".format(beam)])])
             alltriggers.append(tuple(trigger))
-    dtypes = [('SNR', float), ('DM', 'S10'), ('Width', 'S10'), ('T0', 'S10'), ('p', float), ('beam', 'S10')]
-    alltriggers = np.array(alltriggers, dtype=dtypes)
+    # try loading TAB
+    have_TAB = True
+    try:
+        dtypes_tmp = [('SNR', float), ('DM', 'S10'), ('Width', 'S10'), ('T0', 'S10'), ('p', float), ('TAB', 'S10'), ('beam', 'S10')]
+        dtypes = [('SNR', 'S10'), ('DM', 'S10'), ('Width', 'S10'), ('T0', 'S10'), ('p', 'S10'), ('TAB', 'S10'), ('beam', 'S10')]
+        alltriggers = np.array(alltriggers, dtype=dtypes_tmp)
+    except ValueError:
+        dtypes_tmp = [('SNR', float), ('DM', 'S10'), ('Width', 'S10'), ('T0', 'S10'), ('p', float), ('beam', 'S10')]
+        dtypes = [('SNR', 'S10'), ('DM', 'S10'), ('Width', 'S10'), ('T0', 'S10'), ('p', 'S10'), ('beam', 'S10')]
+        have_TAB = False
+        alltriggers = np.array(alltriggers, dtype=dtypes_tmp)
     # sort by p, then SNR if equal
     alltriggers = np.sort(alltriggers, order=('p', 'SNR'))[::-1]
     # convert SNR and p back to string
-    dtypes = [('SNR', 'S10'), ('DM', 'S10'), ('Width', 'S10'), ('T0', 'S10'), ('p', 'S10'), ('beam', 'S10')]
     plist = ["{:.2f}".format(p) for p in alltriggers['p']]
     snrlist = ["{:.2f}".format(snr) for snr in alltriggers['SNR']]
     alltriggers = np.array(alltriggers, dtype=dtypes)
@@ -125,22 +133,33 @@ if __name__ == '__main__':
     
 
     # convert triggers to html
-    # cols of trigger:  SNR DM Width T0 p beam
-    # order in email: p SNR DM T0 Width beam
-    # nrs: 4 0 1 3 2 5
+    # cols of trigger:  SNR DM Width T0 p (TAB) beam
+    # order in email: p SNR DM T0 Width beam (TAB)
+    # nrs: 4 0 1 3 2 5 (no TAB)
+    # 4 0 1 3 2 6 5 (with TAB)
     triggerinfo = ""
     ntrig_email = 0
     for line in alltriggers:
-        triggerinfo += "<tr><td>{4}</td><td>{0}</td><td>{1}</td><td>{3}</td><td>{2}</td><td>{5}</td></tr>".format(*line)
+        if have_TAB:
+            triggerinfo += "<tr><td>{4}</td><td>{0}</td><td>{1}</td><td>{3}</td><td>{2}</td><td>{6}</td><td>{5}</td></tr>".format(*line)
+        else:
+            triggerinfo += "<tr><td>{4}</td><td>{0}</td><td>{1}</td><td>{3}</td><td>{2}</td><td>{5}</td></tr>".format(*line)
         ntrig_email += 1
         if ntrig_email >= 250:
-            triggerinfo += "<tr><td>truncated</td><td>truncated</td><td>truncated</td><td>truncated</td><td>truncated</td><td>truncated</td></tr>"
+            if have_TAB:
+                triggerinfo += "<tr><td>truncated</td><td>truncated</td><td>truncated</td><td>truncated</td><td>truncated</td><td>truncated</td><td>truncated</td></tr>"
+            else:
+                triggerinfo += "<tr><td>truncated</td><td>truncated</td><td>truncated</td><td>truncated</td><td>truncated</td><td>truncated</td></tr>"
+                
             break
 
     # full info for html page
     triggerinfo_full = ""
     for line in alltriggers:
-        triggerinfo_full += "<tr><td>{4}</td><td>{0}</td><td>{1}</td><td>{3}</td><td>{2}</td><td>{5}</td></tr>".format(*line)
+        if have_TAB:
+            triggerinfo_full += "<tr><td>{4}</td><td>{0}</td><td>{1}</td><td>{3}</td><td>{2}</td><td>{6}</td><td>{5}</td></tr>".format(*line)
+        else:
+            triggerinfo_full += "<tr><td>{4}</td><td>{0}</td><td>{1}</td><td>{3}</td><td>{2}</td><td>{5}</td></tr>".format(*line)
     
         
     # create email
@@ -225,6 +244,7 @@ if __name__ == '__main__':
         <th>Arrival time (s)</th>
         <th>Width (ms)</th>
         <th>CB</th>
+        <th>TAB</th>
     </tr>
     {triggerinfo}
     </table>

@@ -23,12 +23,6 @@ if __name__ == '__main__':
     ncand_trigger = int(sys.argv[4])
     # dir on master node
     master_dir = sys.argv[5]
-    # tab
-    try:
-        tab = int(sys.argv[6])
-    except IndexError:
-        # set to IAB
-        tab = 0
     # beam of this node
     beam = int(socket.gethostname()[5:7]) - 1
     # read clustering output
@@ -36,6 +30,10 @@ if __name__ == '__main__':
         # read dataset
         with h5py.File(fname_clustered, 'r') as f:
             ncand_skipped = int(f['ntriggers_skipped'][0])
+            try:
+                tab = f['tab'][:]
+            except KeyError:
+                tab = None
     except IOError:
         #success = False
         print "WARNING: could not get ncand_skipped from {}".format(fname_clustered)
@@ -48,6 +46,8 @@ if __name__ == '__main__':
             data_frb_candidate = f['data_frb_candidate'][:]
             probability = f['probability'][:][frb_index]
             params = f['params'][:][frb_index]  # snr, DM, downsampling, arrival time, dt
+            if not tab is None:
+                tab = tab[frb_index] - 1
     except IOError:
         success = False
         ncand_classifier = 0
@@ -58,13 +58,21 @@ if __name__ == '__main__':
         # number of canddiates
         ncand_classifier = len(params)
         # make one big matrix with candidates, removing the dt column
-        data = np.column_stack([params[:, :4], probability])
+        if not tab is None:
+            data = np.column_stack([params[:, :4], probability, tab])
+        else:
+            data = np.column_stack([params[:, :4], probability])
         # sort by probability
         data = data[data[:, -1].argsort()[::-1]]
         # save to file
-        header = "SNR DM Width T0 p"
         fname = "CB{:02d}_triggers.txt".format(beam)
-        np.savetxt(fname, data, header=header, fmt="%.2f %.2f %.4f %.3f %.2f")
+        if not tab is None:
+            header = "SNR DM Width T0 p TAB"
+            np.savetxt(fname, data, header=header, fmt="%.2f %.2f %.4f %.3f %.2f %.0f")
+        else:
+            header = "SNR DM Width T0 p"
+            np.savetxt(fname, data, header=header, fmt="%.2f %.2f %.4f %.3f %.2f")
+            
         # copy to master node
         cmd = "cp {fname} {master_dir}/ &".format(fname=fname, master_dir=master_dir, beam=beam)
         os.system(cmd)
