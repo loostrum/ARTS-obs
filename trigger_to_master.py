@@ -47,7 +47,7 @@ if __name__ == '__main__':
             probability = f['probability'][:][frb_index]
             params = f['params'][:][frb_index]  # snr, DM, downsampling, arrival time, dt
             if not tab is None:
-                tab = tab[frb_index] - 1
+                tab = tab[frb_index]
     except IOError:
         success = False
         ncand_classifier = 0
