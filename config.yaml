@@ -27,8 +27,10 @@ general: &general
     hdr_size: 40960
     # observation modes
     valid_modes: [scrub, dump, fil, fits, amber, survey, record]
-    # network port of CB00
+    # network port of CB00 for I
     network_port_start: 5000
+    # network port of CB00 for IQUV
+    iquv_network_port_start: 6000
     # output directory of stokes I data
     output_dir: "/data2/output/{date}/{datetimesource}"
     # output directory of amber triggers
@@ -37,10 +39,16 @@ general: &general
     log_dir: "{home}/observations/log/{date}/{datetimesource}"
     # master output dir
     master_dir: "{home}/observations/results/{date}/{datetimesource}"
+    # output dir of IQUV dumps
+    iquv_output_dir: "/data1/output/{date}/{datetimesource}/iquv"
     # output of everything in debug mode
     debug_dir : "{home}/debug"
     # fits templates dir
     fits_templates: "{home}/software/dadafits/templates"
+    # dada event port for I
+    dada_event_port_i: 30000
+    # dada event port for IQUV
+    dada_event_port_iquv: 30001
 
 # Science case 3
 sc3:
@@ -97,7 +105,9 @@ affinity:
     fill_ringbuffer_i: 11
     fill_ringbuffer_iquv: 12
     dada_db_i: 13
+    dada_db_i_event: 17
     dada_db_iquv: 14
+    dada_db_iquv_event: 18
     dadafilterbank: 1
     dadafits: 2
     dada_dbdisk_i: 3
