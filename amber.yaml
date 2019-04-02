@@ -1,18 +1,3 @@
-# AMBER setup for bruteforce dedispersion
-bruteforce:
-    # platform (usually only one installed)
-    opencl_platform: 0
-    # number of GPU to use
-    #opencl_device: [0, 1, 2, 3]
-    opencl_device: [0]
-    # name of device in config files
-    device_name: ARTS_BF
-    # first DM
-    dm_first: [0, 512, 1024, 1536]
-    # DM step size
-    dm_step: [1, 1, 1, 1]
-    # total nr of DMs. has to match AMBER config files
-    num_dm: [2048, 512, 512, 512]
 # AMBER setup for subband dedispersion
 subband:
     # platform (usually only one installed)
@@ -40,3 +25,7 @@ subband:
     downsamp: [1, 1, 1]
     # integration steps to use for each step
     integration_file: [integration_steps_x1.conf, integration_steps_x1.conf, integration_steps_x1.conf]
+    # RFIm time domain sigma cut
+    RFIm_tdsc: False
+    # RFIm freq domain sigma cut
+    RFIm_fdsc: False

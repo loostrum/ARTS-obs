@@ -251,6 +251,18 @@ class Survey(object):
                     fullconfig['downsampling_cmd'] = '-downsampling'
                 else:
                     fullconfig['downsampling_cmd'] = ''
+                # enable RFIm
+                if fullconfig['RFIm_tdsc'] or fullconfig['RFIm_fdsc']:
+                    fullconfig['rfim'] = '-rfim '
+                else:
+                    fullconfig['rfim'] = ''
+                # Add time domain sigma cut
+                if fullconfig['RFIm_tdsc']:
+                    fullconfig['rfim'] += '-time_domain_sigma_cut'
+                # Add freq domain sigma cut
+                if fullconfig['RFIm_fdsc']:
+                    log("RFIm_fdsc not implemented yet, ignoring option")
+                    #fullconfig['rfim'] += '-freq_domain_sigma_cut'
 
                 cmd = (" taskset -c {cpu} amber -sync -print -opencl_platform {opencl_platform}"
                        " -opencl_device {opencl_device} -device_name {device_name}"
@@ -264,10 +276,12 @@ class Survey(object):
                        " -subbands {subbands} -subbanding_dms {subbanding_dms}"
                        " -subbanding_dm_first {subbanding_dm_first}"
                        " -subbanding_dm_step {subbanding_dm_step}"
-                       " -snr_momad -max_file {amber_conf_dir}/max.conf"
+                       " -snr_mom_sigmacut -max_std_file {amber_conf_dir}/max_std.conf"
                        " -mom_stepone_file {amber_conf_dir}/mom_stepone.conf"
-                       " -mom_steptwo_file {amber_conf_dir}/mom_steptwo.conf -momad_file {amber_conf_dir}/momad.conf"
+                       " -mom_steptwo_file {amber_conf_dir}/mom_steptwo.conf"
                        " {downsampling_cmd} -downsampling_configuration {amber_conf_dir}/downsampling.conf -downsampling_factor {downsamp}"
+                       " {rfim} -time_domain_sigma_cut_steps {amber_conf_dir}/tdsc_steps.conf "
+                       " -time_domain_sigma_cut_configuration {amber_conf_dir}/tdsc.conf "
                        " -threshold {snrmin_amber} -output {output_prefix}_step{ind} -beams {ntabs} -synthesized_beams {nsynbeams}"
                        " -dada -dada_key {dadakey} -batches {nbatch} -compact_results"
                        " 2>&1 > {log_dir}/amber_{ind}.{beam:02d} &").format(cpu=cpu, ind=ind+1, **fullconfig)
