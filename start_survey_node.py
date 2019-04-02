@@ -75,6 +75,17 @@ class Survey(object):
         self.log("Everything started")
         # flush stdout
         sys.stdout.flush()
+
+        # proc trigger command
+        if self.config['proctrigger']:
+            cmd = "mkdir -p {output_dir}/triggers".format(**self.config)
+            os.system(cmd)
+            self.log("Waiting for finish, then processing triggers")
+            cmd = "darc start_observation --config {}".format(self.conf_file)
+            self.log(cmd)
+            sys.stdout.flush()
+            os.system(cmd)
+
         # Add dataproducts to atdb and rename fits files
         if self.config['atdb'] and self.config['obs_mode'] in ('survey', 'fits', 'record'):
             self.add_dataproducts()
@@ -97,15 +108,6 @@ class Survey(object):
                 sys.stdout.flush()
                 os.system(cmd)
 
-        # proc trigger command
-        if self.config['proctrigger']:
-            cmd = "mkdir -p {output_dir}/triggers".format(**self.config)
-            os.system(cmd)
-            self.log("Waiting for finish, then processing triggers")
-            cmd = "darc start_observation --config {}".format(self.conf_file)
-            self.log(cmd)
-            sys.stdout.flush()
-            os.system(cmd)
 
     def log(self, message):
         """
