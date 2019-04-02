@@ -271,7 +271,7 @@ class Survey(object):
                        " -integration_steps {amber_conf_dir}/{integration_file} -subband_dedispersion"
                        " -dedispersion_stepone_file {amber_conf_dir}/dedispersion_stepone.conf"
                        " -dedispersion_steptwo_file {amber_conf_dir}/dedispersion_steptwo.conf"
-                       " -integration_file {amber_conf_dir}/integration.conf -snr_file {amber_conf_dir}/snr.conf"
+                       " -integration_file {amber_conf_dir}/integration.conf"
                        " -dms {num_dm} -dm_first {dm_first} -dm_step {dm_step}"
                        " -subbands {subbands} -subbanding_dms {subbanding_dms}"
                        " -subbanding_dm_first {subbanding_dm_first}"
