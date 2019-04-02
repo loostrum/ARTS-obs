@@ -125,6 +125,7 @@ def start_survey(args):
     pars['nchan'] = config[conf_sc]['nchan']
     pars['pulsar'] = args.pulsar
     pars['ingest_to_archive'] = args.ingest_to_archive
+    pars['iquv'] = args.iquv
     # debug options
     pars['debug'] = args.debug
     if args.debug and not '{cb}' in args.dada_dir:
@@ -147,6 +148,10 @@ def start_survey(args):
     pars['ntabs'] = config[conf_mode]['ntabs']
     pars['nsynbeams'] = config[conf_mode]['nsynbeams']
     pars['science_mode'] = config[conf_mode]['science_mode']
+    pars['iquv_network_port_start'] = config[conf_mode]['iquv_network_port_start']
+    pars['iquv_output_dir'] = config[conf_mode]['iquv_output_dir']
+    pars['dada_event_port_i'] = config[conf_mode]['dada_event_port_i']
+    pars['dada_event_port_iquv'] = config[conf_mode]['dada_event_port_iquv']
 
     # derived values
     pars['chan_width'] = float(pars['bw']) / pars['nchan']
@@ -528,6 +533,9 @@ if __name__ == '__main__':
                             "(Default: False)", action="store_true")
     parser.add_argument("--taskid", type=str, help="Task ID "
                             "(Default: None)", default="None")
+    # IQUV triggering
+    parser.add_argument("--iquv", help="Enable IQUV triggering" ""
+                            "(Default: False)", action="store_true")
     # debug mode; read from disk instead of network
     parser.add_argument("--debug", help="Debug mode: read from disk intead of network "
                             "(Default: False)", action="store_true")
