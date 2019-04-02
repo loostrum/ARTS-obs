@@ -77,7 +77,7 @@ class ApertifBeamSources(object):
         Query ATNF 
         """
         params = ['JNAME', 'RAJ', 'DECJ', 'S1400', 'DM', 'P0']
-        condition = "S1400 > 1 && DECJ > -35"
+        condition = "S1400 > 10 && DECJ > -35"
         sys.stderr.write("Querying ATNF\n")
         tstart = time.time()
         result = QueryATNF(params=params, condition=condition)
@@ -108,14 +108,14 @@ class ApertifBeamSources(object):
         for ind, obs in enumerate(self.schedule):
             pointing = self.pointings[ind]
             pulsars = self.pulsars[ind]
-            print "Survey pointing: {}\t RA: {}\t DEC: {}".format(obs['source'], obs['ra'], obs['dec'])
-            print "Number of pulsars within field: {}".format(len(pulsars))
             if len(pulsars) > 0:
+                print "Survey pointing: {}\t RA: {}\t DEC: {}".format(obs['source'], obs['ra'], obs['dec'])
+                print "Number of pulsars within field: {}".format(len(pulsars))
                 print "Pulsars:"
                 cols = ['JNAME', 'S1400', 'DM', 'P0', 'RAJ', 'DECJ']
                 print pulsars[cols]
 
-            print "\n\n"
+                print "\n"
             
 
 if __name__ == '__main__':
