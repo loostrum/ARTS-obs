@@ -26,6 +26,6 @@ subband:
     # integration steps to use for each step
     integration_file: [integration_steps_x1.conf, integration_steps_x1.conf, integration_steps_x1.conf]
     # RFIm time domain sigma cut
-    RFIm_tdsc: False
+    RFIm_tdsc: True
     # RFIm freq domain sigma cut
     RFIm_fdsc: False
