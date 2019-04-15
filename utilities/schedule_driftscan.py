@@ -30,14 +30,24 @@ if __name__ == '__main__':
     # rows of PAF
     cb_sets = [(0,), range(1, 8), range(8, 15), range(15, 21), range(21, 27), range(27, 33), range(33, 40)]
 
-    # 3C286
-    src = '3C286'
-    RA = c.Angle('13:31:08.2883035 hours').to(u.degree)
-    Dec = c.Angle('+30:30:32.962130 degrees').to(u.degree)
+#    # 3C286
+#    src = '3C286'
+#    RA = c.Angle('13:31:08.2883035 hours').to(u.degree)
+#    Dec = c.Angle('+30:30:32.962130 degrees').to(u.degree)
+
+#    # 3C147
+#    src = '3C147'
+#    RA = c.Angle('05:42:36.1378984 hours').to(u.degree)
+#    Dec = c.Angle('+49:51:07.233725 degrees').to(u.degree)
+
+    # Crab
+    src = 'B0531+21'
+    RA = c.Angle('05:34:31.973 hours').to(u.degree)
+    Dec = c.Angle('+22:00:52.06 degrees').to(u.degree)
 
     # start times
     #stimes = ["2019-03-19 01:28:51", "2019-03-19 23:18:28", "2019-03-21 00:15:28", "2019-03-22 01:09:18" , "2019-03-23 02:00:29", "2019-03-23 23:44:49", "2019-03-25 00:41:07"]
-    stimes = ["2019-04-02 01:30:00", "2019-04-02 22:48:00", "2019-04-03 23:25:00", "2019-04-04 21:02:00", "2019-04-06 00:54:00", "2019-04-06 22:20:00", "2019-04-08 02:05:00"]
+    stimes = ["2019-04-03 16:18:24"]
 
     for t in stimes:
         fname = t.replace(' ', '_') + '.csv'
