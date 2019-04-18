@@ -11,6 +11,7 @@ import astropy.units as u
 def calc_drift(RA, DEC, stime, nbeam=1):
     # convert to LST
     wsrt_lon = 6.60387*u.deg
+    stime.delta_ut1_utc = 0
     LST = stime.sidereal_time('apparent', wsrt_lon) # - one minute?
 
     # scan one CB = 30 arcmin + extra 30 arcmin on each side -> 45 arcmin radius
@@ -43,6 +44,8 @@ def calc_drift(RA, DEC, stime, nbeam=1):
     if HA > 180*u.degree:
         HA -= 360*u.degree
 
+    HA_end = HA + duration.to(u.s) * 15*u.arcsec/u.s
+
     print "Pointing RA:", start_RA.to_string(u.hourangle)
     print "Duration one beam: ", int(duration.to(u.second).value), 's'
     print "Duration six beams: ", int(duration_6beam.to(u.second).value), 's'
@@ -50,6 +53,7 @@ def calc_drift(RA, DEC, stime, nbeam=1):
     #print "Pointing HA:", HA.to_string(u.hourangle, decimal=True, precision=8)
     print "Pointing decimal HA, Dec", HA.to_string(u.degree, decimal=True, precision=8), DEC.to_string(u.degree, decimal=True, precision=8)
     print "Source decimal RA, Dec", RA.to_string(u.degree, decimal=True, precision=8), DEC.to_string(u.degree, decimal=True, precision=8)
+    print "Start, end HA", HA.to_string(u.degree, decimal=True, precision=8), HA_end.to_string(u.degree, decimal=True, precision=8)
 
     return HA.to_string(unit=u.hourangle, sep=':', pad=True, precision=4), DEC.to_string(unit=u.degree, sep=':', pad=True, precision=4), return_duration
 
