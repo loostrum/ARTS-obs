@@ -6,6 +6,7 @@ subband:
     opencl_device: [1, 2, 3]
     # name of device in config files
     device_name: [ARTS_step1_81.92us_1400MHz, ARTS_step2_81.92us_1400MHz, ARTS_step3_nodownsamp_81.92us_1400MHz]
+    #device_name: [ARTS_step1_81.92us_1280MHz, ARTS_step2_81.92us_1280MHz, ARTS_step3_nodownsamp_81.92us_1280MHz]
     # nr of subands (approx sqrt(nchan))
     subbands: [32, 32, 32]
     # first DM (global)

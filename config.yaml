@@ -11,6 +11,7 @@ general: &general
     nchan_fine: 16
     # minimum frequency (center of lowest subband)
     freq_low: 1200
+    #freq_low: 1080
     # first subband (usually 64, corresponding to 50 MHz)
     first_subband: 64
     # bandwidth
