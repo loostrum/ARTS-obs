@@ -5,7 +5,8 @@ subband:
     # number of GPU to use
     opencl_device: [1, 2, 3]
     # name of device in config files
-    device_name: [ARTS_step1_81.92us_1400MHz, ARTS_step2_81.92us_1400MHz, ARTS_step3_nodownsamp_81.92us_1400MHz]
+    #device_name: [ARTS_step1_81.92us_1400MHz, ARTS_step2_81.92us_1400MHz, ARTS_step3_nodownsamp_81.92us_1400MHz]
+    device_name: [ARTS_step1_81.92us_1370MHz, ARTS_step2_81.92us_1370MHz, ARTS_step3_nodownsamp_81.92us_1370MHz]
     #device_name: [ARTS_step1_81.92us_1280MHz, ARTS_step2_81.92us_1280MHz, ARTS_step3_nodownsamp_81.92us_1280MHz]
     # nr of subands (approx sqrt(nchan))
     subbands: [32, 32, 32]
@@ -24,9 +25,13 @@ subband:
     num_dm: [32, 32, 16]
     # downsampling factors before dedispersion
     downsamp: [1, 1, 1]
+    # sigma for clipping in SNR algorithm
+    snr_sigma_clip: 3.00
     # integration steps to use for each step
     integration_file: [integration_steps_x1.conf, integration_steps_x1.conf, integration_steps_x1.conf]
     # RFIm time domain sigma cut
     RFIm_tdsc: True
     # RFIm freq domain sigma cut
     RFIm_fdsc: False
+    # Number of synthesized beams to process per chunk
+    sb_per_chunk: 4
