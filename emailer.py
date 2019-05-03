@@ -96,17 +96,20 @@ if __name__ == '__main__':
     beamstats = ""
     for i, beam in enumerate(expected_beams):
         summary_file = os.path.join(master_dir, "CB{:02d}_summary.yaml".format(beam))
-        with open(summary_file, 'r') as f:
-            summary = yaml.load(f)
-        beamstats += "<tr><td>{:02d}</td><td>{}</td><td>{}</td><td>{}</td><td>{}</td></tr>".format(beam, summary['ncand_raw'], summary['ncand_trigger'], summary['ncand_skipped'], summary['ncand_classifier'])
-        if summary['ncand_abovethresh'] > 0:
-            trigger_file = os.path.join(master_dir, "CB{:02d}_triggers.txt".format(beam))
-            try:
-                triggers[beam] = np.loadtxt(trigger_file, dtype=str, ndmin=2)
-            except:
-                log("Failed to load trigger file {}".format(trigger_file))
-        if summary['ncand_classifier'] > 0:
-            attachments.append(os.path.join(master_dir, "CB{:02d}_candidates_summary.pdf".format(beam)))
+        try:
+            with open(summary_file, 'r') as f:
+                summary = yaml.load(f)
+            beamstats += "<tr><td>{:02d}</td><td>{}</td><td>{}</td><td>{}</td><td>{}</td></tr>".format(beam, summary['ncand_raw'], summary['ncand_trigger'], summary['ncand_skipped'], summary['ncand_classifier'])
+            if summary['ncand_abovethresh'] > 0:
+                trigger_file = os.path.join(master_dir, "CB{:02d}_triggers.txt".format(beam))
+                try:
+                    triggers[beam] = np.loadtxt(trigger_file, dtype=str, ndmin=2)
+                except:
+                    log("Failed to load trigger file {}".format(trigger_file))
+            if summary['ncand_classifier'] > 0:
+                attachments.append(os.path.join(master_dir, "CB{:02d}_candidates_summary.pdf".format(beam)))
+        except:
+            log("Failed to load summary file {}".format(summary_file))
 
     # convert triggers to one big numpy array we can sort
     alltriggers = []
@@ -149,7 +152,7 @@ if __name__ == '__main__':
         else:
             triggerinfo += "<tr><td>{4}</td><td>{0}</td><td>{1}</td><td>{3}</td><td>{2}</td><td>{5}</td></tr>".format(*line)
         ntrig_email += 1
-        if ntrig_email >= 250:
+        if ntrig_email >= 100:
             if have_TAB:
                 triggerinfo += "<tr><td>truncated</td><td>truncated</td><td>truncated</td><td>truncated</td><td>truncated</td><td>truncated</td><td>truncated</td></tr>"
             else:
