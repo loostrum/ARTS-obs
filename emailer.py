@@ -191,21 +191,23 @@ if __name__ == '__main__':
     <p>
     <table style="width:20%">
     <tr>
-        <th style="text-align:left">UTC start</th><td colspan="4">{utc_start}</td>
+        <th style="text-align:left" colspan="2">UTC start</th><td colspan="4">{utc_start}</td>
     </tr><tr>
-        <th style="text-align:left">Source</th><td colspan="4">{source}</td>
+        <th style="text-align:left" colspan="2">Source</th><td colspan="4">{source}</td>
     </tr><tr>
-        <th style="text-align:left">Observation duration</th><td colspan="4">{tobs}</td>
+        <th style="text-align:left" colspan="2">Observation duration</th><td colspan="4">{tobs}</td>
     </tr><tr>
-        <th style="text-align:left">Classifier probability threshold</th><td colspan="4">0.5</td>
+        <th style="text-align:left" colspan="2">Classifier probability threshold</th><td colspan="4">0.5</td>
     </tr><tr>
-        <th style="text-align:left">NE2001 DM (central beam)</th><td colspan="2">TBD</td>
+        <th style="text-align:left" colspan="2">NE2001 DM (central beam)</th><td colspan="4">TBD</td>
     </tr><tr>
-        <th style="text-align:left">YMW16 DM (central beam)</th><td colspan="2">{ymw16}</td>
+        <th style="text-align:left" colspan="2">YMW16 DM (central beam)</th><td colspan="4">{ymw16}</td>
     </tr><tr>
-        <th style="text-align:left">Total number of candidates</th><td colspan="2">{total_triggers}</td>
+        <th style="text-align:left" colspan="2">Used telescopes</th><td colspan="4">{telescopes}</td>
     </tr><tr>
-        <th style="text-align:left">Trigger web link</th><td colspan="2">{http_link}</td>
+        <th style="text-align:left" colspan="2">Total number of candidates</th><td colspan="4">{total_triggers}</td>
+    </tr><tr>
+        <th style="text-align:left" colspan="2">Trigger web link</th><td colspan="4">{http_link}</td>
     </tr>
     </table>
     </p>

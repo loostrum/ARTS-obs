@@ -34,4 +34,7 @@ if __name__ == '__main__':
             input_name = "tab{}.fits".format(mapping[tab])
             output_name = "ARTS{taskid}_CB{beam:02d}_TAB{tab:02d}.fits".format(tab=tab, **config)
             sys.stdout.write("Renaming {} to {}\n".format(input_name, output_name))
-            os.rename(input_name, output_name)
+            try:
+                os.rename(input_name, output_name)
+            except Exception as e:
+                print "Failed to rename {} to {}: {}".format(input_name, output_name, e)

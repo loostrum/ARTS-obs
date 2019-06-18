@@ -65,7 +65,7 @@ i+tab:
     # number of tied-array beams
     ntabs: 12
     # number of synthesized beams
-    nsynbeams: 12
+    nsynbeams: 71
     # dadafilterbank mode
     science_mode: 0
 
