@@ -18,4 +18,4 @@ if [ "$current_bsn" -lt "$last_known_bsn" ]; then
     current_bsn=$last_known_bsn
 fi
 
-echo $current_bsn | tee $HOME/.controller/last_known_bsn
+echo $current_bsn > $HOME/.controller/last_known_bsn
