@@ -137,7 +137,13 @@ if __name__ == '__main__':
     alltriggers['p'] = np.array(plist, dtype='S10')
     alltriggers['SNR'] = np.array(snrlist, dtype='S10')
     total_triggers = len(alltriggers)
-    
+
+    if have_TAB:
+        # SB hack: if max TAB index > 11, then we have SBs
+        if np.amax(alltriggers['TAB'].astype(int)) > 11:
+            beamtype = 'SB'
+        else:
+            beamtype = 'TAB'
 
     # convert triggers to html
     # cols of trigger:  SNR DM Width T0 p (TAB) beam
@@ -171,8 +177,8 @@ if __name__ == '__main__':
         
     # create email
     # kwarg for tables
-    kwargs = dict(beamstats=beamstats, coordinfo=coordinfo, triggerinfo=triggerinfo, total_triggers=total_triggers, http_link=http_link)
-    webkwargs = dict(beamstats=beamstats, coordinfo=coordinfo, triggerinfo=triggerinfo_full, total_triggers=total_triggers, http_link=http_link)
+    kwargs = dict(beamstats=beamstats, coordinfo=coordinfo, triggerinfo=triggerinfo, total_triggers=total_triggers, http_link=http_link, beamtype=beamtype)
+    webkwargs = dict(beamstats=beamstats, coordinfo=coordinfo, triggerinfo=triggerinfo_full, total_triggers=total_triggers, http_link=http_link, beamtype=beamtype)
     # add obs info
     kwargs.update(obsinfo)
     webkwargs.update(obsinfo)
@@ -253,7 +259,7 @@ if __name__ == '__main__':
         <th>Arrival time (s)</th>
         <th>Width (ms)</th>
         <th>CB</th>
-        <th>TAB</th>
+        <th>{beamtype}</th>
     </tr>
     {triggerinfo}
     </table>
