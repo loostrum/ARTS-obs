@@ -43,7 +43,7 @@ def main(args):
     os.chdir(kwargs['data_dir'])
     if kwargs['rfifind']:
         rfifind_cmd = "rfifind -time 1 -timesig 5 -freqsig 3 -o CB{cb}" \
-                      " CB{cb}.fil".format(**kwargs)
+                      " {fname}".format(**kwargs)
         print "Running rfifind command: {}".format(rfifind_cmd)
         os.system(rfifind_cmd)
         prepfold_cmd = "prepfold -n 64 -nsub 128 -nodmsearch -nopdsearch {opt}" \
