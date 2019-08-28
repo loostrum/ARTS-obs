@@ -26,8 +26,8 @@ unbs="$1"
 weights="$2"
 
 # first set all weights to zero
-ssh -t arts@ccu-corr.apertif python /home/arts/SVN/UniBoard/trunk/Software/python/peripherals/pi_arts_tab_beamformer_weights.py --cmd 3 --input 0:11 --tabs 0:11 --unb $unbs --fn 0:3 --bn 0:3 --weight 0,0
+ssh -t apertif@ccu-corr.apertif python /home/apertif/UniBoard_FP7/UniBoard/trunk/Software/python/peripherals/pi_arts_tab_beamformer_weights.py --cmd 3 --input 0:11 --tabs 0:11 --unb $unbs --fn 0:3 --bn 0:3 --weight 0,0
 
 for i in {00..09}; do 
-    ssh -t arts@ccu-corr.apertif python /home/arts/SVN/UniBoard/trunk/Software/python/peripherals/pi_arts_tab_beamformer_weights.py --cmd 3 --input $i --tabs $i --unb $unbs --fn 0:3 --bn 0:3 -a --weight $weights
+    ssh -t apertif@ccu-corr.apertif python /home/apertif/UniBoard_FP7/UniBoard/trunk/Software/python/peripherals/pi_arts_tab_beamformer_weights.py --cmd 3 --input $i --tabs $i --unb $unbs --fn 0:3 --bn 0:3 -a --weight $weights
 done

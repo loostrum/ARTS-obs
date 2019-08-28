@@ -13,7 +13,7 @@ NICS = ['ens21']
 
 for nic in NICS:
 
-    cmd = 'ifconfig'
+    cmd = '/usr/sbin/ifconfig'
     args = nic
     
     cmd_output = []
