@@ -27,6 +27,6 @@ fi
 CB_to_offset () { $CONTROL/CB_to_offset.py "$@"; }
 get_ha () { $UTIL/get_ha.py "$@"; }
 psr_ra_dec () { $UTIL/psr_ra_dec.sh "$@"; }
-packet_rate () { $CONTROL/packet_rate.py "$@"; }
+#packet_rate () { $CONTROL/packet_rate.py "$@"; }  # now in ~/bin for easier use over ssh
 # ARTS041 40g link is down, so allow on all nodes for now
 check_40g_links () { $CONTROL/check_40g_links.py "$@"; }

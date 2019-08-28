@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+import sys
 import subprocess
 import time
 
@@ -9,7 +10,10 @@ import time
 ########################################################################
 
 #NICS = ['eno1', 'ens21']
-NICS = ['ens21']
+try:
+    NICS = sys.argv[1:]
+except IndexError:
+    NICS = ['ens21']
 
 for nic in NICS:
 
